@@ -10,9 +10,30 @@
   const { el, fmt, toast } = UI;
   const DateUtil = Store.DateUtil;
 
-  const EXPENSE_CATS = ["Comida", "Transporte", "Vivienda", "Servicios", "Ocio", "Salud", "Compras", "Educación", "Suscripciones", "Otros"];
-  const INCOME_CATS = ["Salario", "Freelance", "Inversiones", "Regalo", "Ventas", "Otros"];
-  const CAT_ICON = { Comida: "🍔", Transporte: "🚗", Vivienda: "🏠", Servicios: "💡", Ocio: "🎮", Salud: "🩺", Compras: "🛍️", Educación: "📖", Suscripciones: "📺", Otros: "•", Salario: "💼", Freelance: "💻", Inversiones: "📈", Regalo: "🎁", Ventas: "🏷️" };
+  const EXPENSE_CATS = [
+    "Comida", "Restaurantes", "Supermercado", "Transporte", "Combustible", "Vivienda",
+    "Servicios", "Internet/Teléfono", "Ocio", "Viajes", "Salud", "Deporte", "Compras",
+    "Ropa", "Tecnología", "Hogar", "Educación", "Suscripciones", "Mascotas", "Hijos",
+    "Belleza", "Regalos", "Impuestos", "Seguros", "Deudas", "Ahorro/Inversión", "Donaciones", "Comisiones", "Otros"
+  ];
+  const INCOME_CATS = [
+    "Salario", "Freelance", "Negocio", "Inversiones", "Dividendos", "Alquiler",
+    "Intereses", "Bonos", "Reembolso", "Beca", "Pensión", "Regalo", "Ventas", "Otros"
+  ];
+  const CAT_ICON = {
+    // gastos
+    Comida: "🍔", Restaurantes: "🍽️", Supermercado: "🛒", Transporte: "🚗", Combustible: "⛽",
+    Vivienda: "🏠", Servicios: "💡", "Internet/Teléfono": "📶", Ocio: "🎮", Viajes: "✈️",
+    Salud: "🩺", Deporte: "🏋️", Compras: "🛍️", Ropa: "👕", Tecnología: "💻", Hogar: "🛋️",
+    Educación: "📖", Suscripciones: "📺", Mascotas: "🐾", Hijos: "🧸", Belleza: "💅",
+    Regalos: "🎁", Impuestos: "🧾", Seguros: "🛡️", Deudas: "💳", "Ahorro/Inversión": "🏦",
+    Donaciones: "🤝", Comisiones: "🏷️",
+    // ingresos
+    Salario: "💼", Freelance: "🧑‍💻", Negocio: "🏢", Inversiones: "📈", Dividendos: "💹",
+    Alquiler: "🔑", Intereses: "🪙", Bonos: "🎯", Reembolso: "↩️", Beca: "🎓", Pensión: "👴",
+    Regalo: "🎁", Ventas: "🏷️",
+    Otros: "•"
+  };
 
   function fin() { return Store.get().finance; }
   function txs() { return fin().transactions; }

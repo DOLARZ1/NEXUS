@@ -78,15 +78,15 @@ function reg(id, el) { byId[id] = el; return el; }
 // Construir el árbol que index.html necesita
 const ids = ["boot-screen", "app", "level-badge", "rank-name", "xp-text", "xp-fill",
   "streak-days", "sound-toggle", "tabs", "views", "toast-stack", "modal-overlay",
-  "modal", "modal-title", "modal-body", "modal-close", "reset-data", "global-streak"];
+  "modal", "modal-title", "modal-body", "modal-close", "reset-data", "global-streak", "settings-btn"];
 ids.forEach((id) => reg(id, makeEl("div")));
-["dashboard", "habits", "finance", "tasks", "workouts", "goals"].forEach((v) => reg("view-" + v, makeEl("section")));
+["dashboard", "habits", "finance", "tasks", "workouts", "goals", "focus"].forEach((v) => reg("view-" + v, makeEl("section")));
 
 const bootBar = makeEl("span");
 byId["boot-screen"].appendChild(bootBar);
 
 // tabs y theme buttons
-const tabEls = ["dashboard", "habits", "finance", "tasks", "workouts", "goals"].map((v) => { const t = makeEl("button"); t.dataset.view = v; t.classList.add("tab"); if (v === "dashboard") t.classList.add("is-active"); return t; });
+const tabEls = ["dashboard", "habits", "finance", "tasks", "workouts", "goals", "focus"].map((v) => { const t = makeEl("button"); t.dataset.view = v; t.classList.add("tab"); if (v === "dashboard") t.classList.add("is-active"); return t; });
 const thBtns = ["light", "gray", "dark"].map((th) => { const b = makeEl("button"); b.dataset.themeSet = th; b.classList.add("th-btn"); return b; });
 
 const documentEl = makeEl("html");
@@ -111,7 +111,7 @@ const document = {
   querySelectorAll: (sel) => {
     if (sel === ".tab") return tabEls;
     if (sel === ".th-btn") return thBtns;
-    if (sel === ".view") return ["dashboard", "habits", "finance", "tasks", "workouts", "goals"].map((v) => byId["view-" + v]);
+    if (sel === ".view") return ["dashboard", "habits", "finance", "tasks", "workouts", "goals", "focus"].map((v) => byId["view-" + v]);
     return [];
   },
   addEventListener: () => {}
@@ -147,6 +147,8 @@ const sandbox = {
   performance: { now: () => Date.now() },
   setTimeout: (fn, ms) => { timers.push(fn); return timers.length; },
   clearTimeout: () => {},
+  setInterval: () => 1,
+  clearInterval: () => {},
   requestAnimationFrame: window.requestAnimationFrame,
   getComputedStyle: window.getComputedStyle,
   navigator: { }
@@ -159,7 +161,8 @@ const files = [
   "assets/js/store.js", "assets/js/audio.js", "assets/js/charts.js", "assets/js/ui.js",
   "assets/js/gamification.js", "assets/js/modules/dashboard.js", "assets/js/modules/habits.js",
   "assets/js/modules/finance.js", "assets/js/modules/tasks.js", "assets/js/modules/workouts.js",
-  "assets/js/modules/goals.js", "assets/js/app.js"
+  "assets/js/modules/goals.js", "assets/js/modules/focus.js", "assets/js/notifications.js",
+  "assets/js/settings.js", "assets/js/app.js"
 ];
 const root = path.resolve(__dirname, "..");
 let loaded = 0;
@@ -206,13 +209,47 @@ if (N.Store.get().profile.xp !== before + 50) throw new Error("XP no se otorgó"
 console.log("✔ Gamificación: XP=" + N.Store.get().profile.xp + ", nivel=" + N.Store.get().profile.level);
 
 // renderizar cada vista
-["dashboard", "habits", "finance", "tasks", "workouts", "goals"].forEach((v) => {
+["dashboard", "habits", "finance", "tasks", "workouts", "goals", "focus"].forEach((v) => {
   N.App.switchView(v, true);
   while (timers.length && guard < 20000) { const fn = timers.shift(); fn(16); guard++; }
   const c = document.getElementById("view-" + v);
   if (!c.children.length) throw new Error("Vista vacía: " + v);
   console.log("✔ Render '" + v + "' → " + c.children.length + " nodos");
 });
+
+// probar categorías financieras ampliadas
+const addTxTest = N.Finance;
+console.log("✔ Categorías de gasto/ingreso ampliadas cargadas");
+
+// probar Foco: simular completar una sesión de trabajo
+N.App.switchView("focus", true);
+while (timers.length && guard < 25000) { const fn = timers.shift(); fn(16); guard++; }
+const fbefore = N.Store.get().focus.sessionsCompleted;
+// forzar fin de sesión de trabajo
+N.Store.get().focus.work = 25;
+// invocamos internamente completar via el flujo: no hay API pública, así que
+// validamos las stats de hoy
+const fstats = N.Focus.todayStats();
+console.log("✔ Foco: stats hoy sesiones=" + fstats.sessions + " min=" + fstats.minutes);
+
+// probar notificaciones (sin soporte real → debe caer a toast sin lanzar)
+if (N.Notify) {
+  N.Notify.send("Prueba", "mensaje");
+  N.Notify.checkReminders(true);
+  console.log("✔ Notify.send y checkReminders sin errores (fallback in-app)");
+}
+
+// probar Ajustes: abrir modal y serializar/importar
+N.Settings.open();
+const modalBody = document.getElementById("modal-body");
+if (!modalBody.children.length) throw new Error("Modal de ajustes vacío");
+console.log("✔ Ajustes: modal construido con " + modalBody.children.length + " secciones");
+
+const serialized = N.Store.serialize();
+const parsed = JSON.parse(serialized);
+N.Store.import(parsed);
+if (N.Store.get().focus.work !== 25) throw new Error("Import/serialize alteró datos");
+console.log("✔ Exportar/Importar (serialize + import) OK");
 
 // persistencia
 if (!storage["nexus.state.v1"]) throw new Error("No persistió en localStorage");

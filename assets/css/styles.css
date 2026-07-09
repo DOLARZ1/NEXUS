@@ -374,3 +374,28 @@ canvas { display: block; width: 100%; }
   .tab { padding: 11px 15px; }
   .view-title { font-size: 22px; }
 }
+
+
+/* =====================================================================
+   FOCO / POMODORO
+   ===================================================================== */
+.pomo { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.pomo-ring { position: relative; display: grid; place-items: center; margin: 6px 0; }
+.pomo-ring canvas { display: block; }
+.pomo-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.pomo-mode { font-size: 13px; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
+.pomo-time { font-size: 52px; font-weight: 800; letter-spacing: 2px; font-variant-numeric: tabular-nums; line-height: 1; }
+@media (max-width: 560px) { .pomo-time { font-size: 42px; } }
+
+/* =====================================================================
+   AJUSTES (settings modal)
+   ===================================================================== */
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 0; }
+.set-title { font-weight: 700; font-size: 14px; }
+.set-desc { font-size: 12px; color: var(--txt-dim); margin-top: 2px; }
+
+/* Interruptor tipo switch */
+.switch { flex: none; width: 50px; height: 28px; border-radius: 20px; background: var(--border-strong); position: relative; transition: .25s; border: 1px solid var(--border); }
+.switch .knob { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--txt-dim); transition: .25s; }
+.switch.on { background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: var(--glow); }
+.switch.on .knob { left: 25px; background: #04122b; }

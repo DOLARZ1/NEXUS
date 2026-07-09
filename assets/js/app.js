@@ -13,7 +13,8 @@
     finance: N.Finance,
     tasks: N.Tasks,
     workouts: N.Workouts,
-    goals: N.Goals
+    goals: N.Goals,
+    focus: N.Focus
   };
   let current = "dashboard";
 
@@ -71,6 +72,9 @@
       UI.toast({ icon: on ? "🔊" : "🔇", msg: on ? "Sonidos activados" : "Sonidos silenciados" });
     });
 
+    const setBtn = $("#settings-btn");
+    if (setBtn) setBtn.addEventListener("click", () => { Audio.play("tap"); if (N.Settings) N.Settings.open(); });
+
     $("#modal-close").addEventListener("click", UI.closeModal);
     $("#modal-overlay").addEventListener("click", (e) => { if (e.target.id === "modal-overlay") UI.closeModal(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") UI.closeModal(); });
@@ -96,6 +100,7 @@
     $("#sound-toggle").textContent = Audio.isEnabled() ? "🔊" : "🔇";
     bind();
     Gami.checkAchievements();
+    if (N.Notify) N.Notify.init();
     switchView("dashboard", true);
 
     // mostrar la app cuanto antes y ocultar el arranque
