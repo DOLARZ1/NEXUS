@@ -411,6 +411,14 @@ canvas { display: block; width: 100%; }
 
 </style>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>" />
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#060814" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="NEXUS" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
 </head>
 <body>
   <!-- Fondo animado -->
@@ -3102,10 +3110,22 @@ canvas { display: block; width: 100%; }
     }, 450);
   }
 
+  // ---------- Service Worker (PWA) ----------
+  // Solo en http/https (no en file://). Habilita instalación y uso offline.
+  function registerSW() {
+    try {
+      if (typeof location !== "undefined" && /^https?:$/.test(location.protocol) &&
+          typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js").catch(function () {});
+      }
+    } catch (e) {}
+  }
+
   N.App = { refreshTop, switchView, renderCurrent };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
+  registerSW();
 })();
 
   </script>

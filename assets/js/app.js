@@ -114,8 +114,20 @@
     }, 450);
   }
 
+  // ---------- Service Worker (PWA) ----------
+  // Solo en http/https (no en file://). Habilita instalación y uso offline.
+  function registerSW() {
+    try {
+      if (typeof location !== "undefined" && /^https?:$/.test(location.protocol) &&
+          typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js").catch(function () {});
+      }
+    } catch (e) {}
+  }
+
   N.App = { refreshTop, switchView, renderCurrent };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
+  registerSW();
 })();
