@@ -4,6 +4,7 @@
 (function () {
   "use strict";
   const Audio = window.NEXUS.Audio;
+  const Store = window.NEXUS.Store;
 
   // ---------- helpers DOM ----------
   function el(tag, attrs, children) {
@@ -32,10 +33,20 @@
   // ---------- formato ----------
   const fmt = {
     money(n) {
+      const s = (Store && Store.get().settings) || {};
+      const cur = s.currency || "MXN";
+      const loc = s.locale || "es-MX";
       const v = Number(n) || 0;
-      return v.toLocaleString("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: v % 1 === 0 ? 0 : 2 });
+      try {
+        return v.toLocaleString(loc, { style: "currency", currency: cur, maximumFractionDigits: v % 1 === 0 ? 0 : 2 });
+      } catch (e) {
+        return "$" + v.toLocaleString("es-MX");
+      }
     },
-    num(n) { return (Number(n) || 0).toLocaleString("es-MX"); },
+    num(n) {
+      const loc = (Store && Store.get().settings.locale) || "es-MX";
+      return (Number(n) || 0).toLocaleString(loc);
+    },
     pct(n) { return Math.round(Number(n) || 0) + "%"; }
   };
 

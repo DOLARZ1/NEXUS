@@ -62,13 +62,16 @@
     return out;
   }
 
-  // gastos e ingresos por día del mes actual
-  function dailyThisMonth() {
-    const now = new Date(), y = now.getFullYear(), mo = now.getMonth();
-    const days = new Date(y, mo + 1, 0).getDate();
+  // gastos e ingresos por día de un mes (offset 0 = mes actual, -1 = anterior…)
+  function dailyForMonth(offset) {
+    const base = new Date();
+    const y = base.getFullYear(), mo = base.getMonth() + (offset || 0);
+    const first = new Date(y, mo, 1);
+    const yy = first.getFullYear(), mm = first.getMonth();
+    const days = new Date(yy, mm + 1, 0).getDate();
     const labels = [], income = [], expense = [];
     for (let d = 1; d <= days; d++) {
-      const key = DateUtil.key(new Date(y, mo, d));
+      const key = DateUtil.key(new Date(yy, mm, d));
       labels.push(String(d));
       income.push(sum(txs().filter((t) => t.type === "income" && t.date === key)));
       expense.push(sum(txs().filter((t) => t.type === "expense" && t.date === key)));
@@ -88,6 +91,7 @@
 
   // vista de la gráfica de tendencia: "days" | "months"
   let trendMode = "days";
+  let dayMonthOffset = 0;   // 0 = mes actual, -1 = mes anterior, …
   function trendSegBtn(mode, label, container) {
     const b = el("button", { text: label, onclick: () => { trendMode = mode; Audio.play("tab"); render(container); } });
     if (trendMode === mode) b.classList.add("on");
@@ -276,12 +280,26 @@
     // Gráficas
     const charts = el("div", { class: "grid cols-2 mb-16" });
 
-    const trendTitle = trendMode === "days"
-      ? "Gastos por día · " + new Date().toLocaleDateString("es-MX", { month: "long" })
-      : "Ingresos vs Gastos · 6 meses";
+    const nowD = new Date();
+    const selMonth = new Date(nowD.getFullYear(), nowD.getMonth() + dayMonthOffset, 1);
+    const sameYear = selMonth.getFullYear() === nowD.getFullYear();
+    const monthLabel = selMonth.toLocaleDateString("es-MX", sameYear ? { month: "long" } : { month: "long", year: "numeric" });
+    const atCurrent = dayMonthOffset >= 0;
+
+    let leftGroup;
+    if (trendMode === "days") {
+      leftGroup = el("div", { class: "flex items-center gap-8" }, [
+        el("button", { class: "icon-btn", style: "width:30px;height:30px;font-size:18px", title: "Mes anterior", html: "‹", onclick: () => { dayMonthOffset--; Audio.play("tap"); render(container); } }),
+        el("div", { class: "card-title", style: "text-transform:capitalize" }, [el("span", { class: "dot" }), "Gastos · " + monthLabel]),
+        el("button", { class: "icon-btn", style: "width:30px;height:30px;font-size:18px" + (atCurrent ? ";opacity:.3;pointer-events:none" : ""), title: "Mes siguiente", html: "›", onclick: () => { if (dayMonthOffset < 0) { dayMonthOffset++; Audio.play("tap"); render(container); } } })
+      ]);
+    } else {
+      leftGroup = el("div", { class: "card-title" }, [el("span", { class: "dot" }), "Ingresos vs Gastos · 6 meses"]);
+    }
+
     const trendCard = el("div", { class: "card" }, [
       el("div", { class: "card-head", style: "flex-wrap:wrap;gap:8px" }, [
-        el("div", { class: "card-title" }, [el("span", { class: "dot" }), trendTitle]),
+        leftGroup,
         el("div", { class: "seg" }, [
           trendSegBtn("days", "Por día", container),
           trendSegBtn("months", "6 meses", container)
@@ -316,7 +334,7 @@
 
     setTimeout(() => {
       if (trendMode === "days") {
-        const dd = dailyThisMonth();
+        const dd = dailyForMonth(dayMonthOffset);
         Charts.bars(cvTrend, { labels: dd.labels, series: [{ values: dd.expense, color: "--bad" }] }, { height: 190 });
       } else {
         const m = last6Months();

@@ -79,15 +79,6 @@
     $("#modal-overlay").addEventListener("click", (e) => { if (e.target.id === "modal-overlay") UI.closeModal(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") UI.closeModal(); });
 
-    $("#reset-data").addEventListener("click", () => {
-      UI.confirmBox("Reiniciar datos", "Se borrarán TODOS tus datos (hábitos, finanzas, tareas, entrenamientos, metas y XP). Esta acción no se puede deshacer.", () => {
-        Store.reset();
-        Audio.play("delete");
-        UI.toast({ icon: "♻️", msg: "Datos reiniciados" });
-        renderCurrent();
-      }, "Borrar todo");
-    });
-
     // redibujar gráficas al cambiar tamaño
     let rt = null;
     window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(renderCurrent, 250); });

@@ -7,6 +7,45 @@
   const { Store, UI, Audio } = N;
   const { el, toast } = UI;
 
+  // monedas disponibles (código + locale para formato correcto)
+  const CURRENCIES = [
+    { code: "MXN", locale: "es-MX", label: "🇲🇽 Peso mexicano (MXN)" },
+    { code: "USD", locale: "en-US", label: "🇺🇸 Dólar estadounidense (USD)" },
+    { code: "EUR", locale: "es-ES", label: "🇪🇺 Euro (EUR)" },
+    { code: "COP", locale: "es-CO", label: "🇨🇴 Peso colombiano (COP)" },
+    { code: "ARS", locale: "es-AR", label: "🇦🇷 Peso argentino (ARS)" },
+    { code: "CLP", locale: "es-CL", label: "🇨🇱 Peso chileno (CLP)" },
+    { code: "PEN", locale: "es-PE", label: "🇵🇪 Sol peruano (PEN)" },
+    { code: "BRL", locale: "pt-BR", label: "🇧🇷 Real brasileño (BRL)" },
+    { code: "GBP", locale: "en-GB", label: "🇬🇧 Libra esterlina (GBP)" },
+    { code: "CAD", locale: "en-CA", label: "🇨🇦 Dólar canadiense (CAD)" }
+  ];
+
+  function currencyRow() {
+    const s = Store.get().settings;
+    const sel = el("select", { class: "select", style: "max-width:230px" });
+    CURRENCIES.forEach((c) => {
+      const o = el("option", { value: c.code, text: c.label });
+      if (c.code === (s.currency || "MXN")) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener("change", () => {
+      const c = CURRENCIES.find((x) => x.code === sel.value) || CURRENCIES[0];
+      s.currency = c.code; s.locale = c.locale;
+      Store.commit(true);
+      Audio.play("coin");
+      toast({ icon: "💱", title: "Moneda actualizada", msg: "Ahora en " + c.code });
+      if (N.App) { N.App.refreshTop(); N.App.renderCurrent(); }
+    });
+    return el("div", { class: "set-row" }, [
+      el("div", {}, [
+        el("div", { class: "set-title", text: "💱 Moneda" }),
+        el("div", { class: "set-desc", text: "Cambia y alterna la moneda de tus finanzas." })
+      ]),
+      sel
+    ]);
+  }
+
   // ---------- exportar ----------
   function exportData() {
     try {
@@ -74,6 +113,8 @@
   // ---------- modal principal ----------
   function open() {
     const body = el("div", {}, [
+      // Moneda
+      currencyRow(),
       // Notificaciones
       notifRow(),
 
