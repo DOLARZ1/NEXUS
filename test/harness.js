@@ -151,6 +151,7 @@ const sandbox = {
   clearInterval: () => {},
   requestAnimationFrame: window.requestAnimationFrame,
   getComputedStyle: window.getComputedStyle,
+  URLSearchParams: URLSearchParams,
   navigator: { }
 };
 sandbox.globalThis = sandbox;
@@ -162,7 +163,7 @@ const files = [
   "assets/js/gamification.js", "assets/js/modules/dashboard.js", "assets/js/modules/habits.js",
   "assets/js/modules/finance.js", "assets/js/modules/tasks.js", "assets/js/modules/workouts.js",
   "assets/js/modules/goals.js", "assets/js/modules/focus.js", "assets/js/notifications.js",
-  "assets/js/settings.js", "assets/js/app.js"
+  "assets/js/calexport.js", "assets/js/settings.js", "assets/js/app.js"
 ];
 const root = path.resolve(__dirname, "..");
 let loaded = 0;
@@ -250,6 +251,13 @@ const parsed = JSON.parse(serialized);
 N.Store.import(parsed);
 if (N.Store.get().focus.work !== 25) throw new Error("Import/serialize alteró datos");
 console.log("✔ Exportar/Importar (serialize + import) OK");
+
+// probar CalExport (Google Calendar + modal)
+const gurl = N.CalExport.googleUrl("Tarea X", "detalle", "2026-07-15");
+if (!/calendar\.google\.com/.test(gurl) || !/20260715/.test(gurl)) throw new Error("googleUrl mal formada: " + gurl);
+N.CalExport.open({ title: "Meta demo", details: "d", dateKey: "2026-07-20" });
+if (!document.getElementById("modal-body").children.length) throw new Error("Modal de calendario vacío");
+console.log("✔ CalExport: URL de Google OK y modal construido");
 
 // persistencia
 if (!storage["nexus.state.v1"]) throw new Error("No persistió en localStorage");

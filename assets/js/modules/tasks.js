@@ -164,6 +164,7 @@
         ])
       ]),
       el("div", { class: "flex gap-8" }, [
+        t.due ? el("button", { class: "icon-btn", html: "📅", title: "Añadir a Google Calendar", onclick: () => N.CalExport.open({ title: t.title, details: "Tarea (prioridad " + p.label + ")", dateKey: t.due }) }) : null,
         el("button", { class: "icon-btn", html: "✏️", title: "Editar", onclick: () => addOrEdit(t) }),
         el("button", { class: "icon-btn", html: "🗑️", title: "Eliminar", onclick: () => remove(t) })
       ])

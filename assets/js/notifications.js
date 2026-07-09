@@ -14,21 +14,30 @@
 
   // Pide permiso y activa las notificaciones
   function enable() {
+    const fileProto = typeof location !== "undefined" && location.protocol === "file:";
     if (!supported()) {
-      UI.toast({ icon: "🔔", title: "No disponible", msg: "Tu navegador no soporta notificaciones. Usaré avisos dentro de la app." });
-      Store.get().settings.notifications = true; // igual activamos recordatorios in-app
-      Store.commit(true);
+      Store.get().settings.notifications = true; Store.commit(true);
+      UI.toast({ icon: "🔔", title: "No disponible", msg: "Tu navegador no soporta notificaciones del sistema. Usaré avisos dentro de la app." });
       return Promise.resolve("in-app");
     }
+    // ya bloqueadas antes: el navegador no volverá a preguntar
+    if (Notification.permission === "denied") {
+      Store.get().settings.notifications = true; Store.commit(true);
+      UI.toast({ icon: "🔕", title: "Notificaciones bloqueadas", msg: "Reactívalas: toca el 🔒 junto a la dirección → Permisos → Notificaciones → Permitir, y recarga. (Solo en la versión web).", duration: 8000 });
+      return Promise.resolve("denied");
+    }
+    if (fileProto) {
+      UI.toast({ icon: "🌐", title: "Usa la versión web", msg: "Las notificaciones del sistema solo funcionan en https://dolarz1.github.io/NEXUS/, no abriendo el archivo local. Mientras, activo avisos dentro de la app.", duration: 8000 });
+    }
     return Notification.requestPermission().then((perm) => {
-      const ok = perm === "granted";
-      Store.get().settings.notifications = true; // activo aunque sea en-app
-      Store.commit(true);
-      if (ok) {
+      Store.get().settings.notifications = true; Store.commit(true);
+      if (perm === "granted") {
         send("NEXUS activado 🔔", "Te avisaré de tus pendientes y sesiones de foco.");
         UI.toast({ icon: "🔔", title: "Notificaciones activadas", msg: "Recibirás recordatorios." });
+      } else if (perm === "denied") {
+        UI.toast({ icon: "🔕", title: "Permiso denegado", msg: "Puedes permitirlo desde el 🔒 junto a la dirección. Mientras, usaré avisos dentro de la app.", duration: 8000 });
       } else {
-        UI.toast({ icon: "🔔", title: "Permiso denegado", msg: "Usaré avisos dentro de la app en su lugar." });
+        UI.toast({ icon: "🔔", title: "Pendiente", msg: "Usaré avisos dentro de la app." });
       }
       return perm;
     }).catch(() => "error");

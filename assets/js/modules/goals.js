@@ -146,6 +146,7 @@
             dl ? el("span", { class: "chip " + dl.cls, text: "⏳ " + dl.text }) : null
           ])
         ]),
+        g.deadline ? el("button", { class: "icon-btn", html: "📅", title: "Añadir a Google Calendar", onclick: () => N.CalExport.open({ title: "Meta: " + g.title, details: "Meta en NEXUS · " + fmt.num(g.current) + "/" + fmt.num(g.target) + " " + (g.unit || ""), dateKey: g.deadline }) }) : null,
         el("button", { class: "icon-btn", html: "✏️", title: "Editar", onclick: () => addOrEdit(g) }),
         el("button", { class: "icon-btn", html: "🗑️", title: "Eliminar", onclick: () => remove(g) })
       ]),
