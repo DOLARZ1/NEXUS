@@ -14,6 +14,9 @@
 
 /* ------------------- Reset ------------------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* El atributo hidden debe prevalecer sobre cualquier display de autor
+   (evita que el modal/overlay o #app queden visibles al cargar). */
+[hidden] { display: none !important; }
 html, body { height: 100%; }
 body {
   font-family: "Segoe UI", "SF Pro Display", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
