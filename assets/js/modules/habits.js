@@ -10,7 +10,24 @@
   const { el, fmt, toast } = UI;
   const DateUtil = Store.DateUtil;
 
-  const ICONS = ["✦", "💧", "📚", "🏃", "🧘", "🥗", "😴", "💊", "🎯", "🎨", "🎸", "☀️", "🚭", "🧠", "💪", "🙏", "📝", "🚶"];
+  const ICONS = [
+    // generales
+    "✦", "✅", "⭐", "🌟", "🔥", "⚡", "❤️", "☀️", "🌙", "⏰",
+    // salud / ejercicio
+    "💪", "🏃", "🚴", "🏋️", "🧘", "🚶", "🥗", "💧", "😴", "💊", "🩺", "🦷", "🚿", "🚭",
+    // mente / estudio
+    "📚", "🧠", "📝", "🎓", "💡", "✍️", "🙏",
+    // trading / dinero
+    "📈", "📉", "📊", "💹", "🕯️", "💲", "💰", "💵", "💸", "🪙", "🏦", "💳", "🤑", "💱",
+    // metas
+    "🎯", "🏆", "🥇", "🏁", "🚀",
+    // vacaciones / viajes
+    "🏖️", "🏝️", "🌴", "✈️", "⛱️", "🧳", "🗺️", "🏔️", "🏕️", "🚗",
+    // calaveras
+    "💀", "☠️",
+    // hobbies / vida
+    "🎨", "🎸", "🎮", "🎵", "🎧", "📷", "🍳", "☕", "🧹", "🌱", "🐶"
+  ];
   const MAX_BOXES = 50;
 
   function habits() { return Store.get().habits; }
