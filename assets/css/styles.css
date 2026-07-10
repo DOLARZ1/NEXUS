@@ -569,17 +569,18 @@ canvas { display: block; width: 100%; }
    BOTONES DE FINANZAS (colores por acción)
    ===================================================================== */
 .btn.income {
-  background: linear-gradient(135deg, var(--good), color-mix(in srgb, var(--good) 65%, #000));
-  color: #04120b; border-color: transparent;
+  background: linear-gradient(135deg, #00ff9c, #00cc7a);
+  color: #04120b; border-color: transparent; font-weight: 700;
+  box-shadow: 0 0 12px rgba(0, 255, 156, .6), 0 0 24px rgba(0, 255, 156, .3);
 }
 .btn.expense {
-  background: linear-gradient(135deg, var(--bad), color-mix(in srgb, var(--bad) 70%, #000));
-  color: #fff; border-color: transparent;
+  background: linear-gradient(135deg, #ff2e63, #e5083f);
+  color: #fff; border-color: transparent; font-weight: 700;
+  box-shadow: 0 0 12px rgba(255, 46, 99, .6), 0 0 24px rgba(255, 46, 99, .3);
 }
 .btn.goal {
-  background: linear-gradient(135deg, #ffd43b, #f2b705);
-  color: #2a1a00; border-color: transparent;
+  background: linear-gradient(135deg, #ffe600, #ffc400);
+  color: #2a1a00; border-color: transparent; font-weight: 700;
+  box-shadow: 0 0 12px rgba(255, 214, 0, .6), 0 0 24px rgba(255, 214, 0, .3);
 }
-.btn.income:hover { box-shadow: 0 0 16px color-mix(in srgb, var(--good) 55%, transparent); }
-.btn.expense:hover { box-shadow: 0 0 16px color-mix(in srgb, var(--bad) 55%, transparent); }
-.btn.goal:hover { box-shadow: 0 0 16px rgba(242, 183, 5, .55); }
+.btn.income:hover, .btn.expense:hover, .btn.goal:hover { transform: translateY(-2px); filter: brightness(1.1) saturate(1.1); }

@@ -251,9 +251,9 @@
         el("p", { class: "view-desc", text: "Controla tu dinero y sigue los mercados y noticias que mueven la economía." })
       ]),
       el("div", { class: "flex gap-8" }, [
-        el("button", { class: "btn goal", onclick: editBudget, html: "🎯 Objetivos" }),
-        el("button", { class: "btn expense", onclick: () => addTx("expense"), html: "－ Gasto" }),
-        el("button", { class: "btn income", onclick: () => addTx("income"), html: "＋ Ingreso" })
+        el("button", { class: "btn income", onclick: () => addTx("income"), html: "＋ Ingreso" }),
+        el("button", { class: "btn goal", onclick: editBudget, html: "💸 Objetivos" }),
+        el("button", { class: "btn expense", onclick: () => addTx("expense"), html: "－ Gasto" })
       ])
     ]);
     container.appendChild(head);
@@ -417,9 +417,8 @@
   function paintQuotes(rates) {
     if (!mktCache) mktCache = {};
     const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; mktCache[id] = val; };
-    const usdmxn = rates.MXN, eurusd = 1 / rates.EUR, eurmxn = rates.MXN / rates.EUR;
+    const usdmxn = rates.MXN, eurmxn = rates.MXN / rates.EUR;
     set("q-usdmxn", "$" + usdmxn.toFixed(3));
-    set("q-eurusd", eurusd.toFixed(4));
     set("q-eurmxn", "$" + eurmxn.toFixed(3));
     const upd = document.getElementById("mkt-updated");
     if (upd) upd.textContent = "Actualizado: " + new Date().toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" }) + " · fuente: open.er-api.com (actualización diaria). Valores referenciales.";
@@ -443,9 +442,8 @@
         el("div", { class: "card-title" }, [el("span", { class: "dot" }), "📰 Mercados y noticias"]),
         el("button", { class: "btn sm", html: "↻ Actualizar", onclick: () => loadQuotes() })
       ]),
-      el("div", { class: "grid cols-3" }, [
+      el("div", { class: "grid cols-2" }, [
         quoteCard("q-usdmxn", "Dólar · USD/MXN", "peso mexicano"),
-        quoteCard("q-eurusd", "EUR/USD", "euro / dólar"),
         quoteCard("q-eurmxn", "EUR/MXN", "euro / peso")
       ]),
       el("div", { class: "fs-12 text-faint mt-8", id: "mkt-updated", text: "Cargando cotizaciones en vivo…" }),

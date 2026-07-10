@@ -578,20 +578,21 @@ canvas { display: block; width: 100%; }
    BOTONES DE FINANZAS (colores por acción)
    ===================================================================== */
 .btn.income {
-  background: linear-gradient(135deg, var(--good), color-mix(in srgb, var(--good) 65%, #000));
-  color: #04120b; border-color: transparent;
+  background: linear-gradient(135deg, #00ff9c, #00cc7a);
+  color: #04120b; border-color: transparent; font-weight: 700;
+  box-shadow: 0 0 12px rgba(0, 255, 156, .6), 0 0 24px rgba(0, 255, 156, .3);
 }
 .btn.expense {
-  background: linear-gradient(135deg, var(--bad), color-mix(in srgb, var(--bad) 70%, #000));
-  color: #fff; border-color: transparent;
+  background: linear-gradient(135deg, #ff2e63, #e5083f);
+  color: #fff; border-color: transparent; font-weight: 700;
+  box-shadow: 0 0 12px rgba(255, 46, 99, .6), 0 0 24px rgba(255, 46, 99, .3);
 }
 .btn.goal {
-  background: linear-gradient(135deg, #ffd43b, #f2b705);
-  color: #2a1a00; border-color: transparent;
+  background: linear-gradient(135deg, #ffe600, #ffc400);
+  color: #2a1a00; border-color: transparent; font-weight: 700;
+  box-shadow: 0 0 12px rgba(255, 214, 0, .6), 0 0 24px rgba(255, 214, 0, .3);
 }
-.btn.income:hover { box-shadow: 0 0 16px color-mix(in srgb, var(--good) 55%, transparent); }
-.btn.expense:hover { box-shadow: 0 0 16px color-mix(in srgb, var(--bad) 55%, transparent); }
-.btn.goal:hover { box-shadow: 0 0 16px rgba(242, 183, 5, .55); }
+.btn.income:hover, .btn.expense:hover, .btn.goal:hover { transform: translateY(-2px); filter: brightness(1.1) saturate(1.1); }
 
 </style>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='64' y2='64'><stop offset='0' stop-color='%2300e5ff'/><stop offset='.5' stop-color='%237c5cff'/><stop offset='1' stop-color='%23ff2fb0'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='%23060814'/><polygon points='32,9 51,20 51,44 32,55 13,44 13,20' fill='none' stroke='url(%23g)' stroke-width='4'/><circle cx='32' cy='32' r='6' fill='url(%23g)'/></svg>" />
@@ -2391,9 +2392,9 @@ canvas { display: block; width: 100%; }
         el("p", { class: "view-desc", text: "Controla tu dinero y sigue los mercados y noticias que mueven la economía." })
       ]),
       el("div", { class: "flex gap-8" }, [
-        el("button", { class: "btn goal", onclick: editBudget, html: "🎯 Objetivos" }),
-        el("button", { class: "btn expense", onclick: () => addTx("expense"), html: "－ Gasto" }),
-        el("button", { class: "btn income", onclick: () => addTx("income"), html: "＋ Ingreso" })
+        el("button", { class: "btn income", onclick: () => addTx("income"), html: "＋ Ingreso" }),
+        el("button", { class: "btn goal", onclick: editBudget, html: "💸 Objetivos" }),
+        el("button", { class: "btn expense", onclick: () => addTx("expense"), html: "－ Gasto" })
       ])
     ]);
     container.appendChild(head);
@@ -2557,9 +2558,8 @@ canvas { display: block; width: 100%; }
   function paintQuotes(rates) {
     if (!mktCache) mktCache = {};
     const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; mktCache[id] = val; };
-    const usdmxn = rates.MXN, eurusd = 1 / rates.EUR, eurmxn = rates.MXN / rates.EUR;
+    const usdmxn = rates.MXN, eurmxn = rates.MXN / rates.EUR;
     set("q-usdmxn", "$" + usdmxn.toFixed(3));
-    set("q-eurusd", eurusd.toFixed(4));
     set("q-eurmxn", "$" + eurmxn.toFixed(3));
     const upd = document.getElementById("mkt-updated");
     if (upd) upd.textContent = "Actualizado: " + new Date().toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" }) + " · fuente: open.er-api.com (actualización diaria). Valores referenciales.";
@@ -2583,9 +2583,8 @@ canvas { display: block; width: 100%; }
         el("div", { class: "card-title" }, [el("span", { class: "dot" }), "📰 Mercados y noticias"]),
         el("button", { class: "btn sm", html: "↻ Actualizar", onclick: () => loadQuotes() })
       ]),
-      el("div", { class: "grid cols-3" }, [
+      el("div", { class: "grid cols-2" }, [
         quoteCard("q-usdmxn", "Dólar · USD/MXN", "peso mexicano"),
-        quoteCard("q-eurusd", "EUR/USD", "euro / dólar"),
         quoteCard("q-eurmxn", "EUR/MXN", "euro / peso")
       ]),
       el("div", { class: "fs-12 text-faint mt-8", id: "mkt-updated", text: "Cargando cotizaciones en vivo…" }),
