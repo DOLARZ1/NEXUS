@@ -244,6 +244,21 @@
   function savingsBalance() { return savings().reduce((s, e) => s + e.amount, 0); }
   function savingsToday() { const k = DateUtil.todayKey(); return savings().filter((e) => e.date === k).reduce((s, e) => s + e.amount, 0); }
   function savingsMonth(mk) { mk = mk || DateUtil.monthKey(); return savings().filter((e) => e.date.slice(0, 7) === mk).reduce((s, e) => s + e.amount, 0); }
+  function savingsTargetVal() { return Number(fin().savingsTarget) || 0; }
+  function savingsPct() { const t = savingsTargetVal(); return t > 0 ? Math.min(100, Math.round((savingsBalance() / t) * 100)) : 0; }
+
+  function resetSavings() {
+    UI.confirmBox("Reiniciar conteo de ahorro", "Tu ahorro volverá a $0 y se borrará el historial de movimientos. La meta se conserva. ¿Continuar?", () => {
+      const xp = savings().reduce((s, e) => s + (e.xpEarned || 0), 0);
+      fin().savings = [];
+      Audio.play("delete");
+      if (xp) Gami.remove(xp); else Store.commit();
+      toast({ icon: "🔄", msg: "Conteo de ahorro reiniciado" });
+      openSavings();
+      render(document.getElementById("view-finance"));
+      N.App && N.App.refreshTop();
+    }, "Reiniciar");
+  }
 
   function removeSaving(e) {
     const arr = savings(); arr.splice(arr.indexOf(e), 1);
@@ -257,6 +272,7 @@
   function openSavings() {
     const amountI = el("input", { class: "input", type: "number", min: 0, step: "0.01", placeholder: "0.00" });
     const noteI = el("input", { class: "input", placeholder: "Nota (opcional)" });
+    const metaI = el("input", { class: "input", type: "number", min: 0, placeholder: "0", value: savingsTargetVal() || "" });
     function apply(sign) {
       const amt = Number(amountI.value) || 0;
       if (amt <= 0) { Audio.play("error"); toast({ icon: "⚠️", msg: "Ingresa un monto válido" }); return; }
@@ -271,18 +287,40 @@
       render(document.getElementById("view-finance"));
       N.App && N.App.refreshTop();
     }
+    function saveMeta() {
+      fin().savingsTarget = Number(metaI.value) || 0;
+      Store.commit();
+      Audio.play("coin");
+      toast({ icon: "🎯", msg: "Meta de ahorro actualizada" });
+      openSavings();
+      render(document.getElementById("view-finance"));
+    }
+    const target = savingsTargetVal(), pct = savingsPct(), bal = savingsBalance();
+    const balanceCard = el("div", { class: "card", style: "text-align:center;margin-bottom:14px" }, [
+      el("div", { class: "kpi-lbl", text: "Ahorro actual" }),
+      el("div", { class: "kpi-val", style: "color:#22c3ff;font-size:34px", text: fmt.money(bal) }),
+      el("div", { class: "kpi-sub", text: "Hoy " + fmt.money(savingsToday()) })
+    ]);
+    if (target > 0) {
+      balanceCard.appendChild(el("div", { class: "flex items-center justify-between fs-12", style: "margin:12px 0 6px" }, [
+        el("span", { class: "text-dim", text: "Meta" }),
+        el("span", { class: "fw-700", text: fmt.money(bal) + " / " + fmt.money(target) + " (" + pct + "%)" })
+      ]));
+      balanceCard.appendChild(el("div", { class: "progress good" }, [el("span", { style: "width:" + pct + "%" })]));
+    }
     const body = el("div", {}, [
-      el("div", { class: "card", style: "text-align:center;margin-bottom:14px" }, [
-        el("div", { class: "kpi-lbl", text: "Total ahorrado" }),
-        el("div", { class: "kpi-val", style: "color:#22c3ff;font-size:34px", text: fmt.money(savingsBalance()) }),
-        el("div", { class: "kpi-sub", text: "Hoy " + fmt.money(savingsToday()) + " · Este mes " + fmt.money(savingsMonth()) })
-      ]),
+      balanceCard,
       el("div", { class: "field" }, [el("label", { text: "Monto" }), amountI]),
       el("div", { class: "field" }, [el("label", { text: "Nota (opcional)" }), noteI]),
       el("div", { class: "row" }, [
         el("button", { class: "btn income", type: "button", html: "＋ Agregar", onclick: () => apply(1) }),
         el("button", { class: "btn expense", type: "button", html: "－ Quitar", onclick: () => apply(-1) })
-      ])
+      ]),
+      el("div", { class: "field", style: "margin-top:14px" }, [
+        el("label", { text: "🎯 Meta de ahorro" }),
+        el("div", { class: "row" }, [metaI, el("button", { class: "btn goal", type: "button", html: "Fijar", onclick: saveMeta })])
+      ]),
+      el("button", { class: "btn ghost block", type: "button", html: "🔄 Reiniciar conteo", onclick: resetSavings, style: "margin-top:4px" })
     ]);
     const hist = savings().slice().sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)).slice(0, 12);
     if (hist.length) {
@@ -307,20 +345,28 @@
   }
 
   function savingsCard() {
+    const bal = savingsBalance(), target = savingsTargetVal(), pct = savingsPct();
     const card = el("div", { class: "card mb-16" }, [
       el("div", { class: "card-head", style: "flex-wrap:wrap;gap:8px" }, [
         el("div", { class: "card-title" }, [el("span", { class: "dot" }), "🐷 Ahorro"]),
         el("button", { class: "btn sm savings", html: N.Icons.svg.piggy + " Administrar", onclick: openSavings })
       ]),
       el("div", { class: "grid cols-3" }, [
-        miniStat("Total ahorrado", fmt.money(savingsBalance()), "#22c3ff"),
+        miniStat("Ahorro actual", fmt.money(bal), "#22c3ff"),
         miniStat("Hoy", fmt.money(savingsToday()), "var(--good)"),
-        miniStat("Este mes", fmt.money(savingsMonth()), "var(--accent)")
+        miniStat("Meta", target > 0 ? fmt.money(target) : "—", "var(--warn)")
       ])
     ]);
+    if (target > 0) {
+      card.appendChild(el("div", { class: "flex items-center justify-between fs-12", style: "margin:14px 0 6px" }, [
+        el("span", { class: "text-dim", text: "Progreso de la meta" }),
+        el("span", { class: "fw-700 text-good", text: pct + "%" })
+      ]));
+      card.appendChild(el("div", { class: "progress good" }, [el("span", { style: "width:" + pct + "%" })]));
+    }
     const cv = el("canvas");
     card.appendChild(el("div", { class: "chart-box mt-16" }, [cv]));
-    card.appendChild(el("div", { class: "fs-12 text-faint mt-8", text: "Ahorro acumulado día a día durante el mes." }));
+    card.appendChild(el("div", { class: "fs-12 text-faint mt-8", text: "Ahorro acumulado día a día (se reinicia manualmente)." }));
     setTimeout(() => {
       const now = new Date(), y = now.getFullYear(), mo = now.getMonth();
       const days = new Date(y, mo + 1, 0).getDate();
