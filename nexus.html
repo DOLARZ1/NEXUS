@@ -44,8 +44,8 @@ input, select, textarea { font-family: inherit; }
   --txt: #e8ecff;
   --txt-dim: #93a0cc;
   --txt-faint: #5e6a94;
-  --border: rgba(120, 140, 220, .16);
-  --border-strong: rgba(120, 140, 220, .32);
+  --border: rgba(120, 140, 220, .10);
+  --border-strong: rgba(120, 140, 220, .22);
   --accent: #00e5ff;
   --accent-2: #7c5cff;
   --accent-3: #ff2fb0;
@@ -67,8 +67,8 @@ input, select, textarea { font-family: inherit; }
   --txt: #14203f;
   --txt-dim: #556084;
   --txt-faint: #8b95b5;
-  --border: rgba(40, 70, 160, .14);
-  --border-strong: rgba(40, 70, 160, .26);
+  --border: rgba(40, 70, 160, .09);
+  --border-strong: rgba(40, 70, 160, .18);
   --accent: #0091ff;
   --accent-2: #7c5cff;
   --accent-3: #ff2f9e;
@@ -90,8 +90,8 @@ input, select, textarea { font-family: inherit; }
   --txt: #e9ebef;
   --txt-dim: #a7adba;
   --txt-faint: #71767f;
-  --border: rgba(180, 190, 205, .12);
-  --border-strong: rgba(180, 190, 205, .26);
+  --border: rgba(180, 190, 205, .08);
+  --border-strong: rgba(180, 190, 205, .18);
   --accent: #63d2ff;
   --accent-2: #b39bff;
   --accent-3: #ff8fc4;
@@ -113,8 +113,8 @@ input, select, textarea { font-family: inherit; }
   --txt: #f2ecff;
   --txt-dim: #c0a9ec;
   --txt-faint: #826bb4;
-  --border: rgba(170, 110, 255, .2);
-  --border-strong: rgba(170, 110, 255, .38);
+  --border: rgba(170, 110, 255, .13);
+  --border-strong: rgba(170, 110, 255, .26);
   --accent: #b14bff;
   --accent-2: #ff45e0;
   --accent-3: #6a5cff;
@@ -130,16 +130,18 @@ input, select, textarea { font-family: inherit; }
 /* =====================================================================
    FONDO
    ===================================================================== */
+/* Panal hexagonal electrónico (SVG), muy sutil para no interferir con la lectura */
 .bg-grid {
   position: fixed; inset: 0; z-index: -2;
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 46px 46px;
-  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 40%, transparent 100%);
-  animation: gridpan 40s linear infinite;
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='96' viewBox='0 0 56 96'><g fill='none' stroke='%237b8bd0' stroke-width='0.8' stroke-linejoin='round' stroke-linecap='round'><path d='M28 4 L52 18 V50 L28 64 L4 50 V18 Z'/><path d='M0 66 L4 64 M52 50 L56 52 M56 46 L52 48 M4 48 L0 50'/><path d='M28 64 V96'/></g></svg>");
+  background-size: 56px 96px;
+  opacity: .10;
+  mask-image: radial-gradient(ellipse 95% 80% at 50% 30%, #000 55%, transparent 100%);
+  animation: gridpan 60s linear infinite;
 }
-@keyframes gridpan { from { background-position: 0 0; } to { background-position: 46px 46px; } }
+@keyframes gridpan { from { background-position: 0 0; } to { background-position: 56px 96px; } }
+[data-theme="light"] .bg-grid { opacity: .18; }
 .bg-glow {
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
@@ -267,8 +269,8 @@ input, select, textarea { font-family: inherit; }
   box-shadow: var(--shadow); position: relative; overflow: hidden;
 }
 .card::before {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: .5;
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: .4;
 }
 .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; }
 .card-title { font-size: 14px; font-weight: 700; letter-spacing: .5px; display: flex; align-items: center; gap: 8px; }
@@ -319,10 +321,26 @@ input, select, textarea { font-family: inherit; }
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .field label { font-size: 12px; color: var(--txt-dim); letter-spacing: .5px; }
 .input, .select, .textarea {
-  width: 100%; padding: 11px 13px; border-radius: 11px; background: var(--panel-2);
-  border: 1px solid var(--border-strong); color: var(--txt); font-size: 14px; transition: .2s;
+  width: 100%; padding: 10px 12px; border-radius: 10px; background: var(--panel-2);
+  border: 1px solid var(--border); color: var(--txt); font-size: 14px; transition: .18s;
 }
-.input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--accent); box-shadow: var(--glow); }
+.input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); }
+/* Select oscuro futurista (nada de estilo Windows) */
+select.select {
+  -webkit-appearance: none; appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+    linear-gradient(-45deg, transparent 50%, var(--accent) 50%);
+  background-position: calc(100% - 16px) 55%, calc(100% - 11px) 55%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 34px; cursor: pointer;
+}
+select.select::-ms-expand { display: none; }
+select.select option, select.select optgroup {
+  background: var(--panel-solid); color: var(--txt);
+  padding: 8px 12px;
+}
 .textarea { resize: vertical; min-height: 70px; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; }
 .row > * { flex: 1; min-width: 120px; }
@@ -604,6 +622,31 @@ canvas { display: block; width: 100%; }
 .btn.savings:hover { transform: translateY(-2px); filter: brightness(1.1) saturate(1.1); }
 .btn.savings svg { width: 18px; height: 18px; display: inline-block; vertical-align: -3px; }
 .btn.goal svg { width: 18px; height: 18px; }
+
+
+/* =====================================================================
+   TOQUES ELECTRÓNICOS: bordes más finos y detalles neón sutiles
+   ===================================================================== */
+.card, .item, .chip, .streak-chip, .theme-switch, .icon-btn, .tab, .btn {
+  border-width: 1px;
+}
+.chip { padding: 3px 9px; }
+.progress { height: 6px; }
+.xp-bar { height: 6px; }
+
+/* Barra de acento fina en los KPIs para look "circuito" */
+.card .kpi { position: relative; }
+.card .kpi::before {
+  content: ""; position: absolute; left: 0; top: 4px; bottom: 4px; width: 2px;
+  background: linear-gradient(180deg, var(--accent), transparent);
+  border-radius: 2px; opacity: .6;
+}
+.card .kpi > * { padding-left: 10px; }
+
+/* Modales oscuros unificados (nada tipo Windows) */
+.modal { border-width: 1px; }
+.modal-body select { color-scheme: dark; }
+[data-theme="light"] .modal-body select { color-scheme: light; }
 
 </style>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='64' y2='64'><stop offset='0' stop-color='%2300e5ff'/><stop offset='.5' stop-color='%237c5cff'/><stop offset='1' stop-color='%23ff2fb0'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='%23060814'/><polygon points='32,9 51,20 51,44 32,55 13,44 13,20' fill='none' stroke='url(%23g)' stroke-width='4'/><circle cx='32' cy='32' r='6' fill='url(%23g)'/></svg>" />
@@ -1014,14 +1057,16 @@ canvas { display: block; width: 100%; }
 
       animate((prog) => {
         ctx.clearRect(0, 0, w, h);
-        // grid + etiquetas Y
-        ctx.strokeStyle = grid; ctx.fillStyle = dim; ctx.lineWidth = 1;
+        // grid + etiquetas Y (líneas más finas y sutiles)
+        ctx.strokeStyle = grid; ctx.fillStyle = dim; ctx.lineWidth = 0.5;
+        ctx.setLineDash([2, 4]);
         ctx.font = "10px system-ui"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
         for (let g = 0; g <= 4; g++) {
           const gy = pad.t + (ch * g) / 4;
           ctx.beginPath(); ctx.moveTo(pad.l, gy); ctx.lineTo(w - pad.r, gy); ctx.stroke();
           ctx.fillText(Math.round(maxV - (maxV * g) / 4), pad.l - 6, gy);
         }
+        ctx.setLineDash([]);
         // etiquetas X
         ctx.textAlign = "center"; ctx.textBaseline = "top";
         const step = Math.ceil(n / 7);
@@ -1040,11 +1085,11 @@ canvas { display: block; width: 100%; }
         lg.addColorStop(0, color); lg.addColorStop(1, color2);
         ctx.beginPath();
         values.forEach((v, i) => { const px = x(i), py = y(v * prog); i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); });
-        ctx.strokeStyle = lg; ctx.lineWidth = 2.5; ctx.lineJoin = "round"; ctx.shadowColor = color; ctx.shadowBlur = 8; ctx.stroke();
+        ctx.strokeStyle = lg; ctx.lineWidth = 1.4; ctx.lineJoin = "round"; ctx.shadowColor = color; ctx.shadowBlur = 6; ctx.stroke();
         ctx.shadowBlur = 0;
-        // puntos
+        // puntos (más pequeños y finos)
         values.forEach((v, i) => {
-          ctx.beginPath(); ctx.arc(x(i), y(v * prog), 2.8, 0, Math.PI * 2);
+          ctx.beginPath(); ctx.arc(x(i), y(v * prog), 1.8, 0, Math.PI * 2);
           ctx.fillStyle = color; ctx.fill();
         });
       });
@@ -1064,17 +1109,19 @@ canvas { display: block; width: 100%; }
       const grid = cssVar("--border"); const dim = cssVar("--txt-faint");
       const n = labels.length;
       const groupW = cw / Math.max(1, n);
-      const barW = Math.min(26, (groupW * 0.6) / series.length);
+      const barW = Math.min(20, (groupW * 0.5) / series.length);
 
       animate((prog) => {
         ctx.clearRect(0, 0, w, h);
-        ctx.strokeStyle = grid; ctx.fillStyle = dim; ctx.lineWidth = 1;
+        ctx.strokeStyle = grid; ctx.fillStyle = dim; ctx.lineWidth = 0.5;
+        ctx.setLineDash([2, 4]);
         ctx.font = "10px system-ui"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
         for (let g = 0; g <= 4; g++) {
           const gy = pad.t + (ch * g) / 4;
           ctx.beginPath(); ctx.moveTo(pad.l, gy); ctx.lineTo(w - pad.r, gy); ctx.stroke();
           ctx.fillText(Math.round(maxV - (maxV * g) / 4), pad.l - 6, gy);
         }
+        ctx.setLineDash([]);
         ctx.textAlign = "center"; ctx.textBaseline = "top";
         for (let i = 0; i < n; i++) {
           const gx = pad.l + groupW * i + groupW / 2;
@@ -1088,7 +1135,7 @@ canvas { display: block; width: 100%; }
             const grad = ctx.createLinearGradient(0, by, 0, pad.t + ch);
             grad.addColorStop(0, col); grad.addColorStop(1, col + "66");
             ctx.fillStyle = grad;
-            roundRect(ctx, bx, by, barW, bh, 4); ctx.fill();
+            roundRect(ctx, bx, by, barW, bh, 2); ctx.fill();
           });
           if (i % Math.ceil(n / 8) === 0 || n <= 8) ctx.fillText(labels[i], gx, h - pad.b + 5);
         }
@@ -1154,7 +1201,7 @@ canvas { display: block; width: 100%; }
       ctx.lineTo(w, h); ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
       ctx.beginPath();
       values.forEach((v, i) => { i === 0 ? ctx.moveTo(x(i), y(v)) : ctx.lineTo(x(i), y(v)); });
-      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = "round"; ctx.stroke();
+      ctx.strokeStyle = color; ctx.lineWidth = 1.2; ctx.lineJoin = "round"; ctx.stroke();
     },
 
     // ---------- Ring (anillo de progreso) ----------
@@ -1170,7 +1217,7 @@ canvas { display: block; width: 100%; }
       pct = Math.max(0, Math.min(100, pct));
       animate((prog) => {
         ctx.clearRect(0, 0, w, h);
-        ctx.lineWidth = opts.thickness || 8; ctx.lineCap = "round";
+        ctx.lineWidth = opts.thickness || 5; ctx.lineCap = "round";
         ctx.strokeStyle = cssVar("--border");
         ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
         const grad = ctx.createLinearGradient(0, 0, w, h);

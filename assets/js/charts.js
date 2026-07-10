@@ -63,14 +63,16 @@
 
       animate((prog) => {
         ctx.clearRect(0, 0, w, h);
-        // grid + etiquetas Y
-        ctx.strokeStyle = grid; ctx.fillStyle = dim; ctx.lineWidth = 1;
+        // grid + etiquetas Y (líneas más finas y sutiles)
+        ctx.strokeStyle = grid; ctx.fillStyle = dim; ctx.lineWidth = 0.5;
+        ctx.setLineDash([2, 4]);
         ctx.font = "10px system-ui"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
         for (let g = 0; g <= 4; g++) {
           const gy = pad.t + (ch * g) / 4;
           ctx.beginPath(); ctx.moveTo(pad.l, gy); ctx.lineTo(w - pad.r, gy); ctx.stroke();
           ctx.fillText(Math.round(maxV - (maxV * g) / 4), pad.l - 6, gy);
         }
+        ctx.setLineDash([]);
         // etiquetas X
         ctx.textAlign = "center"; ctx.textBaseline = "top";
         const step = Math.ceil(n / 7);
@@ -89,11 +91,11 @@
         lg.addColorStop(0, color); lg.addColorStop(1, color2);
         ctx.beginPath();
         values.forEach((v, i) => { const px = x(i), py = y(v * prog); i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); });
-        ctx.strokeStyle = lg; ctx.lineWidth = 2.5; ctx.lineJoin = "round"; ctx.shadowColor = color; ctx.shadowBlur = 8; ctx.stroke();
+        ctx.strokeStyle = lg; ctx.lineWidth = 1.4; ctx.lineJoin = "round"; ctx.shadowColor = color; ctx.shadowBlur = 6; ctx.stroke();
         ctx.shadowBlur = 0;
-        // puntos
+        // puntos (más pequeños y finos)
         values.forEach((v, i) => {
-          ctx.beginPath(); ctx.arc(x(i), y(v * prog), 2.8, 0, Math.PI * 2);
+          ctx.beginPath(); ctx.arc(x(i), y(v * prog), 1.8, 0, Math.PI * 2);
           ctx.fillStyle = color; ctx.fill();
         });
       });
@@ -113,17 +115,19 @@
       const grid = cssVar("--border"); const dim = cssVar("--txt-faint");
       const n = labels.length;
       const groupW = cw / Math.max(1, n);
-      const barW = Math.min(26, (groupW * 0.6) / series.length);
+      const barW = Math.min(20, (groupW * 0.5) / series.length);
 
       animate((prog) => {
         ctx.clearRect(0, 0, w, h);
-        ctx.strokeStyle = grid; ctx.fillStyle = dim; ctx.lineWidth = 1;
+        ctx.strokeStyle = grid; ctx.fillStyle = dim; ctx.lineWidth = 0.5;
+        ctx.setLineDash([2, 4]);
         ctx.font = "10px system-ui"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
         for (let g = 0; g <= 4; g++) {
           const gy = pad.t + (ch * g) / 4;
           ctx.beginPath(); ctx.moveTo(pad.l, gy); ctx.lineTo(w - pad.r, gy); ctx.stroke();
           ctx.fillText(Math.round(maxV - (maxV * g) / 4), pad.l - 6, gy);
         }
+        ctx.setLineDash([]);
         ctx.textAlign = "center"; ctx.textBaseline = "top";
         for (let i = 0; i < n; i++) {
           const gx = pad.l + groupW * i + groupW / 2;
@@ -137,7 +141,7 @@
             const grad = ctx.createLinearGradient(0, by, 0, pad.t + ch);
             grad.addColorStop(0, col); grad.addColorStop(1, col + "66");
             ctx.fillStyle = grad;
-            roundRect(ctx, bx, by, barW, bh, 4); ctx.fill();
+            roundRect(ctx, bx, by, barW, bh, 2); ctx.fill();
           });
           if (i % Math.ceil(n / 8) === 0 || n <= 8) ctx.fillText(labels[i], gx, h - pad.b + 5);
         }
@@ -203,7 +207,7 @@
       ctx.lineTo(w, h); ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
       ctx.beginPath();
       values.forEach((v, i) => { i === 0 ? ctx.moveTo(x(i), y(v)) : ctx.lineTo(x(i), y(v)); });
-      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = "round"; ctx.stroke();
+      ctx.strokeStyle = color; ctx.lineWidth = 1.2; ctx.lineJoin = "round"; ctx.stroke();
     },
 
     // ---------- Ring (anillo de progreso) ----------
@@ -219,7 +223,7 @@
       pct = Math.max(0, Math.min(100, pct));
       animate((prog) => {
         ctx.clearRect(0, 0, w, h);
-        ctx.lineWidth = opts.thickness || 8; ctx.lineCap = "round";
+        ctx.lineWidth = opts.thickness || 5; ctx.lineCap = "round";
         ctx.strokeStyle = cssVar("--border");
         ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
         const grad = ctx.createLinearGradient(0, 0, w, h);

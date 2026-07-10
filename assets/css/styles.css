@@ -35,8 +35,8 @@ input, select, textarea { font-family: inherit; }
   --txt: #e8ecff;
   --txt-dim: #93a0cc;
   --txt-faint: #5e6a94;
-  --border: rgba(120, 140, 220, .16);
-  --border-strong: rgba(120, 140, 220, .32);
+  --border: rgba(120, 140, 220, .10);
+  --border-strong: rgba(120, 140, 220, .22);
   --accent: #00e5ff;
   --accent-2: #7c5cff;
   --accent-3: #ff2fb0;
@@ -58,8 +58,8 @@ input, select, textarea { font-family: inherit; }
   --txt: #14203f;
   --txt-dim: #556084;
   --txt-faint: #8b95b5;
-  --border: rgba(40, 70, 160, .14);
-  --border-strong: rgba(40, 70, 160, .26);
+  --border: rgba(40, 70, 160, .09);
+  --border-strong: rgba(40, 70, 160, .18);
   --accent: #0091ff;
   --accent-2: #7c5cff;
   --accent-3: #ff2f9e;
@@ -81,8 +81,8 @@ input, select, textarea { font-family: inherit; }
   --txt: #e9ebef;
   --txt-dim: #a7adba;
   --txt-faint: #71767f;
-  --border: rgba(180, 190, 205, .12);
-  --border-strong: rgba(180, 190, 205, .26);
+  --border: rgba(180, 190, 205, .08);
+  --border-strong: rgba(180, 190, 205, .18);
   --accent: #63d2ff;
   --accent-2: #b39bff;
   --accent-3: #ff8fc4;
@@ -104,8 +104,8 @@ input, select, textarea { font-family: inherit; }
   --txt: #f2ecff;
   --txt-dim: #c0a9ec;
   --txt-faint: #826bb4;
-  --border: rgba(170, 110, 255, .2);
-  --border-strong: rgba(170, 110, 255, .38);
+  --border: rgba(170, 110, 255, .13);
+  --border-strong: rgba(170, 110, 255, .26);
   --accent: #b14bff;
   --accent-2: #ff45e0;
   --accent-3: #6a5cff;
@@ -121,16 +121,18 @@ input, select, textarea { font-family: inherit; }
 /* =====================================================================
    FONDO
    ===================================================================== */
+/* Panal hexagonal electrónico (SVG), muy sutil para no interferir con la lectura */
 .bg-grid {
   position: fixed; inset: 0; z-index: -2;
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 46px 46px;
-  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 40%, transparent 100%);
-  animation: gridpan 40s linear infinite;
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='96' viewBox='0 0 56 96'><g fill='none' stroke='%237b8bd0' stroke-width='0.8' stroke-linejoin='round' stroke-linecap='round'><path d='M28 4 L52 18 V50 L28 64 L4 50 V18 Z'/><path d='M0 66 L4 64 M52 50 L56 52 M56 46 L52 48 M4 48 L0 50'/><path d='M28 64 V96'/></g></svg>");
+  background-size: 56px 96px;
+  opacity: .10;
+  mask-image: radial-gradient(ellipse 95% 80% at 50% 30%, #000 55%, transparent 100%);
+  animation: gridpan 60s linear infinite;
 }
-@keyframes gridpan { from { background-position: 0 0; } to { background-position: 46px 46px; } }
+@keyframes gridpan { from { background-position: 0 0; } to { background-position: 56px 96px; } }
+[data-theme="light"] .bg-grid { opacity: .18; }
 .bg-glow {
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
@@ -258,8 +260,8 @@ input, select, textarea { font-family: inherit; }
   box-shadow: var(--shadow); position: relative; overflow: hidden;
 }
 .card::before {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: .5;
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: .4;
 }
 .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; }
 .card-title { font-size: 14px; font-weight: 700; letter-spacing: .5px; display: flex; align-items: center; gap: 8px; }
@@ -310,10 +312,26 @@ input, select, textarea { font-family: inherit; }
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .field label { font-size: 12px; color: var(--txt-dim); letter-spacing: .5px; }
 .input, .select, .textarea {
-  width: 100%; padding: 11px 13px; border-radius: 11px; background: var(--panel-2);
-  border: 1px solid var(--border-strong); color: var(--txt); font-size: 14px; transition: .2s;
+  width: 100%; padding: 10px 12px; border-radius: 10px; background: var(--panel-2);
+  border: 1px solid var(--border); color: var(--txt); font-size: 14px; transition: .18s;
 }
-.input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--accent); box-shadow: var(--glow); }
+.input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); }
+/* Select oscuro futurista (nada de estilo Windows) */
+select.select {
+  -webkit-appearance: none; appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+    linear-gradient(-45deg, transparent 50%, var(--accent) 50%);
+  background-position: calc(100% - 16px) 55%, calc(100% - 11px) 55%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 34px; cursor: pointer;
+}
+select.select::-ms-expand { display: none; }
+select.select option, select.select optgroup {
+  background: var(--panel-solid); color: var(--txt);
+  padding: 8px 12px;
+}
 .textarea { resize: vertical; min-height: 70px; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; }
 .row > * { flex: 1; min-width: 120px; }
@@ -595,3 +613,28 @@ canvas { display: block; width: 100%; }
 .btn.savings:hover { transform: translateY(-2px); filter: brightness(1.1) saturate(1.1); }
 .btn.savings svg { width: 18px; height: 18px; display: inline-block; vertical-align: -3px; }
 .btn.goal svg { width: 18px; height: 18px; }
+
+
+/* =====================================================================
+   TOQUES ELECTRÓNICOS: bordes más finos y detalles neón sutiles
+   ===================================================================== */
+.card, .item, .chip, .streak-chip, .theme-switch, .icon-btn, .tab, .btn {
+  border-width: 1px;
+}
+.chip { padding: 3px 9px; }
+.progress { height: 6px; }
+.xp-bar { height: 6px; }
+
+/* Barra de acento fina en los KPIs para look "circuito" */
+.card .kpi { position: relative; }
+.card .kpi::before {
+  content: ""; position: absolute; left: 0; top: 4px; bottom: 4px; width: 2px;
+  background: linear-gradient(180deg, var(--accent), transparent);
+  border-radius: 2px; opacity: .6;
+}
+.card .kpi > * { padding-left: 10px; }
+
+/* Modales oscuros unificados (nada tipo Windows) */
+.modal { border-width: 1px; }
+.modal-body select { color-scheme: dark; }
+[data-theme="light"] .modal-body select { color-scheme: light; }
