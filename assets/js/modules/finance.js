@@ -238,6 +238,104 @@
   }
 
   // ---------------------------------------------------------------
+  //  AHORRO (alcancía)
+  // ---------------------------------------------------------------
+  function savings() { const f = fin(); if (!Array.isArray(f.savings)) f.savings = []; return f.savings; }
+  function savingsBalance() { return savings().reduce((s, e) => s + e.amount, 0); }
+  function savingsToday() { const k = DateUtil.todayKey(); return savings().filter((e) => e.date === k).reduce((s, e) => s + e.amount, 0); }
+  function savingsMonth(mk) { mk = mk || DateUtil.monthKey(); return savings().filter((e) => e.date.slice(0, 7) === mk).reduce((s, e) => s + e.amount, 0); }
+
+  function removeSaving(e) {
+    const arr = savings(); arr.splice(arr.indexOf(e), 1);
+    Audio.play("delete");
+    if (e.xpEarned) Gami.remove(e.xpEarned); else Store.commit();
+    openSavings();
+    render(document.getElementById("view-finance"));
+    N.App && N.App.refreshTop();
+  }
+
+  function openSavings() {
+    const amountI = el("input", { class: "input", type: "number", min: 0, step: "0.01", placeholder: "0.00" });
+    const noteI = el("input", { class: "input", placeholder: "Nota (opcional)" });
+    function apply(sign) {
+      const amt = Number(amountI.value) || 0;
+      if (amt <= 0) { Audio.play("error"); toast({ icon: "⚠️", msg: "Ingresa un monto válido" }); return; }
+      const entry = { id: Store.uid(), amount: sign * amt, date: DateUtil.todayKey(), note: noteI.value };
+      if (sign > 0) entry.xpEarned = 4;
+      savings().push(entry);
+      Store.commit();
+      Audio.play(sign > 0 ? "money" : "coin");
+      if (sign > 0) Gami.award(4, "Ahorro registrado 🐷");
+      toast({ icon: "🐷", title: sign > 0 ? "Ahorro agregado" : "Retiro de ahorro", msg: fmt.money(amt) });
+      openSavings();
+      render(document.getElementById("view-finance"));
+      N.App && N.App.refreshTop();
+    }
+    const body = el("div", {}, [
+      el("div", { class: "card", style: "text-align:center;margin-bottom:14px" }, [
+        el("div", { class: "kpi-lbl", text: "Total ahorrado" }),
+        el("div", { class: "kpi-val", style: "color:#22c3ff;font-size:34px", text: fmt.money(savingsBalance()) }),
+        el("div", { class: "kpi-sub", text: "Hoy " + fmt.money(savingsToday()) + " · Este mes " + fmt.money(savingsMonth()) })
+      ]),
+      el("div", { class: "field" }, [el("label", { text: "Monto" }), amountI]),
+      el("div", { class: "field" }, [el("label", { text: "Nota (opcional)" }), noteI]),
+      el("div", { class: "row" }, [
+        el("button", { class: "btn income", type: "button", html: "＋ Agregar", onclick: () => apply(1) }),
+        el("button", { class: "btn expense", type: "button", html: "－ Quitar", onclick: () => apply(-1) })
+      ])
+    ]);
+    const hist = savings().slice().sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)).slice(0, 12);
+    if (hist.length) {
+      body.appendChild(el("div", { class: "card-title", style: "margin:16px 0 8px" }, [el("span", { class: "dot" }), "Movimientos de ahorro"]));
+      hist.forEach((s) => body.appendChild(el("div", { class: "item", style: "padding:10px 12px" }, [
+        el("div", { class: "item-main" }, [
+          el("div", { class: "item-title", text: s.note || (s.amount >= 0 ? "Depósito" : "Retiro") }),
+          el("div", { class: "item-meta" }, [el("span", { text: niceDate(s.date) })])
+        ]),
+        el("span", { class: "fw-700 " + (s.amount >= 0 ? "text-good" : "text-bad"), text: (s.amount >= 0 ? "+" : "−") + fmt.money(Math.abs(s.amount)) }),
+        el("button", { class: "icon-btn", html: "🗑️", title: "Eliminar", onclick: () => removeSaving(s) })
+      ])));
+    }
+    UI.openModal("🐷 Ahorro", body);
+  }
+
+  function miniStat(label, val, color) {
+    return el("div", { class: "card", style: "padding:14px" }, [el("div", { class: "kpi" }, [
+      el("div", { class: "kpi-lbl", text: label }),
+      el("div", { class: "kpi-val", style: "font-size:22px;color:" + color, text: val })
+    ])]);
+  }
+
+  function savingsCard() {
+    const card = el("div", { class: "card mb-16" }, [
+      el("div", { class: "card-head", style: "flex-wrap:wrap;gap:8px" }, [
+        el("div", { class: "card-title" }, [el("span", { class: "dot" }), "🐷 Ahorro"]),
+        el("button", { class: "btn sm savings", html: N.Icons.svg.piggy + " Administrar", onclick: openSavings })
+      ]),
+      el("div", { class: "grid cols-3" }, [
+        miniStat("Total ahorrado", fmt.money(savingsBalance()), "#22c3ff"),
+        miniStat("Hoy", fmt.money(savingsToday()), "var(--good)"),
+        miniStat("Este mes", fmt.money(savingsMonth()), "var(--accent)")
+      ])
+    ]);
+    const cv = el("canvas");
+    card.appendChild(el("div", { class: "chart-box mt-16" }, [cv]));
+    card.appendChild(el("div", { class: "fs-12 text-faint mt-8", text: "Ahorro acumulado día a día durante el mes." }));
+    setTimeout(() => {
+      const now = new Date(), y = now.getFullYear(), mo = now.getMonth();
+      const days = new Date(y, mo + 1, 0).getDate();
+      const labels = [], vals = []; let cum = 0;
+      for (let d = 1; d <= days; d++) {
+        const key = DateUtil.key(new Date(y, mo, d));
+        cum += savings().filter((s) => s.date === key).reduce((a, s) => a + s.amount, 0);
+        labels.push(String(d)); vals.push(Math.max(0, cum));
+      }
+      Charts.line(cv, { labels: labels, values: vals }, { height: 160, color: "--accent" });
+    }, 40);
+    return card;
+  }
+
+  // ---------------------------------------------------------------
   //  Render
   // ---------------------------------------------------------------
   function render(container) {
@@ -252,7 +350,8 @@
       ]),
       el("div", { class: "flex gap-8" }, [
         el("button", { class: "btn income", onclick: () => addTx("income"), html: "＋ Ingreso" }),
-        el("button", { class: "btn goal", onclick: editBudget, html: "💸 Objetivos" }),
+        el("button", { class: "btn goal", onclick: editBudget, html: "💸", title: "Objetivos" }),
+        el("button", { class: "btn savings", onclick: openSavings, html: N.Icons.svg.piggy, title: "Ahorro" }),
         el("button", { class: "btn expense", onclick: () => addTx("expense"), html: "－ Gasto" })
       ])
     ]);
@@ -265,6 +364,9 @@
       kpi("Balance", fmt.money(bal), bal >= 0 ? "ahorro" : "déficit", bal >= 0 ? "good" : "bad"),
       kpi("Salud", result.score == null ? "—" : result.score + "/100", "financiera", healthClass(result.score))
     ]));
+
+    // Panel de ahorro (alcancía) — acumulado diario del mes
+    container.appendChild(savingsCard());
 
     // Panel de mercados y noticias (cotizaciones en vivo + fuentes)
     container.appendChild(marketsCard());

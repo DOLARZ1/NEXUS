@@ -47,7 +47,8 @@
       finance: {
         transactions: [],      // {id,type:'income'|'expense',amount,category,note,date}
         budget: 0,             // presupuesto mensual objetivo de gasto
-        savingGoal: 0          // meta de ahorro mensual
+        savingGoal: 0,         // meta de ahorro mensual
+        savings: []            // alcancía: {id,amount(+/-),date,note}
       },
       tasks: [],               // {id,title,priority,due,done,subtasks:[{t,done}],created}
       workouts: [],            // {id,name,type,duration,calories,volume,date}

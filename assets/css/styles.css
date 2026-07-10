@@ -584,3 +584,14 @@ canvas { display: block; width: 100%; }
   box-shadow: 0 0 12px rgba(255, 214, 0, .6), 0 0 24px rgba(255, 214, 0, .3);
 }
 .btn.income:hover, .btn.expense:hover, .btn.goal:hover { transform: translateY(-2px); filter: brightness(1.1) saturate(1.1); }
+
+
+/* Botón de Ahorro (azul neón) */
+.btn.savings {
+  background: linear-gradient(135deg, #22c3ff, #0077ff);
+  color: #041226; border-color: transparent; font-weight: 700;
+  box-shadow: 0 0 12px rgba(34, 195, 255, .6), 0 0 24px rgba(34, 195, 255, .35);
+}
+.btn.savings:hover { transform: translateY(-2px); filter: brightness(1.1) saturate(1.1); }
+.btn.savings svg { width: 18px; height: 18px; display: inline-block; vertical-align: -3px; }
+.btn.goal svg { width: 18px; height: 18px; }
