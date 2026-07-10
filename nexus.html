@@ -500,6 +500,11 @@ canvas { display: block; width: 100%; }
 }
 @media (max-width: 560px) { .hbox { width: 21px; height: 21px; } }
 
+
+/* Tarjetas de enlace a fuentes de mercado/noticias */
+.mktlink { transition: transform .15s ease, border-color .2s ease; }
+.mktlink:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: var(--glow); }
+
 </style>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='64' y2='64'><stop offset='0' stop-color='%2300e5ff'/><stop offset='.5' stop-color='%237c5cff'/><stop offset='1' stop-color='%23ff2fb0'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='%23060814'/><polygon points='32,9 51,20 51,44 32,55 13,44 13,20' fill='none' stroke='url(%23g)' stroke-width='4'/><circle cx='32' cy='32' r='6' fill='url(%23g)'/></svg>" />
   <!-- PWA -->
@@ -2204,8 +2209,8 @@ canvas { display: block; width: 100%; }
 
     const head = el("div", { class: "view-head" }, [
       el("div", {}, [
-        el("h1", { class: "view-title" }, [el("span", { class: "ico", text: "◈" }), "Finanzas IA"]),
-        el("p", { class: "view-desc", text: "Registra tu dinero y recibe análisis inteligente en tiempo real." })
+        el("h1", { class: "view-title" }, [el("span", { class: "ico", text: "◈" }), "Finanzas"]),
+        el("p", { class: "view-desc", text: "Controla tu dinero y sigue los mercados y noticias que mueven la economía." })
       ]),
       el("div", { class: "flex gap-8" }, [
         el("button", { class: "btn", onclick: editBudget, html: "🎯 Objetivos" }),
@@ -2223,20 +2228,8 @@ canvas { display: block; width: 100%; }
       kpi("Salud", result.score == null ? "—" : result.score + "/100", "financiera", healthClass(result.score))
     ]));
 
-    // Panel IA
-    const aiCard = el("div", { class: "card mb-16" }, [
-      el("div", { class: "card-head" }, [
-        el("div", { class: "card-title" }, [el("span", { class: "dot" }), "🤖 Asistente financiero IA"]),
-        result.score != null ? el("span", { class: "chip " + healthChip(result.score), text: "Salud " + result.score + "/100" }) : null
-      ])
-    ]);
-    result.insights.forEach((ins) => {
-      aiCard.appendChild(el("div", { class: "insight " + ins.type }, [
-        el("span", { class: "ico", text: ins.icon }),
-        el("div", { class: "txt", html: ins.txt })
-      ]));
-    });
-    container.appendChild(aiCard);
+    // Panel de mercados y noticias (cotizaciones en vivo + fuentes)
+    container.appendChild(marketsCard());
 
     // Gráficas
     const charts = el("div", { class: "grid cols-2 mb-16" });
@@ -2342,6 +2335,88 @@ canvas { display: block; width: 100%; }
   }
   function healthClass(s) { if (s == null) return ""; return s >= 70 ? "good" : s >= 45 ? "warn" : "bad"; }
   function healthChip(s) { return s >= 70 ? "good" : s >= 45 ? "warn" : "bad"; }
+
+  // ---------------------------------------------------------------
+  //  MERCADOS Y NOTICIAS
+  //  Cotizaciones en vivo (API gratuita, se piden desde el navegador) +
+  //  accesos directos a fuentes oficiales/actualizadas.
+  // ---------------------------------------------------------------
+  const FX_API = "https://open.er-api.com/v6/latest/USD";
+  let mktCache = null; // { "q-usdmxn": "$18.30", ... }
+
+  const NEWS_LINKS = [
+    { icon: "🥇", t: "Oro · XAU/USD", d: "Investing", u: "https://es.investing.com/currencies/xau-usd" },
+    { icon: "💶", t: "EUR/USD", d: "Investing", u: "https://es.investing.com/currencies/eur-usd" },
+    { icon: "🛢️", t: "Petróleo WTI", d: "Investing", u: "https://es.investing.com/commodities/crude-oil" },
+    { icon: "📈", t: "BMV · IPC", d: "Bolsa Mexicana de Valores", u: "https://www.bmv.com.mx/" },
+    { icon: "💵", t: "Dólar oficial", d: "Banxico", u: "https://www.banxico.org.mx/tipcamb/main.do?page=tip&idioma=sp" },
+    { icon: "⛽", t: "Gasolina México", d: "Profeco", u: "https://combustibleinteligente.profeco.gob.mx/" },
+    { icon: "🔥", t: "Gas LP", d: "CRE · gob.mx", u: "https://www.gob.mx/cre/articulos/precios-vigentes-de-gas-lp-al-publico" },
+    { icon: "📰", t: "El Financiero", d: "Mercados", u: "https://www.elfinanciero.com.mx/mercados/" },
+    { icon: "📰", t: "Expansión", d: "Economía", u: "https://expansion.mx/economia" },
+    { icon: "📰", t: "Bloomberg Línea", d: "México", u: "https://www.bloomberglinea.com/mexico/" }
+  ];
+
+  function quoteCard(id, label, sub) {
+    return el("div", { class: "card", style: "padding:14px" }, [
+      el("div", { class: "kpi" }, [
+        el("div", { class: "kpi-lbl", text: label }),
+        el("div", { class: "kpi-val accent", id: id, text: (mktCache && mktCache[id]) || "…" }),
+        el("div", { class: "kpi-sub", text: sub })
+      ])
+    ]);
+  }
+  function linkCard(l) {
+    return el("a", { href: l.u, target: "_blank", rel: "noopener", class: "card mktlink", style: "padding:12px;display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit" }, [
+      el("span", { style: "font-size:20px", text: l.icon }),
+      el("div", {}, [
+        el("div", { class: "fs-13 fw-700", text: l.t }),
+        el("div", { class: "fs-12 text-faint", text: l.d })
+      ])
+    ]);
+  }
+
+  function paintQuotes(rates) {
+    if (!mktCache) mktCache = {};
+    const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; mktCache[id] = val; };
+    const usdmxn = rates.MXN, eurusd = 1 / rates.EUR, eurmxn = rates.MXN / rates.EUR;
+    set("q-usdmxn", "$" + usdmxn.toFixed(3));
+    set("q-eurusd", eurusd.toFixed(4));
+    set("q-eurmxn", "$" + eurmxn.toFixed(3));
+    const upd = document.getElementById("mkt-updated");
+    if (upd) upd.textContent = "Actualizado: " + new Date().toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" }) + " · fuente: open.er-api.com (actualización diaria). Valores referenciales.";
+  }
+
+  function loadQuotes() {
+    const upd = document.getElementById("mkt-updated");
+    if (typeof fetch !== "function") { if (upd) upd.textContent = "Cotizaciones en vivo no disponibles aquí. Usa los enlaces de abajo. ↓"; return; }
+    if (upd) upd.textContent = "Cargando cotizaciones en vivo…";
+    fetch(FX_API).then((r) => r.json()).then((j) => {
+      if (!j || j.result !== "success" || !j.rates) throw new Error("bad");
+      paintQuotes(j.rates);
+    }).catch(() => {
+      if (upd) upd.textContent = "No se pudieron cargar las cotizaciones en vivo (revisa tu conexión). Usa los enlaces de abajo. ↓";
+    });
+  }
+
+  function marketsCard() {
+    const card = el("div", { class: "card mb-16" }, [
+      el("div", { class: "card-head", style: "flex-wrap:wrap;gap:8px" }, [
+        el("div", { class: "card-title" }, [el("span", { class: "dot" }), "📰 Mercados y noticias"]),
+        el("button", { class: "btn sm", html: "↻ Actualizar", onclick: () => loadQuotes() })
+      ]),
+      el("div", { class: "grid cols-3" }, [
+        quoteCard("q-usdmxn", "Dólar · USD/MXN", "peso mexicano"),
+        quoteCard("q-eurusd", "EUR/USD", "euro / dólar"),
+        quoteCard("q-eurmxn", "EUR/MXN", "euro / peso")
+      ]),
+      el("div", { class: "fs-12 text-faint mt-8", id: "mkt-updated", text: "Cargando cotizaciones en vivo…" }),
+      el("div", { class: "card-title mt-16", style: "margin-bottom:10px" }, [el("span", { class: "dot" }), "Noticias y precios en vivo · toca para abrir la fuente"]),
+      el("div", { class: "grid cols-3" }, NEWS_LINKS.map(linkCard))
+    ]);
+    setTimeout(loadQuotes, 60);
+    return card;
+  }
 
   N.Finance = { render, monthIncome, monthExpense, monthBalance, expenseByCategory, last6Months, analyze };
 })();

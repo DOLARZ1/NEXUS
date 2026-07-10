@@ -490,3 +490,8 @@ canvas { display: block; width: 100%; }
   box-shadow: 0 0 10px color-mix(in srgb, var(--good) 55%, transparent);
 }
 @media (max-width: 560px) { .hbox { width: 21px; height: 21px; } }
+
+
+/* Tarjetas de enlace a fuentes de mercado/noticias */
+.mktlink { transition: transform .15s ease, border-color .2s ease; }
+.mktlink:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: var(--glow); }
