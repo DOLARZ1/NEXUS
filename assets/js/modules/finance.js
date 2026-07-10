@@ -247,7 +247,7 @@
 
     const head = el("div", { class: "view-head" }, [
       el("div", {}, [
-        el("h1", { class: "view-title" }, [el("span", { class: "ico", text: "◈" }), "Finanzas"]),
+        el("h1", { class: "view-title" }, [N.Icons.node("peso"), "Finanzas"]),
         el("p", { class: "view-desc", text: "Controla tu dinero y sigue los mercados y noticias que mueven la economía." })
       ]),
       el("div", { class: "flex gap-8" }, [

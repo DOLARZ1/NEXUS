@@ -107,7 +107,7 @@
 
     const head = el("div", { class: "view-head" }, [
       el("div", {}, [
-        el("h1", { class: "view-title" }, [el("span", { class: "ico", text: "✓" }), "Tareas"]),
+        el("h1", { class: "view-title" }, [N.Icons.node("tasks"), "Tareas"]),
         el("p", { class: "view-desc", text: "Organiza tu día por prioridad y completa con subtareas." })
       ]),
       el("button", { class: "btn primary", onclick: () => addOrEdit(null), html: "＋ Nueva tarea" })

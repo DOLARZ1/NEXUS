@@ -173,7 +173,7 @@
 
     container.appendChild(el("div", { class: "view-head" }, [
       el("div", {}, [
-        el("h1", { class: "view-title" }, [el("span", { class: "ico", text: "◷" }), "Foco"]),
+        el("h1", { class: "view-title" }, [N.Icons.node("meditation"), "Foco"]),
         el("p", { class: "view-desc", text: "Técnica Pomodoro: concéntrate por bloques, descansa y gana XP." })
       ])
     ]));

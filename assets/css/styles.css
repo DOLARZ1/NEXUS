@@ -275,7 +275,12 @@ input, select, textarea { font-family: inherit; }
 
 .view-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
 .view-title { font-size: 26px; font-weight: 800; letter-spacing: .5px; display: flex; align-items: center; gap: 12px; }
-.view-title .ico { font-size: 24px; color: var(--accent); text-shadow: var(--glow); }
+.view-title .ico {
+  display: inline-grid; place-items: center;
+  color: #f2ff1a; /* amarillo neón */
+  filter: drop-shadow(0 0 5px rgba(242, 255, 26, .9)) drop-shadow(0 0 11px rgba(242, 255, 26, .5));
+}
+.view-title .ico svg { width: 26px; height: 26px; display: block; }
 .view-desc { color: var(--txt-dim); font-size: 13px; margin-top: 4px; }
 
 /* KPIs */

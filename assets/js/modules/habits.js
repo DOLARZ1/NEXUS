@@ -190,7 +190,7 @@
 
     const head = el("div", { class: "view-head" }, [
       el("div", {}, [
-        el("h1", { class: "view-title" }, [el("span", { class: "ico", text: "✦" }), "Hábitos"]),
+        el("h1", { class: "view-title" }, [N.Icons.node("clock"), "Hábitos"]),
         el("p", { class: "view-desc", text: "Marca tus cuadritos, mantén tu racha y suma XP cada día." })
       ]),
       el("button", { class: "btn primary", onclick: () => addOrEdit(null) }, [el("span", { text: "＋" }), "Nuevo hábito"])

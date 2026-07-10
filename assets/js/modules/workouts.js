@@ -160,7 +160,7 @@
 
     container.appendChild(el("div", { class: "view-head" }, [
       el("div", {}, [
-        el("h1", { class: "view-title" }, [el("span", { class: "ico", text: "⚡" }), "Entrenamientos"]),
+        el("h1", { class: "view-title" }, [N.Icons.node("dumbbell"), "Entrenamientos"]),
         el("p", { class: "view-desc", text: "Registra tus sesiones y observa tu progreso físico." })
       ]),
       el("button", { class: "btn primary", onclick: add, html: "＋ Registrar sesión" })

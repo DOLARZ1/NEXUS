@@ -6,6 +6,7 @@ const root = path.resolve(__dirname, "..");
 const css = fs.readFileSync(path.join(root, "assets/css/styles.css"), "utf8");
 const jsFiles = [
   "assets/js/store.js", "assets/js/audio.js", "assets/js/charts.js", "assets/js/ui.js",
+  "assets/js/icons.js",
   "assets/js/gamification.js", "assets/js/modules/dashboard.js", "assets/js/modules/habits.js",
   "assets/js/modules/finance.js", "assets/js/modules/tasks.js", "assets/js/modules/workouts.js",
   "assets/js/modules/goals.js", "assets/js/modules/focus.js", "assets/js/notifications.js",

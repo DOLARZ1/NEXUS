@@ -108,7 +108,7 @@
 
     container.appendChild(el("div", { class: "view-head" }, [
       el("div", {}, [
-        el("h1", { class: "view-title" }, [el("span", { class: "ico", text: "◉" }), "Metas"]),
+        el("h1", { class: "view-title" }, [N.Icons.node("trophy"), "Metas"]),
         el("p", { class: "view-desc", text: "Define objetivos, sigue tu progreso y celebra cada logro." })
       ]),
       el("button", { class: "btn primary", onclick: () => addOrEdit(null), html: "＋ Nueva meta" })

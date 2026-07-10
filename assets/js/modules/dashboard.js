@@ -25,7 +25,7 @@
 
     container.appendChild(el("div", { class: "view-head" }, [
       el("div", {}, [
-        el("h1", { class: "view-title" }, [el("span", { class: "ico", text: "◎" }), greet]),
+        el("h1", { class: "view-title" }, [N.Icons.node("house"), greet]),
         el("p", { class: "view-desc", text: `Nivel ${lp.level} · ${Gami.rankName(lp.level)} · racha de ${streak} día${streak === 1 ? "" : "s"} 🔥` })
       ])
     ]));
