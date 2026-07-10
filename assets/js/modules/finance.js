@@ -251,9 +251,9 @@
         el("p", { class: "view-desc", text: "Controla tu dinero y sigue los mercados y noticias que mueven la economía." })
       ]),
       el("div", { class: "flex gap-8" }, [
-        el("button", { class: "btn", onclick: editBudget, html: "🎯 Objetivos" }),
-        el("button", { class: "btn ghost", onclick: () => addTx("expense"), html: "－ Gasto" }),
-        el("button", { class: "btn primary", onclick: () => addTx("income"), html: "＋ Ingreso" })
+        el("button", { class: "btn goal", onclick: editBudget, html: "🎯 Objetivos" }),
+        el("button", { class: "btn expense", onclick: () => addTx("expense"), html: "－ Gasto" }),
+        el("button", { class: "btn income", onclick: () => addTx("income"), html: "＋ Ingreso" })
       ])
     ]);
     container.appendChild(head);

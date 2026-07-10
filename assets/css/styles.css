@@ -563,3 +563,23 @@ canvas { display: block; width: 100%; }
 .ex-sr .input { width: 66px; flex: none; padding-left: 8px; padding-right: 8px; }
 .ex-x { color: var(--txt-faint); font-weight: 700; }
 .ex-row .icon-btn { width: 38px; height: 38px; flex: none; }
+
+
+/* =====================================================================
+   BOTONES DE FINANZAS (colores por acción)
+   ===================================================================== */
+.btn.income {
+  background: linear-gradient(135deg, var(--good), color-mix(in srgb, var(--good) 65%, #000));
+  color: #04120b; border-color: transparent;
+}
+.btn.expense {
+  background: linear-gradient(135deg, var(--bad), color-mix(in srgb, var(--bad) 70%, #000));
+  color: #fff; border-color: transparent;
+}
+.btn.goal {
+  background: linear-gradient(135deg, #ffd43b, #f2b705);
+  color: #2a1a00; border-color: transparent;
+}
+.btn.income:hover { box-shadow: 0 0 16px color-mix(in srgb, var(--good) 55%, transparent); }
+.btn.expense:hover { box-shadow: 0 0 16px color-mix(in srgb, var(--bad) 55%, transparent); }
+.btn.goal:hover { box-shadow: 0 0 16px rgba(242, 183, 5, .55); }
