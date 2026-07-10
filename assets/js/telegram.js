@@ -79,55 +79,7 @@
     return lines.join("\n");
   }
 
-  // Sincronizar estado al repositorio (para que el cron de las 6am lo lea)
-  function syncState() {
-    const pat = localStorage.getItem("nexus.github.pat") || "";
-    if (!pat) { promptPAT(); return; }
-    const content = btoa(unescape(encodeURIComponent(Store.serialize())));
-    const url = "https://api.github.com/repos/DOLARZ1/NEXUS/contents/data/state.json";
-    // Primero obtener el SHA del archivo existente (para poder actualizarlo)
-    fetch(url, { headers: { Authorization: "token " + pat } })
-      .then((r) => r.ok ? r.json() : null)
-      .then((existing) => {
-        const body = {
-          message: "sync: estado actualizado desde NEXUS",
-          content: content,
-          branch: "main"
-        };
-        if (existing && existing.sha) body.sha = existing.sha;
-        return fetch(url, {
-          method: "PUT",
-          headers: { Authorization: "token " + pat, "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-      })
-      .then((r) => {
-        if (r.ok) { toast({ icon: "☁️", title: "Estado sincronizado", msg: "El cron de las 6am leerá este resumen." }); }
-        else { r.json().then((j) => { toast({ icon: "⚠️", title: "Error al sincronizar", msg: j.message || "Revisa tu token", duration: 5000 }); }); }
-      })
-      .catch((e) => { toast({ icon: "⚠️", title: "Error de red", msg: String(e.message) }); });
-  }
-
-  function promptPAT() {
-    const body = el("div", {}, [
-      el("div", { class: "insight info", style: "margin-bottom:14px" }, [
-        el("span", { class: "ico", text: "🔑" }),
-        el("div", { class: "txt", html: "Para que el recordatorio de las 6am funcione, necesito tu <b>Personal Access Token de GitHub</b> (el que creaste como NEXUS_PAT). Se guarda solo en tu navegador, nunca se comparte." })
-      ]),
-      UI.form([
-        { name: "pat", label: "GitHub Personal Access Token", placeholder: "github_pat_...", required: true }
-      ], (data) => {
-        localStorage.setItem("nexus.github.pat", data.pat.trim());
-        Audio.play("complete");
-        toast({ icon: "🔑", msg: "Token guardado. Sincronizando…" });
-        UI.closeModal();
-        syncState();
-      }, "Guardar y sincronizar")
-    ]);
-    UI.openModal("🔑 Configurar sincronización", body);
-  }
-
-  // Envía el resumen a Telegram + sincroniza el estado
+  // Envía el resumen a Telegram
   function send() {
     const text = buildSummary();
     Audio.play("tap");
@@ -141,8 +93,6 @@
       if (j.ok) {
         Audio.play("complete");
         toast({ icon: "✅", title: "Enviado a Telegram", msg: "Revisa tu bot para ver el resumen." });
-        // Sincronizar estado para el cron de las 6am
-        syncState();
       } else {
         throw new Error(j.description || "Error desconocido");
       }
