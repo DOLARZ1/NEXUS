@@ -17,13 +17,39 @@
     '</svg>';
 
   const TYPES = [
-    { value: "fuerza", name: "Fuerza", icon: "🏋️" },
+    { value: "fuerza", name: "Fuerza / Pesas", icon: "🏋️" },
     { value: "cardio", name: "Cardio", icon: "🏃" },
     { value: "hiit", name: "HIIT", icon: "⚡" },
     { value: "crossfit", name: "Crossfit", icon: "🔥" },
-    { value: "calistenia", name: "Calistenia", icon: "🧗", svg: CALISTENIA_SVG },
-    { value: "yoga", name: "Yoga", icon: "🧘" },
-    { value: "deporte", name: "Deporte", icon: "⚽" },
+    { value: "calistenia", name: "Calistenia", icon: "💥", svg: CALISTENIA_SVG },
+    { value: "yoga", name: "Yoga / Movilidad", icon: "🧘" },
+    { value: "estiramiento", name: "Estiramiento", icon: "🤸" },
+    { value: "caminata", name: "Caminata", icon: "🚶" },
+    { value: "correr", name: "Running", icon: "🏃‍♂️" },
+    { value: "ciclismo", name: "Ciclismo", icon: "🚴" },
+    { value: "natacion", name: "Natación", icon: "🏊" },
+    { value: "remo", name: "Remo", icon: "🚣" },
+    { value: "futbol", name: "Fútbol", icon: "⚽" },
+    { value: "basquet", name: "Baloncesto", icon: "🏀" },
+    { value: "tenis", name: "Tenis", icon: "🎾" },
+    { value: "voleibol", name: "Voleibol", icon: "🏐" },
+    { value: "beisbol", name: "Béisbol", icon: "⚾" },
+    { value: "americano", name: "Fútbol americano", icon: "🏈" },
+    { value: "rugby", name: "Rugby", icon: "🏉" },
+    { value: "boxeo", name: "Boxeo", icon: "🥊" },
+    { value: "artesmarciales", name: "Artes marciales", icon: "🥋" },
+    { value: "escalada", name: "Escalada", icon: "🧗" },
+    { value: "golf", name: "Golf", icon: "⛳" },
+    { value: "pingpong", name: "Ping pong", icon: "🏓" },
+    { value: "badminton", name: "Bádminton", icon: "🏸" },
+    { value: "hockey", name: "Hockey", icon: "🏒" },
+    { value: "patinaje", name: "Patinaje", icon: "⛸️" },
+    { value: "esqui", name: "Esquí", icon: "🎿" },
+    { value: "snowboard", name: "Snowboard", icon: "🏂" },
+    { value: "surf", name: "Surf", icon: "🏄" },
+    { value: "senderismo", name: "Senderismo", icon: "🥾" },
+    { value: "baile", name: "Baile", icon: "💃" },
+    { value: "deporte", name: "Otro deporte", icon: "🏅" },
     { value: "otro", name: "Otro", icon: "💪" }
   ];
   const TYPE_ICON = {};
@@ -38,10 +64,36 @@
 
   function workouts() { return Store.get().workouts; }
 
+  // Sección dinámica de ejercicios (nombre + series × reps, con botón ＋)
+  function buildExerciseSection() {
+    const list = el("div", { class: "ex-list" });
+    function addRow(ex) {
+      const nameI = el("input", { class: "input ex-name", placeholder: "Ejercicio (ej. Sentadilla)" });
+      const setsI = el("input", { class: "input", type: "number", min: 0, placeholder: "Series" });
+      const repsI = el("input", { class: "input", type: "number", min: 0, placeholder: "Reps" });
+      if (ex) { nameI.value = ex.name || ""; setsI.value = ex.sets || ""; repsI.value = ex.reps || ""; }
+      const row = el("div", { class: "ex-row" }, [
+        nameI,
+        el("div", { class: "ex-sr" }, [setsI, el("span", { class: "ex-x", text: "×" }), repsI]),
+        el("button", { class: "icon-btn", type: "button", title: "Quitar ejercicio", html: "✕", onclick: () => { if (list.children.length > 1) row.remove(); else { nameI.value = ""; setsI.value = ""; repsI.value = ""; } } })
+      ]);
+      row._get = () => ({ name: nameI.value.trim(), sets: Number(setsI.value) || 0, reps: Number(repsI.value) || 0 });
+      list.appendChild(row);
+    }
+    addRow(null);
+    const node = el("div", { class: "field" }, [
+      el("label", { text: "Ejercicios (opcional)" }),
+      list,
+      el("button", { class: "btn sm", type: "button", html: "＋ Agregar ejercicio", onclick: () => addRow(null) })
+    ]);
+    return { node: node, getData: () => Array.from(list.children).map((r) => r._get()).filter((x) => x.name) };
+  }
+
   function add() {
+    const ex = buildExerciseSection();
     const body = UI.form([
       { name: "name", label: "Nombre de la sesión", placeholder: "Pecho y tríceps", required: true },
-      { name: "type", label: "Tipo", type: "iconpick", value: "fuerza", options: TYPES.map((t) => ({ value: t.value, label: t.name, icon: t.icon, svg: t.svg })) },
+      { name: "type", label: "Tipo", type: "select", value: "fuerza", options: TYPES.map((t) => ({ value: t.value, label: t.icon + " " + t.name })) },
       { type: "row", fields: [
         { name: "date", label: "Fecha", type: "date", value: DateUtil.todayKey(), required: true },
         { name: "duration", label: "Duración (min)", type: "number", min: 0, placeholder: "45", required: true }
@@ -55,14 +107,14 @@
       const dur = Number(data.duration) || 0;
       if (dur <= 0) { Audio.play("error"); toast({ icon: "⚠️", msg: "Indica la duración" }); return; }
       const xp = Math.min(30, 10 + Math.round(dur / 5));
-      workouts().push({ id: Store.uid(), name: data.name, type: data.type, date: data.date, duration: dur, calories: Number(data.calories) || 0, volume: data.volume, notes: data.notes, xpEarned: xp });
+      workouts().push({ id: Store.uid(), name: data.name, type: data.type, date: data.date, duration: dur, calories: Number(data.calories) || 0, volume: data.volume, notes: data.notes, exercises: ex.getData(), xpEarned: xp });
       Store.commit();
       Audio.play("complete");
       Gami.award(xp, "Entrenamiento registrado 💪");
       UI.closeModal();
       render(document.getElementById("view-workouts"));
       N.App && N.App.refreshTop();
-    }, "Registrar entrenamiento");
+    }, "Registrar entrenamiento", () => ex.node);
     UI.openModal("Nuevo entrenamiento", body);
   }
 
@@ -139,7 +191,8 @@
       listCard.appendChild(el("div", { class: "empty" }, [el("span", { class: "big", text: "⚡" }), el("div", { text: "Sin entrenamientos. ¡Registra el primero!" })]));
     } else {
       arr.slice(0, 20).forEach((w) => {
-        listCard.appendChild(el("div", { class: "item" }, [
+        const item = el("div", { class: "item", style: "flex-direction:column;align-items:stretch" });
+        item.appendChild(el("div", { class: "flex items-center gap-12" }, [
           typeIconNode(w.type),
           el("div", { class: "item-main" }, [
             el("div", { class: "item-title", text: w.name }),
@@ -152,6 +205,13 @@
           ]),
           el("button", { class: "icon-btn", html: "🗑️", title: "Eliminar", onclick: () => remove(w) })
         ]));
+        if (w.exercises && w.exercises.length) {
+          const exWrap = el("div", { style: "display:flex;flex-wrap:wrap;gap:6px;margin-top:10px" });
+          w.exercises.forEach((e) => exWrap.appendChild(el("span", { class: "chip", text: e.name + ((e.sets || e.reps) ? "  " + (e.sets || "?") + "×" + (e.reps || "?") : "") })));
+          item.appendChild(exWrap);
+        }
+        if (w.notes) item.appendChild(el("div", { class: "fs-12 text-dim", style: "margin-top:8px", text: "📝 " + w.notes }));
+        listCard.appendChild(item);
       });
     }
     container.appendChild(listCard);
