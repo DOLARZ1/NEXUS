@@ -8,16 +8,13 @@
   const { el, fmt, toast } = UI;
   const DateUtil = Store.DateUtil;
 
-  // Ícono SVG a medida: figura colgada de una barra (dominada) para Calistenia
+  // Ícono SVG a medida: figura haciendo flexiones (lagartijas) para Calistenia
   const CALISTENIA_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<line x1="3" y1="4.5" x2="21" y2="4.5"/>' +   /* barra */
-    '<circle cx="12" cy="8.4" r="2"/>' +            /* cabeza */
-    '<path d="M9.3 4.6 L9.7 9.2"/>' +               /* brazo izq */
-    '<path d="M14.7 4.6 L14.3 9.2"/>' +             /* brazo der */
-    '<path d="M9.7 9.2 H14.3"/>' +                  /* hombros */
-    '<path d="M12 10.4 V15.7"/>' +                  /* torso */
-    '<path d="M12 15.7 L9.5 21"/>' +                /* pierna izq */
-    '<path d="M12 15.7 L14.5 21"/>' +               /* pierna der */
+    '<circle cx="18" cy="9.2" r="1.9"/>' +          /* cabeza */
+    '<path d="M16.3 10.3 L8 13.2"/>' +              /* espalda / torso */
+    '<path d="M16.3 10.3 L16.7 19.2"/>' +           /* brazo de apoyo */
+    '<path d="M8 13.2 L2.8 19.2"/>' +               /* piernas extendidas */
+    '<line x1="2" y1="20" x2="22" y2="20"/>' +      /* suelo */
     '</svg>';
 
   const TYPES = [
