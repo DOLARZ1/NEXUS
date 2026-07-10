@@ -246,7 +246,7 @@
     // Foco
     const fSes = (s.focus.sessionsLog && s.focus.sessionsLog[key]) || 0;
     if (fSes) {
-      const sec = section("◷ Foco");
+      const sec = section("💡 Enfoque");
       sec.appendChild(statusRow("Sesiones de enfoque", true, fSes + " · " + ((s.focus.focusLog && s.focus.focusLog[key]) || 0) + " min"));
       body.appendChild(sec);
     }
