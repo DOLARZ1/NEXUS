@@ -1249,6 +1249,55 @@ canvas { display: block; width: 100%; }
         ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, end); ctx.stroke();
         ctx.shadowBlur = 0;
       });
+    },
+
+    // ---------- Multi-ring radial (anillos concéntricos de progreso) ----------
+    multiRing(canvas, rings, opts) {
+      opts = opts || {};
+      const size = opts.size || 230;
+      canvas.style.width = "100%";
+      canvas.style.maxWidth = size + "px";
+      canvas.style.margin = "0 auto";
+      canvas.style.display = "block";
+      const { ctx, w, h } = setup(canvas, size);
+      const cx = w / 2, cy = h / 2;
+      const n = rings.length || 1;
+      const outer = Math.min(cx, cy) - 8;
+      const gap = opts.gap != null ? opts.gap : 8;
+      const inner = opts.inner != null ? opts.inner : outer * 0.32;
+      const thickness = opts.thickness || Math.max(6, ((outer - inner) - gap * (n - 1)) / n);
+      const track = cssVar("--border");
+      const startA = -Math.PI / 2;
+
+      animate((prog) => {
+        ctx.clearRect(0, 0, w, h);
+        rings.forEach((rg, i) => {
+          const r = outer - thickness / 2 - i * (thickness + gap);
+          if (r < 4) return;
+          const pct = Math.max(0, Math.min(100, rg.pct || 0));
+          const col = cssVar(rg.color || "--accent");
+          ctx.lineWidth = thickness; ctx.lineCap = "round";
+          // pista de fondo
+          ctx.globalAlpha = 0.45; ctx.strokeStyle = track; ctx.shadowBlur = 0;
+          ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+          ctx.globalAlpha = 1;
+          // arco de progreso con glow neón
+          const end = startA + (Math.PI * 2) * (pct / 100) * prog;
+          ctx.strokeStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 14;
+          ctx.beginPath(); ctx.arc(cx, cy, r, startA, end); ctx.stroke();
+          ctx.shadowBlur = 0;
+        });
+        // etiqueta central
+        if (opts.centerLabel != null) {
+          ctx.fillStyle = cssVar("--txt"); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.font = "800 22px system-ui";
+          ctx.fillText(String(opts.centerLabel), cx, cy - 6);
+          if (opts.centerSub) {
+            ctx.font = "10px system-ui"; ctx.fillStyle = cssVar("--txt-faint");
+            ctx.fillText(String(opts.centerSub), cx, cy + 13);
+          }
+        }
+      });
     }
   };
 
@@ -4058,8 +4107,9 @@ canvas { display: block; width: 100%; }
 /* ===== assets/js/modules/nutrition.js ===== */
 /* =====================================================================
    NEXUS · Módulo Alimentación
-   Base de datos de alimentos + registro diario con gramos y totales
-   de calorías, proteínas y carbohidratos (gráficos separados).
+   Base de datos de alimentos + registro diario con gramos.
+   Medidor radial de anillos (calorías/proteínas/carbohidratos vs metas)
+   y exportación de resumen detallado a PDF (diario/semanal/mensual).
    ===================================================================== */
 (function () {
   "use strict";
@@ -4069,13 +4119,24 @@ canvas { display: block; width: 100%; }
   const DateUtil = Store.DateUtil;
 
   const today = () => DateUtil.todayKey();
+  const DEFAULT_GOALS = { kcal: 2000, prot: 120, carb: 250 };
+
+  // Configuración de los 3 macros (orden = anillo externo → interno)
+  const MACROS = [
+    { key: "kcal", label: "Calorías", unit: "kcal", color: "--warn" },
+    { key: "prot", label: "Proteínas", unit: "g", color: "--good" },
+    { key: "carb", label: "Carbohidratos", unit: "g", color: "--accent" }
+  ];
 
   function nut() {
     const s = Store.get();
-    if (!s.nutrition || !Array.isArray(s.nutrition.log)) s.nutrition = { log: [] };
+    if (!s.nutrition || typeof s.nutrition !== "object") s.nutrition = {};
+    if (!Array.isArray(s.nutrition.log)) s.nutrition.log = [];
+    if (!s.nutrition.goals) s.nutrition.goals = Object.assign({}, DEFAULT_GOALS);
     return s.nutrition;
   }
   function log() { return nut().log; }
+  function goals() { return nut().goals; }
   const r1 = (x) => Math.round(x * 10) / 10;
 
   function addEntry(food, grams) {
@@ -4102,7 +4163,7 @@ canvas { display: block; width: 100%; }
       t.kcal += x.kcal; t.prot += x.prot; t.carb += x.carb; return t;
     }, { kcal: 0, prot: 0, carb: 0 });
   }
-  function series(macro) {
+  function weekSeries(macro) {
     const days = DateUtil.lastNDays(7);
     return {
       labels: days.map((d) => DateUtil.weekday(d)),
@@ -4124,7 +4185,6 @@ canvas { display: block; width: 100%; }
       let items = N.FOODS.filter((f) => (browseCat === "Todos" || f.cat === browseCat) && (!q || f.name.toLowerCase().includes(q)));
       items = items.slice().sort((a, b) => a.name.localeCompare(b.name));
       if (!items.length) { listWrap.appendChild(el("div", { class: "empty", text: "Sin resultados." })); return; }
-      // agrupar por categoría si es "Todos"
       if (browseCat === "Todos") {
         const groups = {};
         items.forEach((f) => { (groups[f.cat] = groups[f.cat] || []).push(f); });
@@ -4140,7 +4200,6 @@ canvas { display: block; width: 100%; }
 
     search.addEventListener("input", () => { browseQuery = search.value; renderList(); });
 
-    // chips de categoría
     const chips = el("div", { class: "flex gap-8", style: "flex-wrap:wrap;margin-top:10px" });
     ["Todos"].concat(N.FOOD_CATS).forEach((cat) => {
       const c = el("button", { class: "chip" + (cat === browseCat ? " accent" : ""), text: cat, style: "cursor:pointer" });
@@ -4172,7 +4231,7 @@ canvas { display: block; width: 100%; }
     function paint() {
       const g = Number(gramsI.value) || 0; const f = g / 100;
       preview.innerHTML = "";
-      preview.appendChild(macroBox("Calorías", Math.round(food.kcal * f), "kcal", "#ff9f1c"));
+      preview.appendChild(macroBox("Calorías", Math.round(food.kcal * f), "kcal", "var(--warn)"));
       preview.appendChild(macroBox("Proteínas", r1(food.prot * f), "g", "var(--good)"));
       preview.appendChild(macroBox("Carbos", r1(food.carb * f), "g", "var(--accent)"));
     }
@@ -4205,34 +4264,206 @@ canvas { display: block; width: 100%; }
     ]);
   }
 
+  // ---------------- Editar metas diarias ----------------
+  function openGoals() {
+    const g = goals();
+    const body = UI.form([
+      { name: "kcal", label: "Meta de calorías (kcal)", type: "number", min: 0, value: g.kcal, required: true },
+      { type: "row", fields: [
+        { name: "prot", label: "Proteínas (g)", type: "number", min: 0, value: g.prot },
+        { name: "carb", label: "Carbohidratos (g)", type: "number", min: 0, value: g.carb }
+      ]}
+    ], (data) => {
+      const gg = goals();
+      gg.kcal = Math.max(0, Number(data.kcal) || 0);
+      gg.prot = Math.max(0, Number(data.prot) || 0);
+      gg.carb = Math.max(0, Number(data.carb) || 0);
+      Store.commit();
+      Audio.play("tap");
+      toast({ icon: "🎯", title: "Metas guardadas", msg: gg.kcal + " kcal · P " + gg.prot + "g · C " + gg.carb + "g" });
+      UI.closeModal();
+      render(document.getElementById("view-nutrition"));
+    }, "Guardar metas");
+    UI.openModal("🎯 Metas diarias", body);
+  }
+
+  // ---------------- Exportar resumen a PDF ----------------
+  function openPdfModal() {
+    const body = el("div", {}, [
+      el("p", { class: "text-dim fs-13", style: "margin-bottom:16px", text: "Elige el periodo del resumen de consumo a descargar en PDF:" }),
+      el("button", { class: "btn primary block", style: "margin-bottom:10px", html: "📅 Diario (hoy)", onclick: () => { UI.closeModal(); exportPDF("daily"); } }),
+      el("button", { class: "btn block", style: "margin-bottom:10px", html: "🗓️ Semanal (últimos 7 días)", onclick: () => { UI.closeModal(); exportPDF("weekly"); } }),
+      el("button", { class: "btn block", html: "📆 Mensual (este mes)", onclick: () => { UI.closeModal(); exportPDF("monthly"); } }),
+      el("p", { class: "fs-12 text-faint", style: "margin-top:16px", html: "Se abrirá la ventana de impresión: elige <b>\"Guardar como PDF\"</b> como destino." })
+    ]);
+    UI.openModal("📄 Descargar PDF de alimentación", body);
+  }
+
+  function rangeFor(period) {
+    const to = today();
+    let from, label;
+    if (period === "daily") { from = to; label = "Diario"; }
+    else if (period === "weekly") { from = DateUtil.addDays(to, -6); label = "Semanal"; }
+    else {
+      const d = new Date(); from = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-01"; label = "Mensual";
+    }
+    return { from: from, to: to, label: label };
+  }
+
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function pctOf(v, g) { return g > 0 ? Math.round((v / g) * 100) : 0; }
+
+  function exportPDF(period) {
+    const r = rangeFor(period);
+    const g = goals();
+    const list = log().filter((x) => x.date >= r.from && x.date <= r.to)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+
+    // agrupar por día
+    const byDay = {};
+    list.forEach((x) => { (byDay[x.date] = byDay[x.date] || []).push(x); });
+    const dayKeys = Object.keys(byDay).sort();
+
+    const grand = list.reduce((t, x) => { t.kcal += x.kcal; t.prot += x.prot; t.carb += x.carb; return t; }, { kcal: 0, prot: 0, carb: 0 });
+    const nDays = dayKeys.length || 1;
+    const avg = { kcal: Math.round(grand.kcal / nDays), prot: r1(grand.prot / nDays), carb: r1(grand.carb / nDays) };
+
+    const fromLbl = DateUtil.parse(r.from).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+    const toLbl = DateUtil.parse(r.to).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+
+    let rows = "";
+    if (!list.length) {
+      rows = '<tr><td colspan="5" style="text-align:center;color:#888;padding:24px">Sin alimentos registrados en este periodo.</td></tr>';
+    } else {
+      dayKeys.forEach((dk) => {
+        const items = byDay[dk];
+        const dt = items.reduce((t, x) => { t.kcal += x.kcal; t.prot += x.prot; t.carb += x.carb; return t; }, { kcal: 0, prot: 0, carb: 0 });
+        const dLbl = DateUtil.parse(dk).toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
+        rows += "<tr class='dh'><td colspan='5'>" + esc(dLbl) +
+          " &nbsp;·&nbsp; <b>" + dt.kcal + " kcal</b> (" + pctOf(dt.kcal, g.kcal) + "% de meta) · P " + r1(dt.prot) + "g · C " + r1(dt.carb) + "g</td></tr>";
+        items.forEach((x) => {
+          rows += "<tr>" +
+            "<td>" + esc(x.name) + "</td>" +
+            "<td style='text-align:center'>" + x.grams + " g</td>" +
+            "<td style='text-align:center'>" + x.kcal + "</td>" +
+            "<td style='text-align:center'>" + r1(x.prot) + "</td>" +
+            "<td style='text-align:center'>" + r1(x.carb) + "</td>" +
+            "</tr>";
+        });
+      });
+    }
+
+    const html = "<!doctype html><html lang='es'><head><meta charset='utf-8'><title>NEXUS · Alimentación " + r.label + "</title>" +
+      "<style>" +
+      "*{box-sizing:border-box;font-family:'Segoe UI',system-ui,Arial,sans-serif}" +
+      "body{margin:0;padding:32px;color:#1a1a2e;background:#fff}" +
+      ".hd{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #6a5cff;padding-bottom:14px;margin-bottom:20px}" +
+      ".logo{font-size:22px;font-weight:800;letter-spacing:2px;color:#6a5cff}" +
+      ".logo span{color:#00b3c4}" +
+      ".sub{color:#666;font-size:13px}" +
+      "h1{font-size:20px;margin:0 0 4px}" +
+      ".kpis{display:flex;gap:12px;margin:18px 0;flex-wrap:wrap}" +
+      ".kpi{flex:1;min-width:110px;border:1px solid #e3e3ee;border-radius:12px;padding:12px 14px}" +
+      ".kpi .n{font-size:22px;font-weight:800;color:#6a5cff}" +
+      ".kpi .l{font-size:11px;color:#777;text-transform:uppercase;letter-spacing:1px}" +
+      ".types{background:#f4f4fb;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:18px}" +
+      "table{width:100%;border-collapse:collapse;font-size:12.5px}" +
+      "th{background:#6a5cff;color:#fff;text-align:left;padding:8px 10px;font-size:12px}" +
+      "th.c{text-align:center}" +
+      "td{padding:7px 10px;border-bottom:1px solid #ececf4;vertical-align:top}" +
+      "tr.dh td{background:#eceafe;font-size:12px;color:#4a3fd0;border-top:2px solid #d8d3fb}" +
+      ".ft{margin-top:24px;color:#999;font-size:11px;text-align:center;border-top:1px solid #eee;padding-top:12px}" +
+      "@media print{body{padding:0}}" +
+      "</style></head><body>" +
+      "<div class='hd'><div><div class='logo'>⬡ NE<span>XUS</span></div><div class='sub'>Salud y Disciplina</div></div>" +
+      "<div style='text-align:right'><h1>Resumen de alimentación</h1><div class='sub'>" + r.label + " · " + (r.from === r.to ? fromLbl : fromLbl + " → " + toLbl) + "</div></div></div>" +
+      "<div class='kpis'>" +
+      "<div class='kpi'><div class='n'>" + nDays + "</div><div class='l'>Días con registro</div></div>" +
+      "<div class='kpi'><div class='n'>" + grand.kcal + "</div><div class='l'>Kcal totales</div></div>" +
+      "<div class='kpi'><div class='n'>" + avg.kcal + "</div><div class='l'>Kcal / día (prom)</div></div>" +
+      "<div class='kpi'><div class='n'>" + r1(grand.prot) + "</div><div class='l'>Proteínas (g)</div></div>" +
+      "<div class='kpi'><div class='n'>" + r1(grand.carb) + "</div><div class='l'>Carbohidratos (g)</div></div>" +
+      "</div>" +
+      "<div class='types'><b>Metas diarias:</b> " + g.kcal + " kcal &nbsp;·&nbsp; " + g.prot + " g proteína &nbsp;·&nbsp; " + g.carb + " g carbohidratos &nbsp;·&nbsp; <b>Promedio del periodo:</b> P " + avg.prot + "g · C " + avg.carb + "g</div>" +
+      "<table><thead><tr><th>Alimento / platillo</th><th class='c'>Cantidad</th><th class='c'>Kcal</th><th class='c'>Prot (g)</th><th class='c'>Carb (g)</th></tr></thead><tbody>" + rows +
+      "<tr class='dh'><td><b>TOTAL DEL PERIODO</b></td><td></td><td style='text-align:center'><b>" + grand.kcal + "</b></td><td style='text-align:center'><b>" + r1(grand.prot) + "</b></td><td style='text-align:center'><b>" + r1(grand.carb) + "</b></td></tr>" +
+      "</tbody></table>" +
+      "<div class='ft'>Generado por NEXUS · " + new Date().toLocaleString("es-MX") + "</div>" +
+      "</body></html>";
+
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow.document;
+    doc.open(); doc.write(html); doc.close();
+    Audio.play("tap");
+    toast({ icon: "📄", title: "Generando PDF…", msg: "Elige \"Guardar como PDF\"." });
+    setTimeout(function () {
+      try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch (e) {}
+      setTimeout(function () { iframe.remove(); }, 1500);
+    }, 500);
+  }
+
   // ---------------- Render ----------------
   function render(container) {
     container.innerHTML = "";
     const t = dayTotals(today());
+    const g = goals();
 
     container.appendChild(el("div", { class: "view-head" }, [
       el("div", {}, [
         el("h1", { class: "view-title" }, [N.Icons.node("plate"), "Alimentación"]),
         el("p", { class: "view-desc", text: "Registra lo que comes y controla tus calorías y macros del día." })
       ]),
-      el("button", { class: "btn primary", onclick: openBrowser, html: "＋ Agregar alimento" })
+      el("div", { class: "flex gap-8", style: "flex-wrap:wrap" }, [
+        el("button", { class: "btn", onclick: openGoals, html: "🎯 Metas" }),
+        el("button", { class: "btn", onclick: openPdfModal, html: "📄 PDF" }),
+        el("button", { class: "btn primary", onclick: openBrowser, html: "＋ Agregar alimento" })
+      ])
     ]));
 
-    // Totales de hoy
+    // KPIs de hoy
     container.appendChild(el("div", { class: "grid cols-4 mb-16" }, [
-      kpi("Calorías hoy", fmt.num(t.kcal), "kcal", "warn"),
-      kpi("Proteínas", fmt.num(r1(t.prot)) + " g", "hoy", "good"),
-      kpi("Carbohidratos", fmt.num(r1(t.carb)) + " g", "hoy", "accent"),
-      kpi("Alimentos", log().filter((x) => x.date === today()).length + "", "registrados", "accent")
+      kpi("Calorías hoy", fmt.num(t.kcal), "meta " + fmt.num(g.kcal) + " kcal", "warn"),
+      kpi("Proteínas", fmt.num(r1(t.prot)) + " g", "meta " + g.prot + " g", "good"),
+      kpi("Carbohidratos", fmt.num(r1(t.carb)) + " g", "meta " + g.carb + " g", "accent"),
+      kpi("Alimentos", log().filter((x) => x.date === today()).length + "", "registrados hoy", "accent")
     ]));
 
-    // Gráficos separados (7 días)
-    const charts = el("div", { class: "grid cols-3 mb-16" }, [
-      chartCard("Calorías · 7 días", "kcal", "--warn"),
-      chartCard("Proteínas (g) · 7 días", "prot", "--good"),
-      chartCard("Carbohidratos (g) · 7 días", "carb", "--accent")
+    // Medidor radial de anillos + leyenda
+    const ringCard = el("div", { class: "card mb-16" }, [
+      el("div", { class: "card-head" }, [
+        el("div", { class: "card-title" }, [el("span", { class: "dot" }), "Progreso del día vs. metas"]),
+        el("button", { class: "btn sm", onclick: openGoals, html: "🎯 Ajustar metas" })
+      ])
     ]);
-    container.appendChild(charts);
+    const cv = el("canvas");
+    const legend = el("div", { style: "flex:1;min-width:220px;display:flex;flex-direction:column;gap:10px;justify-content:center" });
+    MACROS.forEach((m, i) => {
+      const val = m.key === "kcal" ? t.kcal : r1(t[m.key]);
+      const goal = g[m.key];
+      legend.appendChild(legendRow(i + 1, m, val, goal));
+    });
+    ringCard.appendChild(el("div", { class: "flex", style: "gap:22px;align-items:center;flex-wrap:wrap" }, [
+      el("div", { style: "flex:1;min-width:200px;display:flex;justify-content:center" }, [cv]),
+      legend
+    ]));
+    container.appendChild(ringCard);
+    setTimeout(() => {
+      Charts.multiRing(cv, MACROS.map((m) => ({
+        pct: g[m.key] > 0 ? (t[m.key] / g[m.key]) * 100 : 0,
+        color: m.color
+      })), { size: 230, centerLabel: fmt.num(t.kcal), centerSub: "kcal hoy" });
+    }, 30);
+
+    // Tendencia semanal de calorías
+    const trend = el("div", { class: "card mb-16" }, [
+      el("div", { class: "card-head" }, [el("div", { class: "card-title", style: "font-size:13px" }, [el("span", { class: "dot" }), "Calorías · últimos 7 días"])])
+    ]);
+    const tcv = el("canvas");
+    trend.appendChild(el("div", { class: "chart-box" }, [tcv]));
+    container.appendChild(trend);
+    setTimeout(() => Charts.bars(tcv, { labels: weekSeries("kcal").labels, series: [{ values: weekSeries("kcal").values, color: "--warn" }] }, { height: 160 }), 30);
 
     // Consumido hoy
     const listCard = el("div", { class: "card" }, [
@@ -4262,14 +4493,20 @@ canvas { display: block; width: 100%; }
     container.appendChild(listCard);
   }
 
-  function chartCard(title, macro, color) {
-    const card = el("div", { class: "card" }, [
-      el("div", { class: "card-head" }, [el("div", { class: "card-title", style: "font-size:13px" }, [el("span", { class: "dot" }), title])])
+  // fila de la leyenda estilo infográfico (01 / macro / valor / %)
+  function legendRow(idx, macro, val, goal) {
+    const pct = goal > 0 ? Math.round((val / goal) * 100) : 0;
+    const cvar = "var(" + macro.color + ")";
+    return el("div", { class: "flex items-center gap-12", style: "padding:6px 0" }, [
+      el("div", { style: "width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;color:#04122b;background:" + cvar + ";box-shadow:0 0 12px " + cvar }, [
+        el("span", { text: "0" + idx })
+      ]),
+      el("div", { class: "item-main" }, [
+        el("div", { class: "item-title", style: "font-size:14px", text: macro.label }),
+        el("div", { class: "text-faint fs-12", text: fmt.num(val) + " / " + fmt.num(goal) + " " + macro.unit })
+      ]),
+      el("div", { style: "font-size:20px;font-weight:800;color:" + cvar, text: pct + "%" })
     ]);
-    const cv = el("canvas");
-    card.appendChild(el("div", { class: "chart-box" }, [cv]));
-    setTimeout(() => Charts.bars(cv, { labels: series(macro).labels, series: [{ values: series(macro).values, color: color }] }, { height: 150 }), 30);
-    return card;
   }
 
   function kpi(label, val, sub, cls) {
@@ -4278,7 +4515,7 @@ canvas { display: block; width: 100%; }
     ])]);
   }
 
-  N.Nutrition = { render, dayTotals };
+  N.Nutrition = { render, dayTotals, exportPDF };
 })();
 
 

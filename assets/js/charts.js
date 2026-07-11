@@ -233,6 +233,55 @@
         ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, end); ctx.stroke();
         ctx.shadowBlur = 0;
       });
+    },
+
+    // ---------- Multi-ring radial (anillos concéntricos de progreso) ----------
+    multiRing(canvas, rings, opts) {
+      opts = opts || {};
+      const size = opts.size || 230;
+      canvas.style.width = "100%";
+      canvas.style.maxWidth = size + "px";
+      canvas.style.margin = "0 auto";
+      canvas.style.display = "block";
+      const { ctx, w, h } = setup(canvas, size);
+      const cx = w / 2, cy = h / 2;
+      const n = rings.length || 1;
+      const outer = Math.min(cx, cy) - 8;
+      const gap = opts.gap != null ? opts.gap : 8;
+      const inner = opts.inner != null ? opts.inner : outer * 0.32;
+      const thickness = opts.thickness || Math.max(6, ((outer - inner) - gap * (n - 1)) / n);
+      const track = cssVar("--border");
+      const startA = -Math.PI / 2;
+
+      animate((prog) => {
+        ctx.clearRect(0, 0, w, h);
+        rings.forEach((rg, i) => {
+          const r = outer - thickness / 2 - i * (thickness + gap);
+          if (r < 4) return;
+          const pct = Math.max(0, Math.min(100, rg.pct || 0));
+          const col = cssVar(rg.color || "--accent");
+          ctx.lineWidth = thickness; ctx.lineCap = "round";
+          // pista de fondo
+          ctx.globalAlpha = 0.45; ctx.strokeStyle = track; ctx.shadowBlur = 0;
+          ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+          ctx.globalAlpha = 1;
+          // arco de progreso con glow neón
+          const end = startA + (Math.PI * 2) * (pct / 100) * prog;
+          ctx.strokeStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 14;
+          ctx.beginPath(); ctx.arc(cx, cy, r, startA, end); ctx.stroke();
+          ctx.shadowBlur = 0;
+        });
+        // etiqueta central
+        if (opts.centerLabel != null) {
+          ctx.fillStyle = cssVar("--txt"); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.font = "800 22px system-ui";
+          ctx.fillText(String(opts.centerLabel), cx, cy - 6);
+          if (opts.centerSub) {
+            ctx.font = "10px system-ui"; ctx.fillStyle = cssVar("--txt-faint");
+            ctx.fillText(String(opts.centerSub), cx, cy + 13);
+          }
+        }
+      });
     }
   };
 
