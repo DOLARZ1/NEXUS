@@ -1,17 +1,17 @@
 /* =====================================================================
    NEXUS · Service Worker — offline con estrategia stale-while-revalidate
    ===================================================================== */
-const CACHE = "nexus-cache-v31";
+const CACHE = "nexus-cache-v32";
 
 const CORE = [
   "./", "./index.html", "./manifest.webmanifest",
   "./assets/css/styles.css",
   "./assets/js/store.js", "./assets/js/audio.js", "./assets/js/charts.js",
-  "./assets/js/ui.js", "./assets/js/icons.js", "./assets/js/gamification.js",
+  "./assets/js/ui.js", "./assets/js/icons.js", "./assets/js/foods.js", "./assets/js/gamification.js",
   "./assets/js/modules/dashboard.js", "./assets/js/modules/habits.js",
   "./assets/js/modules/finance.js", "./assets/js/modules/tasks.js",
   "./assets/js/modules/workouts.js", "./assets/js/modules/goals.js",
-  "./assets/js/modules/focus.js", "./assets/js/notifications.js",
+  "./assets/js/modules/focus.js", "./assets/js/modules/nutrition.js", "./assets/js/notifications.js",
   "./assets/js/settings.js", "./assets/js/app.js",
   "./assets/icons/icon-192.png", "./assets/icons/icon-512.png"
 ];

@@ -733,6 +733,7 @@ canvas { display: block; width: 100%; }
       <button class="tab" data-view="workouts" role="tab"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="6.5" y1="12" x2="17.5" y2="12" stroke-width="2"/><rect x="2.6" y="8" width="3" height="8" rx="1.2"/><rect x="18.4" y="8" width="3" height="8" rx="1.2"/><rect x="5.8" y="9.8" width="2.2" height="4.4" rx="0.8"/><rect x="16" y="9.8" width="2.2" height="4.4" rx="0.8"/></svg></span><span class="tab-lbl">Entreno</span></button>
       <button class="tab" data-view="goals" role="tab"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v3.5a4 4 0 0 1-8 0z"/><path d="M8 5.2H5.2v1.1a2.7 2.7 0 0 0 2.5 2.7"/><path d="M16 5.2h2.8v1.1a2.7 2.7 0 0 1-2.5 2.7"/><path d="M12 11.5V15"/><path d="M9 15h6l1 5H8z"/></svg></span><span class="tab-lbl">Metas</span></button>
       <button class="tab" data-view="focus" role="tab"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 .6v1.4"/><path d="M3.6 4.4l1.2 1.1"/><path d="M20.4 4.4l-1.2 1.1"/></svg></span><span class="tab-lbl">Enfoque</span></button>
+      <button class="tab" data-view="nutrition" role="tab"><span class="tab-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5.2"/><circle cx="12" cy="12" r="2.5"/><path d="M3 3.5v3.5M4.3 3.5v3.5M5.6 3.5v3.5"/><path d="M2.8 7h3"/><path d="M4.3 7v13.5"/><ellipse cx="20" cy="5.6" rx="1.7" ry="2.7"/><path d="M20 8.3v12.2"/></svg></span><span class="tab-lbl">Alimentación</span></button>
     </nav>
 
     <!-- ====================== VIEWS ====================== -->
@@ -744,6 +745,7 @@ canvas { display: block; width: 100%; }
       <section class="view" id="view-workouts" role="tabpanel"></section>
       <section class="view" id="view-goals" role="tabpanel"></section>
       <section class="view" id="view-focus" role="tabpanel"></section>
+      <section class="view" id="view-nutrition" role="tabpanel"></section>
     </main>
 
     <footer class="foot">
@@ -830,7 +832,8 @@ canvas { display: block; width: 100%; }
         sessionsCompleted: 0,  // total histórico de sesiones de trabajo
         focusLog: {},          // { "YYYY-MM-DD": minutos enfocados }
         sessionsLog: {}        // { "YYYY-MM-DD": nº de sesiones de trabajo }
-      }
+      },
+      nutrition: { log: [] }   // registro de alimentos: {id,name,cat,grams,kcal,prot,carb,date}
     };
   }
 
@@ -1499,7 +1502,8 @@ canvas { display: block; width: 100%; }
     trophy: '<svg ' + A + ' stroke-width="1.8"><path d="M8 4h8v3.5a4 4 0 0 1-8 0z"/><path d="M8 5.2H5.2v1.1a2.7 2.7 0 0 0 2.5 2.7"/><path d="M16 5.2h2.8v1.1a2.7 2.7 0 0 1-2.5 2.7"/><path d="M12 11.5V15"/><path d="M9 15h6l1 5H8z"/></svg>',
     meditation: '<svg ' + A + ' stroke-width="1.8"><circle cx="12" cy="5.4" r="2"/><path d="M5 18c1.9-4 12.1-4 14 0"/><path d="M12 8c-2 0-3.7 1.4-4.3 3.5"/><path d="M12 8c2 0 3.7 1.4 4.3 3.5"/><path d="M7.7 11.5C9 12.1 9.2 14 8 15.1"/><path d="M16.3 11.5C15 12.1 14.8 14 16 15.1"/></svg>',
     bulb: '<svg ' + A + ' stroke-width="1.8"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 .6v1.4"/><path d="M3.6 4.4l1.2 1.1"/><path d="M20.4 4.4l-1.2 1.1"/></svg>',
-    piggy: '<svg ' + A + ' stroke-width="1.7"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>'
+    piggy: '<svg ' + A + ' stroke-width="1.7"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>',
+    plate: '<svg ' + A + ' stroke-width="1.6"><circle cx="12" cy="12" r="5.2"/><circle cx="12" cy="12" r="2.5"/><path d="M3 3.5v3.5M4.3 3.5v3.5M5.6 3.5v3.5"/><path d="M2.8 7h3"/><path d="M4.3 7v13.5"/><ellipse cx="20" cy="5.6" rx="1.7" ry="2.7"/><path d="M20 8.3v12.2"/></svg>'
   };
 
   // devuelve un <span class="ico"> con el SVG del ícono indicado
@@ -1511,6 +1515,165 @@ canvas { display: block; width: 100%; }
   }
 
   N.Icons = { svg: SVG, node: node };
+})();
+
+
+/* ===== assets/js/foods.js ===== */
+/* =====================================================================
+   NEXUS · FOODS — base de datos nutricional (valores aproximados por 100 g)
+   Campos: name, cat, kcal, prot (proteína g), carb (carbohidratos g)
+   Los valores son estimados con fines informativos.
+   ===================================================================== */
+(function () {
+  "use strict";
+  const N = window.NEXUS || (window.NEXUS = {});
+
+  const CATS = [
+    "Carnes y proteínas", "Frutas", "Verduras", "Cereales y panes",
+    "Lácteos", "Platillos mexicanos", "Comida rápida", "Snacks / chatarra", "Bebidas"
+  ];
+
+  const F = (name, cat, kcal, prot, carb) => ({ name, cat, kcal, prot, carb });
+
+  const FOODS = [
+    // ---------- Carnes y proteínas ----------
+    F("Pechuga de pollo", "Carnes y proteínas", 165, 31, 0),
+    F("Muslo de pollo", "Carnes y proteínas", 209, 26, 0),
+    F("Carne de res magra", "Carnes y proteínas", 250, 26, 0),
+    F("Bistec de res", "Carnes y proteínas", 271, 25, 0),
+    F("Carne molida de res", "Carnes y proteínas", 254, 26, 0),
+    F("Lomo de cerdo", "Carnes y proteínas", 242, 27, 0),
+    F("Chuleta de cerdo", "Carnes y proteínas", 231, 26, 0),
+    F("Chorizo", "Carnes y proteínas", 455, 24, 2),
+    F("Tocino", "Carnes y proteínas", 541, 37, 1.4),
+    F("Jamón", "Carnes y proteínas", 145, 21, 1.5),
+    F("Salchicha", "Carnes y proteínas", 300, 12, 2),
+    F("Tilapia", "Carnes y proteínas", 96, 20, 0),
+    F("Salmón", "Carnes y proteínas", 208, 20, 0),
+    F("Atún en agua", "Carnes y proteínas", 116, 26, 0),
+    F("Camarón", "Carnes y proteínas", 99, 24, 0),
+    F("Huevo", "Carnes y proteínas", 155, 13, 1.1),
+    F("Clara de huevo", "Carnes y proteínas", 52, 11, 0.7),
+
+    // ---------- Frutas ----------
+    F("Manzana", "Frutas", 52, 0.3, 14),
+    F("Plátano", "Frutas", 89, 1.1, 23),
+    F("Naranja", "Frutas", 47, 0.9, 12),
+    F("Fresa", "Frutas", 32, 0.7, 8),
+    F("Uva", "Frutas", 69, 0.7, 18),
+    F("Sandía", "Frutas", 30, 0.6, 8),
+    F("Melón", "Frutas", 34, 0.8, 8),
+    F("Piña", "Frutas", 50, 0.5, 13),
+    F("Mango", "Frutas", 60, 0.8, 15),
+    F("Papaya", "Frutas", 43, 0.5, 11),
+    F("Pera", "Frutas", 57, 0.4, 15),
+    F("Durazno", "Frutas", 39, 0.9, 10),
+    F("Aguacate", "Frutas", 160, 2, 9),
+    F("Toronja", "Frutas", 42, 0.8, 11),
+    F("Kiwi", "Frutas", 61, 1.1, 15),
+    F("Guayaba", "Frutas", 68, 2.6, 14),
+
+    // ---------- Verduras ----------
+    F("Brócoli", "Verduras", 34, 2.8, 7),
+    F("Zanahoria", "Verduras", 41, 0.9, 10),
+    F("Espinaca", "Verduras", 23, 2.9, 3.6),
+    F("Jitomate", "Verduras", 18, 0.9, 3.9),
+    F("Lechuga", "Verduras", 15, 1.4, 2.9),
+    F("Pepino", "Verduras", 16, 0.7, 3.6),
+    F("Cebolla", "Verduras", 40, 1.1, 9),
+    F("Papa", "Verduras", 77, 2, 17),
+    F("Camote", "Verduras", 86, 1.6, 20),
+    F("Chile jalapeño", "Verduras", 29, 0.9, 6),
+    F("Calabacita", "Verduras", 17, 1.2, 3.1),
+    F("Ejotes", "Verduras", 31, 1.8, 7),
+    F("Champiñón", "Verduras", 22, 3.1, 3.3),
+    F("Elote", "Verduras", 86, 3.2, 19),
+    F("Nopal", "Verduras", 16, 1.3, 3.3),
+
+    // ---------- Cereales y panes ----------
+    F("Arroz blanco cocido", "Cereales y panes", 130, 2.7, 28),
+    F("Arroz integral cocido", "Cereales y panes", 111, 2.6, 23),
+    F("Pan blanco", "Cereales y panes", 265, 9, 49),
+    F("Pan integral", "Cereales y panes", 247, 13, 41),
+    F("Tortilla de maíz", "Cereales y panes", 218, 5.7, 45),
+    F("Tortilla de harina", "Cereales y panes", 304, 8, 51),
+    F("Avena", "Cereales y panes", 389, 17, 66),
+    F("Pasta cocida", "Cereales y panes", 131, 5, 25),
+    F("Frijol cocido", "Cereales y panes", 127, 9, 23),
+    F("Lenteja cocida", "Cereales y panes", 116, 9, 20),
+
+    // ---------- Lácteos ----------
+    F("Leche entera", "Lácteos", 61, 3.2, 4.8),
+    F("Leche descremada", "Lácteos", 34, 3.4, 5),
+    F("Yogur natural", "Lácteos", 59, 10, 3.6),
+    F("Queso panela", "Lácteos", 215, 18, 3),
+    F("Queso Oaxaca", "Lácteos", 350, 25, 3),
+    F("Queso manchego", "Lácteos", 350, 24, 2),
+    F("Crema", "Lácteos", 300, 2.5, 3),
+    F("Requesón", "Lácteos", 98, 11, 3.4),
+
+    // ---------- Platillos mexicanos ----------
+    F("Tacos al pastor", "Platillos mexicanos", 220, 12, 18),
+    F("Tacos de bistec", "Platillos mexicanos", 200, 14, 16),
+    F("Quesadilla", "Platillos mexicanos", 280, 12, 26),
+    F("Enchiladas", "Platillos mexicanos", 180, 8, 20),
+    F("Pozole", "Platillos mexicanos", 90, 6, 9),
+    F("Chilaquiles", "Platillos mexicanos", 190, 6, 22),
+    F("Tamal", "Platillos mexicanos", 230, 5, 30),
+    F("Guacamole", "Platillos mexicanos", 160, 2, 9),
+    F("Mole con pollo", "Platillos mexicanos", 160, 10, 12),
+    F("Frijoles refritos", "Platillos mexicanos", 135, 6, 18),
+    F("Sope", "Platillos mexicanos", 250, 7, 30),
+    F("Tostada", "Platillos mexicanos", 240, 8, 30),
+    F("Chile relleno", "Platillos mexicanos", 210, 9, 12),
+    F("Huevos rancheros", "Platillos mexicanos", 170, 9, 12),
+    F("Carne asada", "Platillos mexicanos", 250, 26, 2),
+    F("Torta de milanesa", "Platillos mexicanos", 260, 12, 28),
+
+    // ---------- Comida rápida ----------
+    F("Hamburguesa", "Comida rápida", 254, 13, 30),
+    F("Hamburguesa con queso", "Comida rápida", 300, 15, 30),
+    F("Pizza", "Comida rápida", 266, 11, 33),
+    F("Hot dog", "Comida rápida", 290, 10, 24),
+    F("Papas a la francesa", "Comida rápida", 312, 3.4, 41),
+    F("Pollo frito", "Comida rápida", 246, 19, 8),
+    F("Nuggets de pollo", "Comida rápida", 296, 15, 16),
+    F("Burrito", "Comida rápida", 206, 8, 24),
+    F("Sándwich", "Comida rápida", 250, 11, 28),
+    F("Alitas", "Comida rápida", 290, 27, 1),
+
+    // ---------- Snacks / chatarra ----------
+    F("Papas fritas (bolsa)", "Snacks / chatarra", 536, 7, 53),
+    F("Nachos / Doritos", "Snacks / chatarra", 498, 7, 63),
+    F("Chocolate", "Snacks / chatarra", 546, 5, 61),
+    F("Galletas", "Snacks / chatarra", 480, 6, 64),
+    F("Dona", "Snacks / chatarra", 452, 5, 51),
+    F("Palomitas", "Snacks / chatarra", 387, 12, 78),
+    F("Cacahuates", "Snacks / chatarra", 567, 26, 16),
+    F("Helado", "Snacks / chatarra", 207, 3.5, 24),
+    F("Pastel", "Snacks / chatarra", 350, 5, 50),
+    F("Churros", "Snacks / chatarra", 400, 5, 55),
+    F("Gomitas", "Snacks / chatarra", 396, 0, 98),
+
+    // ---------- Bebidas (por 100 ml) ----------
+    F("Agua", "Bebidas", 0, 0, 0),
+    F("Refresco de cola", "Bebidas", 42, 0, 11),
+    F("Refresco light", "Bebidas", 0, 0, 0),
+    F("Jugo de naranja", "Bebidas", 45, 0.7, 10),
+    F("Cerveza", "Bebidas", 43, 0.5, 3.6),
+    F("Café negro", "Bebidas", 2, 0.1, 0),
+    F("Café con leche", "Bebidas", 55, 3, 6),
+    F("Té sin azúcar", "Bebidas", 1, 0, 0),
+    F("Leche con chocolate", "Bebidas", 83, 3, 11),
+    F("Bebida energética", "Bebidas", 45, 0, 11),
+    F("Agua de horchata", "Bebidas", 80, 1, 16),
+    F("Licuado de plátano", "Bebidas", 90, 3, 15),
+    F("Vino", "Bebidas", 83, 0.1, 2.6),
+    F("Limonada", "Bebidas", 40, 0, 10)
+  ];
+
+  N.FOODS = FOODS;
+  N.FOOD_CATS = CATS;
 })();
 
 
@@ -3892,6 +4055,233 @@ canvas { display: block; width: 100%; }
 })();
 
 
+/* ===== assets/js/modules/nutrition.js ===== */
+/* =====================================================================
+   NEXUS · Módulo Alimentación
+   Base de datos de alimentos + registro diario con gramos y totales
+   de calorías, proteínas y carbohidratos (gráficos separados).
+   ===================================================================== */
+(function () {
+  "use strict";
+  const N = window.NEXUS;
+  const { Store, UI, Audio, Gami, Charts } = N;
+  const { el, fmt, toast } = UI;
+  const DateUtil = Store.DateUtil;
+
+  const today = () => DateUtil.todayKey();
+
+  function nut() {
+    const s = Store.get();
+    if (!s.nutrition || !Array.isArray(s.nutrition.log)) s.nutrition = { log: [] };
+    return s.nutrition;
+  }
+  function log() { return nut().log; }
+  const r1 = (x) => Math.round(x * 10) / 10;
+
+  function addEntry(food, grams) {
+    const f = grams / 100;
+    log().push({
+      id: Store.uid(), name: food.name, cat: food.cat, grams: Math.round(grams),
+      kcal: Math.round(food.kcal * f), prot: r1(food.prot * f), carb: r1(food.carb * f),
+      date: today(), xpEarned: 2
+    });
+    Store.commit();
+    Gami.award(2, "Alimento registrado 🍽️");
+  }
+
+  function removeEntry(e) {
+    const a = log(); a.splice(a.indexOf(e), 1);
+    Audio.play("delete");
+    if (e.xpEarned) Gami.remove(e.xpEarned); else Store.commit();
+    render(document.getElementById("view-nutrition"));
+    N.App && N.App.refreshTop();
+  }
+
+  function dayTotals(key) {
+    return log().filter((x) => x.date === key).reduce((t, x) => {
+      t.kcal += x.kcal; t.prot += x.prot; t.carb += x.carb; return t;
+    }, { kcal: 0, prot: 0, carb: 0 });
+  }
+  function series(macro) {
+    const days = DateUtil.lastNDays(7);
+    return {
+      labels: days.map((d) => DateUtil.weekday(d)),
+      values: days.map((d) => Math.round(log().filter((x) => x.date === d).reduce((s, x) => s + x[macro], 0)))
+    };
+  }
+
+  // ---------------- Buscador de alimentos ----------------
+  let browseCat = "Todos";
+  let browseQuery = "";
+
+  function openBrowser() {
+    const search = el("input", { class: "input", placeholder: "🔍 Buscar alimento…", value: browseQuery });
+    const listWrap = el("div", { style: "max-height:46vh;overflow-y:auto;margin-top:10px" });
+
+    function renderList() {
+      listWrap.innerHTML = "";
+      const q = browseQuery.trim().toLowerCase();
+      let items = N.FOODS.filter((f) => (browseCat === "Todos" || f.cat === browseCat) && (!q || f.name.toLowerCase().includes(q)));
+      items = items.slice().sort((a, b) => a.name.localeCompare(b.name));
+      if (!items.length) { listWrap.appendChild(el("div", { class: "empty", text: "Sin resultados." })); return; }
+      // agrupar por categoría si es "Todos"
+      if (browseCat === "Todos") {
+        const groups = {};
+        items.forEach((f) => { (groups[f.cat] = groups[f.cat] || []).push(f); });
+        N.FOOD_CATS.forEach((cat) => {
+          if (!groups[cat]) return;
+          listWrap.appendChild(el("div", { class: "card-title", style: "margin:12px 0 6px", text: cat }));
+          groups[cat].forEach((f) => listWrap.appendChild(foodRow(f)));
+        });
+      } else {
+        items.forEach((f) => listWrap.appendChild(foodRow(f)));
+      }
+    }
+
+    search.addEventListener("input", () => { browseQuery = search.value; renderList(); });
+
+    // chips de categoría
+    const chips = el("div", { class: "flex gap-8", style: "flex-wrap:wrap;margin-top:10px" });
+    ["Todos"].concat(N.FOOD_CATS).forEach((cat) => {
+      const c = el("button", { class: "chip" + (cat === browseCat ? " accent" : ""), text: cat, style: "cursor:pointer" });
+      c.addEventListener("click", () => { browseCat = cat; Audio.play("tap"); openBrowser(); });
+      chips.appendChild(c);
+    });
+
+    const body = el("div", {}, [search, chips, listWrap]);
+    UI.openModal("🍽️ Alimentos", body);
+    renderList();
+  }
+
+  function foodRow(f) {
+    return el("div", { class: "item", style: "padding:10px 12px;cursor:pointer", onclick: () => openPortion(f) }, [
+      el("div", { class: "item-main" }, [
+        el("div", { class: "item-title", style: "font-size:14px", text: f.name }),
+        el("div", { class: "item-meta" }, [
+          el("span", { class: "chip", text: f.kcal + " kcal" }),
+          el("span", { class: "text-faint fs-12", text: "P " + f.prot + "g · C " + f.carb + "g /100g" })
+        ])
+      ]),
+      el("button", { class: "icon-btn", html: "＋", title: "Agregar", onclick: (ev) => { ev.stopPropagation(); openPortion(f); } })
+    ]);
+  }
+
+  function openPortion(food) {
+    const gramsI = el("input", { class: "input", type: "number", min: 1, step: 1, value: 100 });
+    const preview = el("div", { class: "grid cols-3", style: "margin-top:12px" });
+    function paint() {
+      const g = Number(gramsI.value) || 0; const f = g / 100;
+      preview.innerHTML = "";
+      preview.appendChild(macroBox("Calorías", Math.round(food.kcal * f), "kcal", "#ff9f1c"));
+      preview.appendChild(macroBox("Proteínas", r1(food.prot * f), "g", "var(--good)"));
+      preview.appendChild(macroBox("Carbos", r1(food.carb * f), "g", "var(--accent)"));
+    }
+    gramsI.addEventListener("input", paint);
+    const body = el("div", {}, [
+      el("div", { class: "insight info", style: "margin-bottom:14px" }, [
+        el("span", { class: "ico", text: "🍽️" }),
+        el("div", { class: "txt", html: "<b>" + food.name + "</b><br><span style='color:var(--txt-faint)'>" + food.cat + " · " + food.kcal + " kcal por 100 g</span>" })
+      ]),
+      el("div", { class: "field" }, [el("label", { text: "Cantidad (gramos)" }), gramsI]),
+      preview,
+      el("button", { class: "btn primary block", style: "margin-top:16px", html: "＋ Agregar al día", onclick: () => {
+        const g = Number(gramsI.value) || 0;
+        if (g <= 0) { Audio.play("error"); toast({ icon: "⚠️", msg: "Indica los gramos" }); return; }
+        addEntry(food, g); Audio.play("coin");
+        toast({ icon: "🍽️", title: "Agregado", msg: food.name + " (" + Math.round(g) + " g)" });
+        UI.closeModal();
+        render(document.getElementById("view-nutrition"));
+        N.App && N.App.refreshTop();
+      } })
+    ]);
+    UI.openModal("Agregar " + food.name, body);
+    paint();
+  }
+
+  function macroBox(label, val, unit, color) {
+    return el("div", { class: "card", style: "padding:12px;text-align:center" }, [
+      el("div", { class: "kpi-val", style: "font-size:22px;color:" + color, text: fmt.num(val) }),
+      el("div", { class: "kpi-lbl", text: label + (unit ? " (" + unit + ")" : "") })
+    ]);
+  }
+
+  // ---------------- Render ----------------
+  function render(container) {
+    container.innerHTML = "";
+    const t = dayTotals(today());
+
+    container.appendChild(el("div", { class: "view-head" }, [
+      el("div", {}, [
+        el("h1", { class: "view-title" }, [N.Icons.node("plate"), "Alimentación"]),
+        el("p", { class: "view-desc", text: "Registra lo que comes y controla tus calorías y macros del día." })
+      ]),
+      el("button", { class: "btn primary", onclick: openBrowser, html: "＋ Agregar alimento" })
+    ]));
+
+    // Totales de hoy
+    container.appendChild(el("div", { class: "grid cols-4 mb-16" }, [
+      kpi("Calorías hoy", fmt.num(t.kcal), "kcal", "warn"),
+      kpi("Proteínas", fmt.num(r1(t.prot)) + " g", "hoy", "good"),
+      kpi("Carbohidratos", fmt.num(r1(t.carb)) + " g", "hoy", "accent"),
+      kpi("Alimentos", log().filter((x) => x.date === today()).length + "", "registrados", "accent")
+    ]));
+
+    // Gráficos separados (7 días)
+    const charts = el("div", { class: "grid cols-3 mb-16" }, [
+      chartCard("Calorías · 7 días", "kcal", "--warn"),
+      chartCard("Proteínas (g) · 7 días", "prot", "--good"),
+      chartCard("Carbohidratos (g) · 7 días", "carb", "--accent")
+    ]);
+    container.appendChild(charts);
+
+    // Consumido hoy
+    const listCard = el("div", { class: "card" }, [
+      el("div", { class: "card-head" }, [
+        el("div", { class: "card-title" }, [el("span", { class: "dot" }), "Consumido hoy"]),
+        el("button", { class: "btn sm", html: "🍽️ Ver alimentos", onclick: openBrowser })
+      ])
+    ]);
+    const todayItems = log().filter((x) => x.date === today()).slice().reverse();
+    if (!todayItems.length) {
+      listCard.appendChild(el("div", { class: "empty" }, [el("span", { class: "big", text: "🍽️" }), el("div", { text: "Aún no registras alimentos hoy." })]));
+    } else {
+      todayItems.forEach((e) => {
+        listCard.appendChild(el("div", { class: "item" }, [
+          el("div", { class: "item-main" }, [
+            el("div", { class: "item-title", text: e.name }),
+            el("div", { class: "item-meta" }, [
+              el("span", { class: "chip", text: e.grams + " g" }),
+              el("span", { class: "chip warn", text: e.kcal + " kcal" }),
+              el("span", { class: "text-faint fs-12", text: "P " + e.prot + "g · C " + e.carb + "g" })
+            ])
+          ]),
+          el("button", { class: "icon-btn", html: "🗑️", title: "Eliminar", onclick: () => removeEntry(e) })
+        ]));
+      });
+    }
+    container.appendChild(listCard);
+  }
+
+  function chartCard(title, macro, color) {
+    const card = el("div", { class: "card" }, [
+      el("div", { class: "card-head" }, [el("div", { class: "card-title", style: "font-size:13px" }, [el("span", { class: "dot" }), title])])
+    ]);
+    const cv = el("canvas");
+    card.appendChild(el("div", { class: "chart-box" }, [cv]));
+    setTimeout(() => Charts.bars(cv, { labels: series(macro).labels, series: [{ values: series(macro).values, color: color }] }, { height: 150 }), 30);
+    return card;
+  }
+
+  function kpi(label, val, sub, cls) {
+    return el("div", { class: "card" }, [el("div", { class: "kpi" }, [
+      el("div", { class: "kpi-lbl", text: label }), el("div", { class: "kpi-val " + (cls || ""), text: val }), el("div", { class: "kpi-sub", text: sub })
+    ])]);
+  }
+
+  N.Nutrition = { render, dayTotals };
+})();
+
+
 /* ===== assets/js/notifications.js ===== */
 /* =====================================================================
    NEXUS · Notifications — Notification API + recordatorios de pendientes
@@ -4322,7 +4712,8 @@ canvas { display: block; width: 100%; }
     tasks: N.Tasks,
     workouts: N.Workouts,
     goals: N.Goals,
-    focus: N.Focus
+    focus: N.Focus,
+    nutrition: N.Nutrition
   };
   let current = "dashboard";
 

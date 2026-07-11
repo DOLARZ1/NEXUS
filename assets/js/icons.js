@@ -17,7 +17,8 @@
     trophy: '<svg ' + A + ' stroke-width="1.8"><path d="M8 4h8v3.5a4 4 0 0 1-8 0z"/><path d="M8 5.2H5.2v1.1a2.7 2.7 0 0 0 2.5 2.7"/><path d="M16 5.2h2.8v1.1a2.7 2.7 0 0 1-2.5 2.7"/><path d="M12 11.5V15"/><path d="M9 15h6l1 5H8z"/></svg>',
     meditation: '<svg ' + A + ' stroke-width="1.8"><circle cx="12" cy="5.4" r="2"/><path d="M5 18c1.9-4 12.1-4 14 0"/><path d="M12 8c-2 0-3.7 1.4-4.3 3.5"/><path d="M12 8c2 0 3.7 1.4 4.3 3.5"/><path d="M7.7 11.5C9 12.1 9.2 14 8 15.1"/><path d="M16.3 11.5C15 12.1 14.8 14 16 15.1"/></svg>',
     bulb: '<svg ' + A + ' stroke-width="1.8"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 .6v1.4"/><path d="M3.6 4.4l1.2 1.1"/><path d="M20.4 4.4l-1.2 1.1"/></svg>',
-    piggy: '<svg ' + A + ' stroke-width="1.7"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>'
+    piggy: '<svg ' + A + ' stroke-width="1.7"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>',
+    plate: '<svg ' + A + ' stroke-width="1.6"><circle cx="12" cy="12" r="5.2"/><circle cx="12" cy="12" r="2.5"/><path d="M3 3.5v3.5M4.3 3.5v3.5M5.6 3.5v3.5"/><path d="M2.8 7h3"/><path d="M4.3 7v13.5"/><ellipse cx="20" cy="5.6" rx="1.7" ry="2.7"/><path d="M20 8.3v12.2"/></svg>'
   };
 
   // devuelve un <span class="ico"> con el SVG del ícono indicado

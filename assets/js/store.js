@@ -59,7 +59,8 @@
         sessionsCompleted: 0,  // total histórico de sesiones de trabajo
         focusLog: {},          // { "YYYY-MM-DD": minutos enfocados }
         sessionsLog: {}        // { "YYYY-MM-DD": nº de sesiones de trabajo }
-      }
+      },
+      nutrition: { log: [] }   // registro de alimentos: {id,name,cat,grams,kcal,prot,carb,date}
     };
   }
 
