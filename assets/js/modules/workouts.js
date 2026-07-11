@@ -63,6 +63,112 @@
   }
 
   function workouts() { return Store.get().workouts; }
+  function typeName(v) { const t = TYPES.find((x) => x.value === v); return t ? t.name : (v || "Otro"); }
+  function typeEmoji(v) { const t = TYPES.find((x) => x.value === v); return t ? t.icon : "💪"; }
+
+  // ---------- Exportar resumen a PDF (vía impresión del navegador) ----------
+  function openPdfModal() {
+    const body = el("div", {}, [
+      el("p", { class: "text-dim fs-13", style: "margin-bottom:16px", text: "Elige el periodo del resumen a descargar en PDF:" }),
+      el("button", { class: "btn primary block", style: "margin-bottom:10px", html: "📅 Diario (hoy)", onclick: () => { UI.closeModal(); exportPDF("daily"); } }),
+      el("button", { class: "btn block", style: "margin-bottom:10px", html: "🗓️ Semanal (últimos 7 días)", onclick: () => { UI.closeModal(); exportPDF("weekly"); } }),
+      el("button", { class: "btn block", html: "📆 Mensual (este mes)", onclick: () => { UI.closeModal(); exportPDF("monthly"); } }),
+      el("p", { class: "fs-12 text-faint", style: "margin-top:16px", html: "Se abrirá la ventana de impresión: elige <b>\"Guardar como PDF\"</b> como destino." })
+    ]);
+    UI.openModal("📄 Descargar PDF de entrenamiento", body);
+  }
+
+  function rangeFor(period) {
+    const to = DateUtil.todayKey();
+    let from, label;
+    if (period === "daily") { from = to; label = "Diario"; }
+    else if (period === "weekly") { from = DateUtil.addDays(to, -6); label = "Semanal"; }
+    else {
+      const d = new Date(); from = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-01"; label = "Mensual";
+    }
+    return { from: from, to: to, label: label };
+  }
+
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  function exportPDF(period) {
+    const r = rangeFor(period);
+    const list = workouts().filter((w) => w.date >= r.from && w.date <= r.to)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+
+    const totalMin = list.reduce((s, w) => s + (w.duration || 0), 0);
+    const totalKcal = list.reduce((s, w) => s + (w.calories || 0), 0);
+    const byType = {};
+    list.forEach((w) => { byType[w.type] = (byType[w.type] || 0) + 1; });
+
+    const fromLbl = DateUtil.parse(r.from).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+    const toLbl = DateUtil.parse(r.to).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+
+    let rows = "";
+    if (!list.length) {
+      rows = '<tr><td colspan="6" style="text-align:center;color:#888;padding:24px">Sin entrenamientos en este periodo.</td></tr>';
+    } else {
+      list.forEach((w) => {
+        const exs = (w.exercises || []).map((e) => esc(e.name) + ((e.sets || e.reps) ? " " + (e.sets || "?") + "×" + (e.reps || "?") : "")).join("<br>");
+        rows += "<tr>" +
+          "<td>" + DateUtil.parse(w.date).toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" }) + "</td>" +
+          "<td><b>" + esc(w.name) + "</b></td>" +
+          "<td>" + typeEmoji(w.type) + " " + esc(typeName(w.type)) + "</td>" +
+          "<td style='text-align:center'>" + (w.duration || 0) + " min</td>" +
+          "<td style='text-align:center'>" + (w.calories || 0) + "</td>" +
+          "<td>" + (exs || "—") + (w.notes ? "<div style='color:#666;font-size:11px;margin-top:4px'>📝 " + esc(w.notes) + "</div>" : "") + "</td>" +
+          "</tr>";
+      });
+    }
+
+    const typeChips = Object.keys(byType).map((k) => typeEmoji(k) + " " + esc(typeName(k)) + ": " + byType[k]).join(" &nbsp;·&nbsp; ") || "—";
+
+    const html = "<!doctype html><html lang='es'><head><meta charset='utf-8'><title>NEXUS · Resumen " + r.label + "</title>" +
+      "<style>" +
+      "*{box-sizing:border-box;font-family:'Segoe UI',system-ui,Arial,sans-serif}" +
+      "body{margin:0;padding:32px;color:#1a1a2e;background:#fff}" +
+      ".hd{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #6a5cff;padding-bottom:14px;margin-bottom:20px}" +
+      ".logo{font-size:22px;font-weight:800;letter-spacing:2px;color:#6a5cff}" +
+      ".logo span{color:#00b3c4}" +
+      ".sub{color:#666;font-size:13px}" +
+      "h1{font-size:20px;margin:0 0 4px}" +
+      ".kpis{display:flex;gap:12px;margin:18px 0}" +
+      ".kpi{flex:1;border:1px solid #e3e3ee;border-radius:12px;padding:12px 14px}" +
+      ".kpi .n{font-size:24px;font-weight:800;color:#6a5cff}" +
+      ".kpi .l{font-size:12px;color:#777;text-transform:uppercase;letter-spacing:1px}" +
+      ".types{background:#f4f4fb;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:18px}" +
+      "table{width:100%;border-collapse:collapse;font-size:12.5px}" +
+      "th{background:#6a5cff;color:#fff;text-align:left;padding:8px 10px;font-size:12px}" +
+      "td{padding:8px 10px;border-bottom:1px solid #ececf4;vertical-align:top}" +
+      "tr:nth-child(even) td{background:#fafaff}" +
+      ".ft{margin-top:24px;color:#999;font-size:11px;text-align:center;border-top:1px solid #eee;padding-top:12px}" +
+      "@media print{body{padding:0}}" +
+      "</style></head><body>" +
+      "<div class='hd'><div><div class='logo'>⬡ NE<span>XUS</span></div><div class='sub'>Salud y Disciplina</div></div>" +
+      "<div style='text-align:right'><h1>Resumen de entrenamiento</h1><div class='sub'>" + r.label + " · " + (r.from === r.to ? fromLbl : fromLbl + " → " + toLbl) + "</div></div></div>" +
+      "<div class='kpis'>" +
+      "<div class='kpi'><div class='n'>" + list.length + "</div><div class='l'>Sesiones</div></div>" +
+      "<div class='kpi'><div class='n'>" + totalMin + "</div><div class='l'>Minutos</div></div>" +
+      "<div class='kpi'><div class='n'>" + totalKcal + "</div><div class='l'>Calorías</div></div>" +
+      "</div>" +
+      "<div class='types'><b>Por tipo:</b> " + typeChips + "</div>" +
+      "<table><thead><tr><th>Fecha</th><th>Sesión</th><th>Tipo</th><th style='text-align:center'>Duración</th><th style='text-align:center'>Kcal</th><th>Ejercicios / Notas</th></tr></thead><tbody>" + rows + "</tbody></table>" +
+      "<div class='ft'>Generado por NEXUS · " + new Date().toLocaleString("es-MX") + "</div>" +
+      "</body></html>";
+
+    // Imprimir mediante un iframe oculto (no lo bloquean los popups)
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow.document;
+    doc.open(); doc.write(html); doc.close();
+    Audio.play("tap");
+    toast({ icon: "📄", title: "Generando PDF…", msg: "Elige \"Guardar como PDF\"." });
+    setTimeout(function () {
+      try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch (e) {}
+      setTimeout(function () { iframe.remove(); }, 1500);
+    }, 500);
+  }
 
   // Sección dinámica de ejercicios (nombre + series × reps, con botón ＋)
   function buildExerciseSection() {
@@ -163,7 +269,10 @@
         el("h1", { class: "view-title" }, [N.Icons.node("dumbbell"), "Entrenamientos"]),
         el("p", { class: "view-desc", text: "Registra tus sesiones y observa tu progreso físico." })
       ]),
-      el("button", { class: "btn primary", onclick: add, html: "＋ Registrar sesión" })
+      el("div", { class: "flex gap-8" }, [
+        el("button", { class: "btn", onclick: openPdfModal, html: "📄 PDF" }),
+        el("button", { class: "btn primary", onclick: add, html: "＋ Registrar sesión" })
+      ])
     ]));
 
     container.appendChild(el("div", { class: "grid cols-4 mb-16" }, [

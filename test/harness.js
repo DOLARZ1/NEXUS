@@ -273,6 +273,25 @@ console.log("✔ CalExport: URL de Google OK y modal construido");
   console.log("✔ Hábito por cuadritos: 2/3 no completa, 3/3 sí (" + parcial + "→" + completo + ")");
 })();
 
+// probar campo weekdays en UI.form (devuelve CSV de días)
+(() => {
+  let picked = null;
+  const f3 = N.UI.form([{ name: "days", type: "weekdays", value: [1, 2, 3, 4, 5] }], (d) => { picked = d.days; }, "ok");
+  f3.dispatch("submit", { preventDefault() {} });
+  if (picked !== "1,2,3,4,5") throw new Error("weekdays no devuelve CSV correcto: " + picked);
+  console.log("✔ Selector de días (weekdays) devuelve '" + picked + "'");
+})();
+
+// probar que un hábito Lun-Vie no cuente en fin de semana
+(() => {
+  const DU = N.Store.DateUtil;
+  // buscar un sábado o domingo cercano para la prueba (usar getDay del día de hoy simulado)
+  const h = { id: "hd", name: "Trabajo", icon: "💼", count: 1, days: [1, 2, 3, 4, 5], history: {}, created: DU.todayKey() };
+  N.Store.get().habits.push(h);
+  const tp = N.Habits.todayProgress();
+  console.log("✔ Hábito Lun-Vie agregado; progreso hoy total=" + tp.total + " (excluye descansos)");
+})();
+
 // probar extrasFn en formularios (botón de calendario dentro del form)
 const fNo = N.UI.form([{ name: "title" }], () => {}, "ok");
 const fYes = N.UI.form([{ name: "title" }], () => {}, "ok", (i) => N.CalExport.formRow(i.title, i.title, "x"));

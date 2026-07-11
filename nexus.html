@@ -648,6 +648,25 @@ canvas { display: block; width: 100%; }
 .modal-body select { color-scheme: dark; }
 [data-theme="light"] .modal-body select { color-scheme: light; }
 
+
+/* =====================================================================
+   SELECTOR DE DÍAS (programación de hábitos) + hábito en descanso
+   ===================================================================== */
+.wdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.wday {
+  height: 40px; border-radius: 10px; font-weight: 700; font-size: 13px;
+  background: var(--panel-2); border: 1px solid var(--border); color: var(--txt-dim); transition: .15s;
+}
+.wday:hover { border-color: var(--accent); color: var(--txt); }
+.wday.on {
+  color: #04122b; border-color: transparent;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: var(--glow);
+}
+.card.habit-off { opacity: .58; }
+.card.habit-off .item-title { color: var(--txt-dim); }
+.check.check-off { border-style: dashed; opacity: .8; cursor: default; }
+
 </style>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='64' y2='64'><stop offset='0' stop-color='%2300e5ff'/><stop offset='.5' stop-color='%237c5cff'/><stop offset='1' stop-color='%23ff2fb0'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='%23060814'/><polygon points='32,9 51,20 51,44 32,55 13,44 13,20' fill='none' stroke='url(%23g)' stroke-width='4'/><circle cx='32' cy='32' r='6' fill='url(%23g)'/></svg>" />
   <!-- PWA -->
@@ -1392,6 +1411,34 @@ canvas { display: block; width: 100%; }
       return field;
     }
 
+    // Selector de días de la semana (para programar hábitos). Guarda CSV de 0..6.
+    if (f.type === "weekdays") {
+      const initial = Array.isArray(f.value) ? f.value.slice() : (typeof f.value === "string" && f.value ? f.value.split(",").map(Number) : [0, 1, 2, 3, 4, 5, 6]);
+      const sel = new Set(initial);
+      const hidden = el("input", { type: "hidden" });
+      const sync = () => { hidden.value = Array.from(sel).sort().join(","); };
+      sync();
+      const order = [[1, "L"], [2, "M"], [3, "M"], [4, "J"], [5, "V"], [6, "S"], [0, "D"]];
+      const btns = {};
+      const grid = el("div", { class: "wdays" });
+      order.forEach((o) => {
+        const b = el("button", { type: "button", class: "wday" + (sel.has(o[0]) ? " on" : ""), text: o[1] });
+        b.addEventListener("click", () => { if (sel.has(o[0])) sel.delete(o[0]); else sel.add(o[0]); b.classList.toggle("on"); sync(); });
+        btns[o[0]] = b; grid.appendChild(b);
+      });
+      const setPreset = (arr) => { sel.clear(); arr.forEach((d) => sel.add(d)); order.forEach((o) => btns[o[0]].classList.toggle("on", sel.has(o[0]))); sync(); };
+      const presets = el("div", { class: "flex gap-8", style: "margin-bottom:8px;flex-wrap:wrap" }, [
+        el("button", { type: "button", class: "btn sm ghost", text: "Todos", onclick: () => setPreset([0, 1, 2, 3, 4, 5, 6]) }),
+        el("button", { type: "button", class: "btn sm ghost", text: "Lun-Vie", onclick: () => setPreset([1, 2, 3, 4, 5]) }),
+        el("button", { type: "button", class: "btn sm ghost", text: "Fin de semana", onclick: () => setPreset([0, 6]) })
+      ]);
+      inputs[f.name] = hidden;
+      field.appendChild(presets);
+      field.appendChild(grid);
+      field.appendChild(hidden);
+      return field;
+    }
+
     let input;
     if (f.type === "select") {
       input = el("select", { class: "select" });
@@ -1947,27 +1994,50 @@ canvas { display: block; width: 100%; }
   function doneToday(h) { return doneOn(h, today()); }
   function pctToday(h) { return Math.round((dayVal(h, today()) / tgt(h)) * 100); }
 
-  // racha (días consecutivos completados)
+  // ---------- programación de días activos (0=Dom..6=Sáb) ----------
+  const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
+  function activeDays(h) { return (Array.isArray(h.days) && h.days.length) ? h.days : ALL_DAYS; }
+  function activeSet(h) { return new Set(activeDays(h)); }
+  function activeOn(h, key) { return activeSet(h).has(DateUtil.parse(key).getDay()); }
+  function activeToday(h) { return activeOn(h, today()); }
+  function daysLabel(h) {
+    const s = activeSet(h);
+    if (s.size >= 7) return "Todos los días";
+    if (s.size === 5 && [1, 2, 3, 4, 5].every((d) => s.has(d))) return "Lun a Vie";
+    if (s.size === 2 && s.has(0) && s.has(6)) return "Fin de semana";
+    return [[1, "L"], [2, "M"], [3, "M"], [4, "J"], [5, "V"], [6, "S"], [0, "D"]].filter((x) => s.has(x[0])).map((x) => x[1]).join(" ");
+  }
+
+  // racha (días activos consecutivos completados; se saltan los días de descanso)
   function streak(h) {
+    const set = activeSet(h);
     let s = 0, day = today();
-    if (!doneOn(h, day)) day = DateUtil.addDays(day, -1);
-    while (doneOn(h, day)) { s++; day = DateUtil.addDays(day, -1); }
+    if (set.has(DateUtil.parse(day).getDay()) && !doneOn(h, day)) day = DateUtil.addDays(day, -1);
+    for (let i = 0; i < 400; i++) {
+      const wd = DateUtil.parse(day).getDay();
+      if (set.has(wd)) { if (doneOn(h, day)) s++; else break; }
+      day = DateUtil.addDays(day, -1);
+    }
     return s;
   }
   function bestStreak(h) {
-    const dates = Object.keys(h.history).filter((k) => doneOn(h, k)).sort();
-    let best = 0, cur = 0, prev = null;
-    dates.forEach((d) => {
-      if (prev && DateUtil.diffDays(d, prev) === 1) cur++; else cur = 1;
-      if (cur > best) best = cur;
-      prev = d;
-    });
+    const set = activeSet(h);
+    const done = Object.keys(h.history).filter((k) => doneOn(h, k)).sort();
+    if (!done.length) return 0;
+    let day = done[0]; const end = today(); let cur = 0, best = 0;
+    for (let i = 0; i < 4000 && day <= end; i++) {
+      const wd = DateUtil.parse(day).getDay();
+      if (set.has(wd)) { if (doneOn(h, day)) { cur++; if (cur > best) best = cur; } else cur = 0; }
+      day = DateUtil.addDays(day, 1);
+    }
     return best;
   }
   function completion30(h) {
-    const days = DateUtil.lastNDays(30);
-    const done = days.filter((d) => doneOn(h, d)).length;
-    return Math.round((done / 30) * 100);
+    const set = activeSet(h);
+    const active = DateUtil.lastNDays(30).filter((d) => set.has(DateUtil.parse(d).getDay()));
+    if (!active.length) return 0;
+    const done = active.filter((d) => doneOn(h, d)).length;
+    return Math.round((done / active.length) * 100);
   }
 
   // fija la cantidad de hoy y gestiona XP según se complete o no el día
@@ -2012,15 +2082,18 @@ canvas { display: block; width: 100%; }
       { type: "row", fields: [
         { name: "count", label: "Meta diaria (nº de veces)", type: "number", min: 1, step: 1, value: existing ? tgt(existing) : 1 },
         { name: "unit", label: "Unidad (opcional)", value: existing ? existing.unit || "" : "", placeholder: "vasos, páginas…" }
-      ]}
+      ]},
+      { name: "days", label: "Días activos", type: "weekdays", value: existing ? activeDays(existing) : ALL_DAYS }
     ], (data) => {
       const cnt = Math.max(1, Math.min(MAX_BOXES, parseInt(data.count, 10) || 1));
+      let days = typeof data.days === "string" ? data.days.split(",").filter((x) => x !== "").map(Number) : (Array.isArray(data.days) ? data.days : []);
+      if (!days.length) days = ALL_DAYS.slice();
       if (existing) {
-        existing.name = data.name; existing.icon = data.icon; existing.count = cnt; existing.unit = data.unit;
+        existing.name = data.name; existing.icon = data.icon; existing.count = cnt; existing.unit = data.unit; existing.days = days;
         delete existing.target;
         toast({ icon: "✏️", msg: "Hábito actualizado" });
       } else {
-        habits().push({ id: Store.uid(), name: data.name, icon: data.icon, count: cnt, unit: data.unit, history: {}, created: today(), xpEarned: 5 });
+        habits().push({ id: Store.uid(), name: data.name, icon: data.icon, count: cnt, unit: data.unit, days: days, history: {}, created: today(), xpEarned: 5 });
         Audio.play("add");
         toast({ icon: "✦", title: "Nuevo hábito", msg: data.name });
         Gami.award(5, "Nuevo hábito creado");
@@ -2063,7 +2136,7 @@ canvas { display: block; width: 100%; }
 
   // ---------- stats para dashboard ----------
   function todayProgress() {
-    const arr = habits();
+    const arr = habits().filter(activeToday); // solo los programados para hoy
     if (!arr.length) return { done: 0, total: 0, pct: 0 };
     const done = arr.filter(doneToday).length;
     return { done, total: arr.length, pct: Math.round((done / arr.length) * 100) };
@@ -2133,6 +2206,7 @@ canvas { display: block; width: 100%; }
     const comp = completion30(h);
     const target = tgt(h);
     const cur = dayVal(h, today());
+    const active = activeToday(h);
 
     // heatmap 35 días (completo = brillante, parcial = tenue)
     const heat = el("div", { class: "heat mt-8" });
@@ -2143,19 +2217,20 @@ canvas { display: block; width: 100%; }
       heat.appendChild(cell);
     });
 
-    const card = el("div", { class: "card" }, [
+    const card = el("div", { class: "card" + (active ? "" : " habit-off") }, [
       el("div", { class: "flex items-center gap-12" }, [
         el("button", {
-          class: "check" + (done ? " on" : ""),
-          title: done ? "Marcar como no hecho" : "Completar hoy",
-          onclick: () => toggleCheck(h),
-          html: done ? "✓" : (target > 1 ? String(cur) : "")
+          class: "check" + (done ? " on" : "") + (active ? "" : " check-off"),
+          title: !active ? "Hoy descansa" : (done ? "Marcar como no hecho" : "Completar hoy"),
+          onclick: () => { if (!active) { Audio.play("tap"); toast({ icon: "💤", msg: "Hoy este hábito descansa (" + daysLabel(h) + ")" }); return; } toggleCheck(h); },
+          html: !active ? "💤" : (done ? "✓" : (target > 1 ? String(cur) : ""))
         }),
         el("div", { class: "item-main" }, [
           el("div", { class: "item-title" }, [el("span", { text: h.icon + " " }), h.name]),
           el("div", { class: "item-meta" }, [
             el("span", { class: "chip warn", html: "🔥 " + st + " día" + (st === 1 ? "" : "s") }),
-            el("span", { class: "chip", text: "Récord " + bestStreak(h) }),
+            el("span", { class: "chip", html: "📆 " + daysLabel(h) }),
+            !active ? el("span", { class: "chip", text: "💤 hoy descansa" }) : null,
             target > 1 ? el("span", { class: "chip accent", text: "🎯 " + target + " " + (h.unit || "/día") }) : null
           ])
         ]),
@@ -2167,8 +2242,8 @@ canvas { display: block; width: 100%; }
       ])
     ]);
 
-    // cuadritos de meta diaria
-    if (target > 1) {
+    // cuadritos de meta diaria (solo si hoy está activo)
+    if (target > 1 && active) {
       const boxes = el("div", { class: "hboxes mt-16" });
       for (let i = 0; i < target; i++) {
         boxes.appendChild(el("button", {
@@ -3080,6 +3155,112 @@ canvas { display: block; width: 100%; }
   }
 
   function workouts() { return Store.get().workouts; }
+  function typeName(v) { const t = TYPES.find((x) => x.value === v); return t ? t.name : (v || "Otro"); }
+  function typeEmoji(v) { const t = TYPES.find((x) => x.value === v); return t ? t.icon : "💪"; }
+
+  // ---------- Exportar resumen a PDF (vía impresión del navegador) ----------
+  function openPdfModal() {
+    const body = el("div", {}, [
+      el("p", { class: "text-dim fs-13", style: "margin-bottom:16px", text: "Elige el periodo del resumen a descargar en PDF:" }),
+      el("button", { class: "btn primary block", style: "margin-bottom:10px", html: "📅 Diario (hoy)", onclick: () => { UI.closeModal(); exportPDF("daily"); } }),
+      el("button", { class: "btn block", style: "margin-bottom:10px", html: "🗓️ Semanal (últimos 7 días)", onclick: () => { UI.closeModal(); exportPDF("weekly"); } }),
+      el("button", { class: "btn block", html: "📆 Mensual (este mes)", onclick: () => { UI.closeModal(); exportPDF("monthly"); } }),
+      el("p", { class: "fs-12 text-faint", style: "margin-top:16px", html: "Se abrirá la ventana de impresión: elige <b>\"Guardar como PDF\"</b> como destino." })
+    ]);
+    UI.openModal("📄 Descargar PDF de entrenamiento", body);
+  }
+
+  function rangeFor(period) {
+    const to = DateUtil.todayKey();
+    let from, label;
+    if (period === "daily") { from = to; label = "Diario"; }
+    else if (period === "weekly") { from = DateUtil.addDays(to, -6); label = "Semanal"; }
+    else {
+      const d = new Date(); from = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-01"; label = "Mensual";
+    }
+    return { from: from, to: to, label: label };
+  }
+
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  function exportPDF(period) {
+    const r = rangeFor(period);
+    const list = workouts().filter((w) => w.date >= r.from && w.date <= r.to)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+
+    const totalMin = list.reduce((s, w) => s + (w.duration || 0), 0);
+    const totalKcal = list.reduce((s, w) => s + (w.calories || 0), 0);
+    const byType = {};
+    list.forEach((w) => { byType[w.type] = (byType[w.type] || 0) + 1; });
+
+    const fromLbl = DateUtil.parse(r.from).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+    const toLbl = DateUtil.parse(r.to).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+
+    let rows = "";
+    if (!list.length) {
+      rows = '<tr><td colspan="6" style="text-align:center;color:#888;padding:24px">Sin entrenamientos en este periodo.</td></tr>';
+    } else {
+      list.forEach((w) => {
+        const exs = (w.exercises || []).map((e) => esc(e.name) + ((e.sets || e.reps) ? " " + (e.sets || "?") + "×" + (e.reps || "?") : "")).join("<br>");
+        rows += "<tr>" +
+          "<td>" + DateUtil.parse(w.date).toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" }) + "</td>" +
+          "<td><b>" + esc(w.name) + "</b></td>" +
+          "<td>" + typeEmoji(w.type) + " " + esc(typeName(w.type)) + "</td>" +
+          "<td style='text-align:center'>" + (w.duration || 0) + " min</td>" +
+          "<td style='text-align:center'>" + (w.calories || 0) + "</td>" +
+          "<td>" + (exs || "—") + (w.notes ? "<div style='color:#666;font-size:11px;margin-top:4px'>📝 " + esc(w.notes) + "</div>" : "") + "</td>" +
+          "</tr>";
+      });
+    }
+
+    const typeChips = Object.keys(byType).map((k) => typeEmoji(k) + " " + esc(typeName(k)) + ": " + byType[k]).join(" &nbsp;·&nbsp; ") || "—";
+
+    const html = "<!doctype html><html lang='es'><head><meta charset='utf-8'><title>NEXUS · Resumen " + r.label + "</title>" +
+      "<style>" +
+      "*{box-sizing:border-box;font-family:'Segoe UI',system-ui,Arial,sans-serif}" +
+      "body{margin:0;padding:32px;color:#1a1a2e;background:#fff}" +
+      ".hd{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #6a5cff;padding-bottom:14px;margin-bottom:20px}" +
+      ".logo{font-size:22px;font-weight:800;letter-spacing:2px;color:#6a5cff}" +
+      ".logo span{color:#00b3c4}" +
+      ".sub{color:#666;font-size:13px}" +
+      "h1{font-size:20px;margin:0 0 4px}" +
+      ".kpis{display:flex;gap:12px;margin:18px 0}" +
+      ".kpi{flex:1;border:1px solid #e3e3ee;border-radius:12px;padding:12px 14px}" +
+      ".kpi .n{font-size:24px;font-weight:800;color:#6a5cff}" +
+      ".kpi .l{font-size:12px;color:#777;text-transform:uppercase;letter-spacing:1px}" +
+      ".types{background:#f4f4fb;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:18px}" +
+      "table{width:100%;border-collapse:collapse;font-size:12.5px}" +
+      "th{background:#6a5cff;color:#fff;text-align:left;padding:8px 10px;font-size:12px}" +
+      "td{padding:8px 10px;border-bottom:1px solid #ececf4;vertical-align:top}" +
+      "tr:nth-child(even) td{background:#fafaff}" +
+      ".ft{margin-top:24px;color:#999;font-size:11px;text-align:center;border-top:1px solid #eee;padding-top:12px}" +
+      "@media print{body{padding:0}}" +
+      "</style></head><body>" +
+      "<div class='hd'><div><div class='logo'>⬡ NE<span>XUS</span></div><div class='sub'>Salud y Disciplina</div></div>" +
+      "<div style='text-align:right'><h1>Resumen de entrenamiento</h1><div class='sub'>" + r.label + " · " + (r.from === r.to ? fromLbl : fromLbl + " → " + toLbl) + "</div></div></div>" +
+      "<div class='kpis'>" +
+      "<div class='kpi'><div class='n'>" + list.length + "</div><div class='l'>Sesiones</div></div>" +
+      "<div class='kpi'><div class='n'>" + totalMin + "</div><div class='l'>Minutos</div></div>" +
+      "<div class='kpi'><div class='n'>" + totalKcal + "</div><div class='l'>Calorías</div></div>" +
+      "</div>" +
+      "<div class='types'><b>Por tipo:</b> " + typeChips + "</div>" +
+      "<table><thead><tr><th>Fecha</th><th>Sesión</th><th>Tipo</th><th style='text-align:center'>Duración</th><th style='text-align:center'>Kcal</th><th>Ejercicios / Notas</th></tr></thead><tbody>" + rows + "</tbody></table>" +
+      "<div class='ft'>Generado por NEXUS · " + new Date().toLocaleString("es-MX") + "</div>" +
+      "</body></html>";
+
+    // Imprimir mediante un iframe oculto (no lo bloquean los popups)
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow.document;
+    doc.open(); doc.write(html); doc.close();
+    Audio.play("tap");
+    toast({ icon: "📄", title: "Generando PDF…", msg: "Elige \"Guardar como PDF\"." });
+    setTimeout(function () {
+      try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch (e) {}
+      setTimeout(function () { iframe.remove(); }, 1500);
+    }, 500);
+  }
 
   // Sección dinámica de ejercicios (nombre + series × reps, con botón ＋)
   function buildExerciseSection() {
@@ -3180,7 +3361,10 @@ canvas { display: block; width: 100%; }
         el("h1", { class: "view-title" }, [N.Icons.node("dumbbell"), "Entrenamientos"]),
         el("p", { class: "view-desc", text: "Registra tus sesiones y observa tu progreso físico." })
       ]),
-      el("button", { class: "btn primary", onclick: add, html: "＋ Registrar sesión" })
+      el("div", { class: "flex gap-8" }, [
+        el("button", { class: "btn", onclick: openPdfModal, html: "📄 PDF" }),
+        el("button", { class: "btn primary", onclick: add, html: "＋ Registrar sesión" })
+      ])
     ]));
 
     container.appendChild(el("div", { class: "grid cols-4 mb-16" }, [

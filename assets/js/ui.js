@@ -143,6 +143,34 @@
       return field;
     }
 
+    // Selector de días de la semana (para programar hábitos). Guarda CSV de 0..6.
+    if (f.type === "weekdays") {
+      const initial = Array.isArray(f.value) ? f.value.slice() : (typeof f.value === "string" && f.value ? f.value.split(",").map(Number) : [0, 1, 2, 3, 4, 5, 6]);
+      const sel = new Set(initial);
+      const hidden = el("input", { type: "hidden" });
+      const sync = () => { hidden.value = Array.from(sel).sort().join(","); };
+      sync();
+      const order = [[1, "L"], [2, "M"], [3, "M"], [4, "J"], [5, "V"], [6, "S"], [0, "D"]];
+      const btns = {};
+      const grid = el("div", { class: "wdays" });
+      order.forEach((o) => {
+        const b = el("button", { type: "button", class: "wday" + (sel.has(o[0]) ? " on" : ""), text: o[1] });
+        b.addEventListener("click", () => { if (sel.has(o[0])) sel.delete(o[0]); else sel.add(o[0]); b.classList.toggle("on"); sync(); });
+        btns[o[0]] = b; grid.appendChild(b);
+      });
+      const setPreset = (arr) => { sel.clear(); arr.forEach((d) => sel.add(d)); order.forEach((o) => btns[o[0]].classList.toggle("on", sel.has(o[0]))); sync(); };
+      const presets = el("div", { class: "flex gap-8", style: "margin-bottom:8px;flex-wrap:wrap" }, [
+        el("button", { type: "button", class: "btn sm ghost", text: "Todos", onclick: () => setPreset([0, 1, 2, 3, 4, 5, 6]) }),
+        el("button", { type: "button", class: "btn sm ghost", text: "Lun-Vie", onclick: () => setPreset([1, 2, 3, 4, 5]) }),
+        el("button", { type: "button", class: "btn sm ghost", text: "Fin de semana", onclick: () => setPreset([0, 6]) })
+      ]);
+      inputs[f.name] = hidden;
+      field.appendChild(presets);
+      field.appendChild(grid);
+      field.appendChild(hidden);
+      return field;
+    }
+
     let input;
     if (f.type === "select") {
       input = el("select", { class: "select" });

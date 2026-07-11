@@ -54,27 +54,50 @@
   function doneToday(h) { return doneOn(h, today()); }
   function pctToday(h) { return Math.round((dayVal(h, today()) / tgt(h)) * 100); }
 
-  // racha (días consecutivos completados)
+  // ---------- programación de días activos (0=Dom..6=Sáb) ----------
+  const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
+  function activeDays(h) { return (Array.isArray(h.days) && h.days.length) ? h.days : ALL_DAYS; }
+  function activeSet(h) { return new Set(activeDays(h)); }
+  function activeOn(h, key) { return activeSet(h).has(DateUtil.parse(key).getDay()); }
+  function activeToday(h) { return activeOn(h, today()); }
+  function daysLabel(h) {
+    const s = activeSet(h);
+    if (s.size >= 7) return "Todos los días";
+    if (s.size === 5 && [1, 2, 3, 4, 5].every((d) => s.has(d))) return "Lun a Vie";
+    if (s.size === 2 && s.has(0) && s.has(6)) return "Fin de semana";
+    return [[1, "L"], [2, "M"], [3, "M"], [4, "J"], [5, "V"], [6, "S"], [0, "D"]].filter((x) => s.has(x[0])).map((x) => x[1]).join(" ");
+  }
+
+  // racha (días activos consecutivos completados; se saltan los días de descanso)
   function streak(h) {
+    const set = activeSet(h);
     let s = 0, day = today();
-    if (!doneOn(h, day)) day = DateUtil.addDays(day, -1);
-    while (doneOn(h, day)) { s++; day = DateUtil.addDays(day, -1); }
+    if (set.has(DateUtil.parse(day).getDay()) && !doneOn(h, day)) day = DateUtil.addDays(day, -1);
+    for (let i = 0; i < 400; i++) {
+      const wd = DateUtil.parse(day).getDay();
+      if (set.has(wd)) { if (doneOn(h, day)) s++; else break; }
+      day = DateUtil.addDays(day, -1);
+    }
     return s;
   }
   function bestStreak(h) {
-    const dates = Object.keys(h.history).filter((k) => doneOn(h, k)).sort();
-    let best = 0, cur = 0, prev = null;
-    dates.forEach((d) => {
-      if (prev && DateUtil.diffDays(d, prev) === 1) cur++; else cur = 1;
-      if (cur > best) best = cur;
-      prev = d;
-    });
+    const set = activeSet(h);
+    const done = Object.keys(h.history).filter((k) => doneOn(h, k)).sort();
+    if (!done.length) return 0;
+    let day = done[0]; const end = today(); let cur = 0, best = 0;
+    for (let i = 0; i < 4000 && day <= end; i++) {
+      const wd = DateUtil.parse(day).getDay();
+      if (set.has(wd)) { if (doneOn(h, day)) { cur++; if (cur > best) best = cur; } else cur = 0; }
+      day = DateUtil.addDays(day, 1);
+    }
     return best;
   }
   function completion30(h) {
-    const days = DateUtil.lastNDays(30);
-    const done = days.filter((d) => doneOn(h, d)).length;
-    return Math.round((done / 30) * 100);
+    const set = activeSet(h);
+    const active = DateUtil.lastNDays(30).filter((d) => set.has(DateUtil.parse(d).getDay()));
+    if (!active.length) return 0;
+    const done = active.filter((d) => doneOn(h, d)).length;
+    return Math.round((done / active.length) * 100);
   }
 
   // fija la cantidad de hoy y gestiona XP según se complete o no el día
@@ -119,15 +142,18 @@
       { type: "row", fields: [
         { name: "count", label: "Meta diaria (nº de veces)", type: "number", min: 1, step: 1, value: existing ? tgt(existing) : 1 },
         { name: "unit", label: "Unidad (opcional)", value: existing ? existing.unit || "" : "", placeholder: "vasos, páginas…" }
-      ]}
+      ]},
+      { name: "days", label: "Días activos", type: "weekdays", value: existing ? activeDays(existing) : ALL_DAYS }
     ], (data) => {
       const cnt = Math.max(1, Math.min(MAX_BOXES, parseInt(data.count, 10) || 1));
+      let days = typeof data.days === "string" ? data.days.split(",").filter((x) => x !== "").map(Number) : (Array.isArray(data.days) ? data.days : []);
+      if (!days.length) days = ALL_DAYS.slice();
       if (existing) {
-        existing.name = data.name; existing.icon = data.icon; existing.count = cnt; existing.unit = data.unit;
+        existing.name = data.name; existing.icon = data.icon; existing.count = cnt; existing.unit = data.unit; existing.days = days;
         delete existing.target;
         toast({ icon: "✏️", msg: "Hábito actualizado" });
       } else {
-        habits().push({ id: Store.uid(), name: data.name, icon: data.icon, count: cnt, unit: data.unit, history: {}, created: today(), xpEarned: 5 });
+        habits().push({ id: Store.uid(), name: data.name, icon: data.icon, count: cnt, unit: data.unit, days: days, history: {}, created: today(), xpEarned: 5 });
         Audio.play("add");
         toast({ icon: "✦", title: "Nuevo hábito", msg: data.name });
         Gami.award(5, "Nuevo hábito creado");
@@ -170,7 +196,7 @@
 
   // ---------- stats para dashboard ----------
   function todayProgress() {
-    const arr = habits();
+    const arr = habits().filter(activeToday); // solo los programados para hoy
     if (!arr.length) return { done: 0, total: 0, pct: 0 };
     const done = arr.filter(doneToday).length;
     return { done, total: arr.length, pct: Math.round((done / arr.length) * 100) };
@@ -240,6 +266,7 @@
     const comp = completion30(h);
     const target = tgt(h);
     const cur = dayVal(h, today());
+    const active = activeToday(h);
 
     // heatmap 35 días (completo = brillante, parcial = tenue)
     const heat = el("div", { class: "heat mt-8" });
@@ -250,19 +277,20 @@
       heat.appendChild(cell);
     });
 
-    const card = el("div", { class: "card" }, [
+    const card = el("div", { class: "card" + (active ? "" : " habit-off") }, [
       el("div", { class: "flex items-center gap-12" }, [
         el("button", {
-          class: "check" + (done ? " on" : ""),
-          title: done ? "Marcar como no hecho" : "Completar hoy",
-          onclick: () => toggleCheck(h),
-          html: done ? "✓" : (target > 1 ? String(cur) : "")
+          class: "check" + (done ? " on" : "") + (active ? "" : " check-off"),
+          title: !active ? "Hoy descansa" : (done ? "Marcar como no hecho" : "Completar hoy"),
+          onclick: () => { if (!active) { Audio.play("tap"); toast({ icon: "💤", msg: "Hoy este hábito descansa (" + daysLabel(h) + ")" }); return; } toggleCheck(h); },
+          html: !active ? "💤" : (done ? "✓" : (target > 1 ? String(cur) : ""))
         }),
         el("div", { class: "item-main" }, [
           el("div", { class: "item-title" }, [el("span", { text: h.icon + " " }), h.name]),
           el("div", { class: "item-meta" }, [
             el("span", { class: "chip warn", html: "🔥 " + st + " día" + (st === 1 ? "" : "s") }),
-            el("span", { class: "chip", text: "Récord " + bestStreak(h) }),
+            el("span", { class: "chip", html: "📆 " + daysLabel(h) }),
+            !active ? el("span", { class: "chip", text: "💤 hoy descansa" }) : null,
             target > 1 ? el("span", { class: "chip accent", text: "🎯 " + target + " " + (h.unit || "/día") }) : null
           ])
         ]),
@@ -274,8 +302,8 @@
       ])
     ]);
 
-    // cuadritos de meta diaria
-    if (target > 1) {
+    // cuadritos de meta diaria (solo si hoy está activo)
+    if (target > 1 && active) {
       const boxes = el("div", { class: "hboxes mt-16" });
       for (let i = 0; i < target; i++) {
         boxes.appendChild(el("button", {

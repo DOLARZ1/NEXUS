@@ -638,3 +638,22 @@ canvas { display: block; width: 100%; }
 .modal { border-width: 1px; }
 .modal-body select { color-scheme: dark; }
 [data-theme="light"] .modal-body select { color-scheme: light; }
+
+
+/* =====================================================================
+   SELECTOR DE DÍAS (programación de hábitos) + hábito en descanso
+   ===================================================================== */
+.wdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.wday {
+  height: 40px; border-radius: 10px; font-weight: 700; font-size: 13px;
+  background: var(--panel-2); border: 1px solid var(--border); color: var(--txt-dim); transition: .15s;
+}
+.wday:hover { border-color: var(--accent); color: var(--txt); }
+.wday.on {
+  color: #04122b; border-color: transparent;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: var(--glow);
+}
+.card.habit-off { opacity: .58; }
+.card.habit-off .item-title { color: var(--txt-dim); }
+.check.check-off { border-style: dashed; opacity: .8; cursor: default; }
