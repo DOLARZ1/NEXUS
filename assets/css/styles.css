@@ -749,6 +749,14 @@ canvas { display: block; width: 100%; }
 .card.habit-off .item-title { color: var(--txt-dim); }
 .check.check-off { border-style: dashed; opacity: .8; cursor: default; }
 
+/* Frase motivacional del día (Panel) */
+.quote-card { display: flex; align-items: center; gap: 14px; }
+.quote-ico { font-size: 26px; flex: none; opacity: .85; filter: drop-shadow(0 0 8px var(--accent)); }
+.quote-body { flex: 1; min-width: 0; }
+.quote-text { font-size: 14px; font-weight: 600; line-height: 1.5; font-style: italic; }
+.quote-author { font-size: 12px; color: var(--txt-faint); margin-top: 4px; }
+.quote-refresh { flex: none; }
+
 /* Color de prioridad del hábito: franja lateral + resplandor sutil a juego */
 .card.habit-prio { box-shadow: inset 3px 0 0 var(--prio-color, var(--accent)), var(--shadow); }
 .icon-btn.sm { width: 26px; height: 22px; border-radius: 7px; font-size: 10px; }

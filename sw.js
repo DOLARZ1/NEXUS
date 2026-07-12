@@ -1,13 +1,13 @@
 /* =====================================================================
    OCTANAJE · Service Worker — offline con estrategia stale-while-revalidate
    ===================================================================== */
-const CACHE = "octanaje-cache-v10";
+const CACHE = "octanaje-cache-v11";
 
 const CORE = [
   "./", "./index.html", "./manifest.webmanifest",
   "./assets/css/styles.css",
   "./assets/js/store.js", "./assets/js/audio.js", "./assets/js/charts.js",
-  "./assets/js/ui.js", "./assets/js/icons.js", "./assets/js/foods.js", "./assets/js/gamification.js",
+  "./assets/js/ui.js", "./assets/js/icons.js", "./assets/js/foods.js", "./assets/js/quotes.js", "./assets/js/gamification.js",
   "./assets/js/modules/dashboard.js", "./assets/js/modules/habits.js",
   "./assets/js/modules/finance.js", "./assets/js/modules/tasks.js",
   "./assets/js/modules/workouts.js", "./assets/js/modules/goals.js",

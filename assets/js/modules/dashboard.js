@@ -30,6 +30,9 @@
       ])
     ]));
 
+    // Frase motivacional del día (se puede refrescar manualmente)
+    container.appendChild(buildQuoteCard(container));
+
     // KPIs principales
     container.appendChild(el("div", { class: "grid cols-4 mb-16" }, [
       kpi("Hábitos hoy", `${hp.done}/${hp.total}`, fmt.pct(hp.pct) + " completado", "accent"),
@@ -113,6 +116,34 @@
       const t7 = N.Tasks.completed7();
       Charts.bars(cvAct, { labels: h7.labels, series: [{ values: h7.values, color: "--accent" }, { values: t7.values, color: "--good" }] }, { height: 180 });
     }, 40);
+  }
+
+  // ---------- Frase motivacional ----------
+  let quoteOverride = null; // índice fijo tras presionar "otra frase"
+
+  function buildQuoteCard(container) {
+    const todayKey = DateUtil.todayKey();
+    const q = N.pickQuote(todayKey, quoteOverride);
+    const card = el("div", { class: "card quote-card mb-16" }, [
+      el("div", { class: "quote-ico", text: "💬" }),
+      el("div", { class: "quote-body" }, [
+        el("div", { class: "quote-text", text: "“" + q.text + "”" }),
+        el("div", { class: "quote-author", text: "— " + q.author })
+      ]),
+      el("button", {
+        class: "icon-btn quote-refresh", title: "Otra frase",
+        onclick: () => {
+          const n = N.QUOTES.length;
+          let idx;
+          do { idx = Math.floor(Math.random() * n); } while (n > 1 && N.QUOTES[idx].text === q.text);
+          quoteOverride = idx;
+          N.Audio.play("tap");
+          render(container);
+        },
+        html: "🔄"
+      })
+    ]);
+    return card;
   }
 
   function kpi(label, val, sub, cls) {
