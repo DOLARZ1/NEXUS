@@ -96,11 +96,24 @@
     });
   }
 
+  // ---------- Ahorro de batería ----------
+  // Pausa todas las animaciones CSS (brillos, logo, medallas, fondo…)
+  // cuando la app pasa a segundo plano o la pantalla se apaga, para no
+  // seguir gastando batería sin que el usuario esté viendo nada.
+  function bindPowerSaving() {
+    const root = document.documentElement;
+    if (!root || !root.classList) return; // entorno sin soporte (p.ej. pruebas)
+    function apply() { root.classList.toggle("app-hidden", !!document.hidden); }
+    document.addEventListener("visibilitychange", apply);
+    apply();
+  }
+
   // ---------- Init ----------
   function init() {
     const s = Store.get();
     applyTheme(s.settings.theme || "dark");
     bind();
+    bindPowerSaving();
     Gami.checkAchievements();
     if (N.Notify) N.Notify.init();
     switchView("dashboard", true);

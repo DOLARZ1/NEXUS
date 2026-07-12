@@ -24,6 +24,24 @@ input, select, textarea { font-family: inherit; }
 ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; }
 
 /* =====================================================================
+   AHORRO DE BATERÍA
+   - Cuando la app está en segundo plano (pantalla apagada, cambiaste de
+     app, minimizaste el navegador) se pausan TODAS las animaciones CSS
+     (brillos, logo, medallas, fondo animado, etc.) para no seguir
+     gastando batería sin que nadie esté viendo la pantalla.
+   - Si el usuario tiene activado "reducir movimiento" en su sistema
+     (accesibilidad / ahorro de batería del propio celular), se respeta
+     también y se desactivan las animaciones decorativas por completo.
+   ===================================================================== */
+html.app-hidden * { animation-play-state: paused !important; }
+@media (prefers-reduced-motion: reduce) {
+  .bg-grid, .boot-logo, .brand-hex, .brand-name, .boot-title,
+  .medal-badge, .medal-mini, .ach-legendary.ach-on, .overdue .chip.bad {
+    animation: none !important;
+  }
+}
+
+/* =====================================================================
    TEMAS
    ===================================================================== */
 :root, [data-theme="dark"] {
@@ -182,33 +200,14 @@ input, select, textarea { font-family: inherit; }
 .boot-screen.hide { opacity: 0; pointer-events: none; }
 .boot-logo {
   color: #ffd700;
-  filter:
-    drop-shadow(0 0 8px #fff8dc)
-    drop-shadow(0 0 16px #ff1a1a)
-    drop-shadow(0 0 30px #ffd700)
-    drop-shadow(0 0 48px #ff1a1a)
-    drop-shadow(0 0 70px rgba(255, 26, 26, .6));
+  filter: drop-shadow(0 0 10px #ff1a1a) drop-shadow(0 0 30px #ffd700);
   animation: spin 3s ease-in-out infinite, logoPulse 1.6s ease-in-out infinite;
 }
 .boot-logo svg { display: block; }
 @keyframes spin { 0%,100% { transform: rotate(0) scale(1);} 50% { transform: rotate(180deg) scale(1.1);} }
 @keyframes logoPulse {
-  0%, 100% {
-    filter:
-      drop-shadow(0 0 8px #fff8dc)
-      drop-shadow(0 0 16px #ff1a1a)
-      drop-shadow(0 0 30px #ffd700)
-      drop-shadow(0 0 48px #ff1a1a)
-      drop-shadow(0 0 70px rgba(255, 26, 26, .6));
-  }
-  50% {
-    filter:
-      drop-shadow(0 0 14px #fff8dc)
-      drop-shadow(0 0 28px #ff1a1a)
-      drop-shadow(0 0 50px #ffd700)
-      drop-shadow(0 0 78px #ff1a1a)
-      drop-shadow(0 0 110px rgba(255, 26, 26, .75));
-  }
+  0%, 100% { filter: drop-shadow(0 0 10px #ff1a1a) drop-shadow(0 0 30px #ffd700); }
+  50% { filter: drop-shadow(0 0 18px #ff1a1a) drop-shadow(0 0 50px #ffd700); }
 }
 .boot-title {
   font-family: "Orbitron", "Segoe UI", system-ui, sans-serif;
@@ -220,7 +219,7 @@ input, select, textarea { font-family: inherit; }
   background-size: 250% 100%;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
-  filter: drop-shadow(0 0 8px rgba(255, 26, 26, .8)) drop-shadow(0 0 14px rgba(255, 215, 0, .55));
+  filter: drop-shadow(0 0 8px rgba(255, 26, 26, .7));
   animation: nexusShine 6s linear infinite;
 }
 .boot-sub { color: var(--txt-dim); letter-spacing: 3px; font-size: 12px; text-transform: uppercase; }
@@ -243,30 +242,14 @@ input, select, textarea { font-family: inherit; }
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand-hex {
   display: inline-grid; place-items: center; color: #ffd700;
-  filter:
-    drop-shadow(0 0 5px #fff8dc)
-    drop-shadow(0 0 10px #ff1a1a)
-    drop-shadow(0 0 18px #ffd700)
-    drop-shadow(0 0 30px #ff1a1a);
+  filter: drop-shadow(0 0 6px #ff1a1a) drop-shadow(0 0 16px #ffd700);
   animation: brandHexGlow 2.2s ease-in-out infinite;
 }
 .brand-hex svg { display: block; }
 @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.6;} }
 @keyframes brandHexGlow {
-  0%, 100% {
-    filter:
-      drop-shadow(0 0 5px #fff8dc)
-      drop-shadow(0 0 10px #ff1a1a)
-      drop-shadow(0 0 18px #ffd700)
-      drop-shadow(0 0 30px #ff1a1a);
-  }
-  50% {
-    filter:
-      drop-shadow(0 0 9px #fff8dc)
-      drop-shadow(0 0 18px #ff1a1a)
-      drop-shadow(0 0 30px #ffd700)
-      drop-shadow(0 0 46px #ff1a1a);
-  }
+  0%, 100% { filter: drop-shadow(0 0 6px #ff1a1a) drop-shadow(0 0 16px #ffd700); }
+  50% { filter: drop-shadow(0 0 10px #ff1a1a) drop-shadow(0 0 24px #ffd700); }
 }
 .brand-text { display: flex; flex-direction: column; line-height: 1; }
 .brand-name {
@@ -280,7 +263,7 @@ input, select, textarea { font-family: inherit; }
   background-size: 250% 100%;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
-  filter: drop-shadow(0 0 6px #ff1a1a) drop-shadow(0 0 12px #ffd700) drop-shadow(0 0 20px #ff1a1a);
+  filter: drop-shadow(0 0 6px #ff1a1a) drop-shadow(0 0 14px #ffd700);
   animation: nexusShine 6s linear infinite;
 }
 @keyframes nexusShine {
@@ -792,22 +775,22 @@ canvas { display: block; width: 100%; }
 .medal-grandmaster { --mc1: #ffe680; --mc2: #a8760a; --sz: 90px; animation: medalFloat 2.1s ease-in-out infinite, medalGlowGold 1.3s ease-in-out infinite; }
 
 @keyframes medalGlowSilver {
-  0%, 100% { filter: drop-shadow(0 0 8px #e3f2ff) drop-shadow(0 0 16px #a9c9ee) drop-shadow(0 0 26px rgba(159,196,238,.55)); }
-  50% { filter: drop-shadow(0 0 15px #ffffff) drop-shadow(0 0 28px #cfe6ff) drop-shadow(0 0 42px rgba(188,220,255,.75)); }
+  0%, 100% { filter: drop-shadow(0 0 8px #e3f2ff) drop-shadow(0 0 18px #a9c9ee); }
+  50% { filter: drop-shadow(0 0 14px #ffffff) drop-shadow(0 0 28px #cfe6ff); }
 }
 @keyframes medalGlow {
-  0%, 100% { filter: drop-shadow(0 0 8px var(--mc1)) drop-shadow(0 0 16px var(--mc2)) drop-shadow(0 0 26px color-mix(in srgb, var(--mc2) 50%, transparent)); }
-  50% { filter: drop-shadow(0 0 15px var(--mc1)) drop-shadow(0 0 30px var(--mc2)) drop-shadow(0 0 44px color-mix(in srgb, var(--mc2) 65%, transparent)); }
+  0%, 100% { filter: drop-shadow(0 0 8px var(--mc1)) drop-shadow(0 0 18px var(--mc2)); }
+  50% { filter: drop-shadow(0 0 14px var(--mc1)) drop-shadow(0 0 30px var(--mc2)); }
 }
-/* Heroico: rojo brillante, resplandor mucho más grande e intenso */
+/* Heroico: rojo brillante, resplandor grande e intenso (2 capas en vez de 4) */
 @keyframes medalGlowRed {
-  0%, 100% { filter: drop-shadow(0 0 12px #ff4040) drop-shadow(0 0 26px #ff0000) drop-shadow(0 0 44px rgba(255,0,0,.55)) drop-shadow(0 0 66px rgba(255,0,0,.3)); }
-  50% { filter: drop-shadow(0 0 22px #ff8080) drop-shadow(0 0 46px #ff0000) drop-shadow(0 0 72px rgba(255,0,0,.75)) drop-shadow(0 0 96px rgba(255,0,0,.4)); }
+  0%, 100% { filter: drop-shadow(0 0 12px #ff4040) drop-shadow(0 0 30px #ff0000); }
+  50% { filter: drop-shadow(0 0 20px #ff8080) drop-shadow(0 0 46px #ff0000); }
 }
-/* Gran Maestro: dorado brillante, el resplandor más grande e intenso de todos */
+/* Gran Maestro: dorado brillante, el resplandor más intenso de todos (2 capas en vez de 4) */
 @keyframes medalGlowGold {
-  0%, 100% { filter: drop-shadow(0 0 14px #ffe066) drop-shadow(0 0 30px #ffc400) drop-shadow(0 0 50px rgba(255,196,0,.6)) drop-shadow(0 0 76px rgba(255,196,0,.35)); }
-  50% { filter: drop-shadow(0 0 26px #fff2a8) drop-shadow(0 0 52px #ffc400) drop-shadow(0 0 82px rgba(255,196,0,.8)) drop-shadow(0 0 110px rgba(255,196,0,.45)); }
+  0%, 100% { filter: drop-shadow(0 0 14px #ffe066) drop-shadow(0 0 34px #ffc400); }
+  50% { filter: drop-shadow(0 0 24px #fff2a8) drop-shadow(0 0 52px #ffc400); }
 }
 
 .medal-strip { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 4px; align-items: flex-end; }

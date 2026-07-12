@@ -96,9 +96,11 @@ const document = {
   documentElement: {
     setAttribute: (k, v) => { documentEl.attributes[k] = v; },
     getAttribute: (k) => documentEl.attributes[k],
-    style: {}
+    style: {},
+    classList: makeClassList()
   },
   body: bodyEl,
+  hidden: false,
   readyState: "complete",
   createElement: (tag) => makeEl(tag),
   createTextNode: (t) => ({ nodeType: 3, textContent: t }),
