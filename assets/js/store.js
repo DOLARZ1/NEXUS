@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Store — estado global + persistencia en localStorage
+   OCTANAJE · Store — estado global + persistencia en localStorage
    ===================================================================== */
 (function () {
   "use strict";
@@ -124,7 +124,7 @@
 
     // ---------- exportar / importar ----------
     serialize() {
-      return JSON.stringify(Object.assign({ _app: "NEXUS", _version: 1, _exportedAt: new Date().toISOString() }, state), null, 2);
+      return JSON.stringify(Object.assign({ _app: "OCTANAJE", _version: 1, _exportedAt: new Date().toISOString() }, state), null, 2);
     },
     import(obj) {
       if (!obj || typeof obj !== "object") throw new Error("Formato no válido");

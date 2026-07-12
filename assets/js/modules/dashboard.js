@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Dashboard — resumen general con gráficas en tiempo real
+   OCTANAJE · Dashboard — resumen general con gráficas en tiempo real
    ===================================================================== */
 (function () {
   "use strict";

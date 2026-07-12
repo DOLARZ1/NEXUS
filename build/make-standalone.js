@@ -1,4 +1,4 @@
-/* Genera un único archivo nexus.html con CSS y JS incrustados */
+/* Genera un único archivo octanaje.html con CSS y JS incrustados */
 const fs = require("fs");
 const path = require("path");
 const root = path.resolve(__dirname, "..");
@@ -26,5 +26,5 @@ html = html.replace(/\s*<script src="assets\/js\/[^"]+"><\/script>/g, "");
 // inyectar un único <script> con todo el JS
 html = html.replace(/<\/body>/, () => "  <script>\n" + js + "\n  </script>\n</body>");
 
-fs.writeFileSync(path.join(root, "nexus.html"), html, "utf8");
-console.log("nexus.html generado: " + fs.statSync(path.join(root, "nexus.html")).size + " bytes, " + html.split("\n").length + " líneas");
+fs.writeFileSync(path.join(root, "octanaje.html"), html, "utf8");
+console.log("octanaje.html generado: " + fs.statSync(path.join(root, "octanaje.html")).size + " bytes, " + html.split("\n").length + " líneas");

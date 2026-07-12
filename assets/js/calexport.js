@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · CalExport — añadir eventos a Google Calendar o descargar .ics
+   OCTANAJE · CalExport — añadir eventos a Google Calendar o descargar .ics
    Sin login ni configuración: crea el evento en el calendario del usuario
    y deja que Google/su app se encargue de los recordatorios/alertas.
    ===================================================================== */
@@ -20,7 +20,7 @@
       action: "TEMPLATE",
       text: title || "Recordatorio",
       dates: ymd(dateKey) + "/" + nextDay(dateKey),
-      details: (details || "") + "\n\nCreado desde NEXUS"
+      details: (details || "") + "\n\nCreado desde OCTANAJE"
     });
     if (recur) p.set("recur", recur); // p.ej. RRULE:FREQ=DAILY
     return "https://calendar.google.com/calendar/render?" + p.toString();
@@ -31,14 +31,14 @@
   // Genera y descarga un archivo .ics (Apple, Outlook, etc.) con alarma a las 9:00
   function downloadIcs(title, details, dateKey, recur) {
     const lines = [
-      "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//NEXUS//ES", "CALSCALE:GREGORIAN",
+      "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//OCTANAJE//ES", "CALSCALE:GREGORIAN",
       "BEGIN:VEVENT",
-      "UID:" + Store.uid() + "@nexus",
+      "UID:" + Store.uid() + "@octanaje",
       "DTSTAMP:" + stampUTC(),
       "DTSTART;VALUE=DATE:" + ymd(dateKey),
       "DTEND;VALUE=DATE:" + nextDay(dateKey),
       "SUMMARY:" + escICS(title),
-      "DESCRIPTION:" + escICS((details || "") + " — NEXUS")
+      "DESCRIPTION:" + escICS((details || "") + " — OCTANAJE")
     ];
     if (recur) lines.push(recur.replace(/^RRULE:/, "RRULE:")); // p.ej. "RRULE:FREQ=DAILY"
     lines.push(
@@ -87,7 +87,7 @@
         class: "btn block", html: "📆 Descargar .ics (Apple, Outlook, Samsung…)",
         onclick: () => { Audio.play("tap"); downloadIcs(title, details, dateKey, recur); UI.closeModal(); }
       }),
-      el("p", { class: "fs-12 text-faint mt-16", text: "Tu app de calendario se encargará de la alerta, incluso con NEXUS cerrado." })
+      el("p", { class: "fs-12 text-faint mt-16", text: "Tu app de calendario se encargará de la alerta, incluso con OCTANAJE cerrado." })
     ]);
     UI.openModal("Añadir recordatorio", body);
   }

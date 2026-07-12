@@ -1,4 +1,4 @@
-/* Arnés de pruebas: simula el navegador para validar carga y render de NEXUS */
+/* Arnés de pruebas: simula el navegador para validar carga y render de OCTANAJE */
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
@@ -181,8 +181,8 @@ let guard = 0;
 while (timers.length && guard < 5000) { const fn = timers.shift(); try { fn(16); } catch (e) { console.error("Timer error:", e.message); throw e; } guard++; }
 
 const N = window.NEXUS;
-if (!N || !N.Store) throw new Error("NEXUS.Store no definido");
-console.log("✔ NEXUS inicializado, nivel=" + N.Store.get().profile.level);
+if (!N || !N.Store) throw new Error("NEXUS.Store no definido (namespace interno)");
+console.log("✔ OCTANAJE inicializado, nivel=" + N.Store.get().profile.level);
 
 // ---------- Sembrar datos y ejercitar la lógica ----------
 const S = N.Store.get();

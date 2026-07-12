@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Icons — íconos SVG monocromáticos compartidos (amarillo neón)
+   OCTANAJE · Icons — íconos SVG monocromáticos compartidos (amarillo neón)
    Se usan en los títulos de cada vista y coinciden con las pestañas.
    ===================================================================== */
 (function () {

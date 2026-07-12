@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Módulo Tareas
+   OCTANAJE · Módulo Tareas
    ===================================================================== */
 (function () {
   "use strict";
@@ -65,7 +65,7 @@
       UI.closeModal();
       render(document.getElementById("view-tasks"));
     }, existing ? "Guardar" : "Crear tarea",
-      (inputs) => N.CalExport.formRow(inputs.title, inputs.due, "Tarea en NEXUS"));
+      (inputs) => N.CalExport.formRow(inputs.title, inputs.due, "Tarea en OCTANAJE"));
     UI.openModal(existing ? "Editar tarea" : "Nueva tarea", body);
   }
 

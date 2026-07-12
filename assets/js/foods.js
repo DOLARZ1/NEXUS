@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · FOODS — base de datos nutricional (valores aproximados por 100 g)
+   OCTANAJE · FOODS — base de datos nutricional (valores aproximados por 100 g)
    Campos: name, cat, kcal, prot (proteína g), carb (carbohidratos g)
    portion (opcional): { grams, label } → porción típica del platillo,
    para que en platillos compuestos (caldos, tortas, sushi, etc.) no

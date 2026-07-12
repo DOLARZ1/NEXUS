@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Módulo Finanzas con IA
+   OCTANAJE · Módulo Finanzas con IA
    Motor de análisis por reglas: detecta patrones, sobregasto, tasa de
    ahorro, proyecciones y genera recomendaciones personalizadas.
    ===================================================================== */

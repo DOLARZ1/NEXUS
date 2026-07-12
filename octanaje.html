@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="NEXUS - Sistema futurista de productividad personal: hábitos, finanzas con IA, tareas, entrenamientos y metas." />
-  <title>NEXUS · Productividad Futurista</title>
+  <meta name="description" content="OCTANAJE - Sistema futurista de productividad personal: hábitos, finanzas con IA, tareas, entrenamientos y metas." />
+  <title>OCTANAJE · Productividad Futurista</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <style>
 /* =====================================================================
-   NEXUS · Hoja de estilos futurista
+   OCTANAJE · Hoja de estilos futurista
    Temas: dark (oscuro), light (claro), gray (gris)
    ===================================================================== */
 
@@ -762,7 +762,7 @@ canvas { display: block; width: 100%; }
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="NEXUS" />
+  <meta name="apple-mobile-web-app-title" content="OCTANAJE" />
   <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
 </head>
 <body>
@@ -773,7 +773,7 @@ canvas { display: block; width: 100%; }
   <!-- Pantalla de bienvenida -->
   <div id="boot-screen" class="boot-screen">
     <div class="boot-logo">⬡</div>
-    <div class="boot-title">NEXUS</div>
+    <div class="boot-title">OCTANAJE</div>
     <div class="boot-sub">Inicializando sistema…</div>
     <div class="boot-bar"><span></span></div>
   </div>
@@ -784,7 +784,7 @@ canvas { display: block; width: 100%; }
       <div class="brand">
         <span class="brand-hex">⬡</span>
         <div class="brand-text">
-          <span class="brand-name">NEXUS</span>
+          <span class="brand-name">OCTANAJE</span>
           <span class="brand-tag">Salud y Disciplina</span>
         </div>
       </div>
@@ -837,7 +837,7 @@ canvas { display: block; width: 100%; }
     </main>
 
     <footer class="foot">
-      <span>NEXUS · datos guardados localmente en tu navegador</span>
+      <span>OCTANAJE · datos guardados localmente en tu navegador</span>
       <span class="text-faint">⚙️ Ajustes para exportar, importar o reiniciar</span>
     </footer>
   </div>
@@ -860,7 +860,7 @@ canvas { display: block; width: 100%; }
   <script>
 /* ===== assets/js/store.js ===== */
 /* =====================================================================
-   NEXUS · Store — estado global + persistencia en localStorage
+   OCTANAJE · Store — estado global + persistencia en localStorage
    ===================================================================== */
 (function () {
   "use strict";
@@ -985,7 +985,7 @@ canvas { display: block; width: 100%; }
 
     // ---------- exportar / importar ----------
     serialize() {
-      return JSON.stringify(Object.assign({ _app: "NEXUS", _version: 1, _exportedAt: new Date().toISOString() }, state), null, 2);
+      return JSON.stringify(Object.assign({ _app: "OCTANAJE", _version: 1, _exportedAt: new Date().toISOString() }, state), null, 2);
     },
     import(obj) {
       if (!obj || typeof obj !== "object") throw new Error("Formato no válido");
@@ -1008,7 +1008,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/audio.js ===== */
 /* =====================================================================
-   NEXUS · Audio — sonidos sintetizados con Web Audio API (sin archivos)
+   OCTANAJE · Audio — sonidos sintetizados con Web Audio API (sin archivos)
    ===================================================================== */
 (function () {
   "use strict";
@@ -1103,7 +1103,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/charts.js ===== */
 /* =====================================================================
-   NEXUS · Charts — motor de gráficas propio sobre Canvas (sin librerías)
+   OCTANAJE · Charts — motor de gráficas propio sobre Canvas (sin librerías)
    Soporta: line, area, bar, doughnut, sparkline, ring
    ===================================================================== */
 (function () {
@@ -1407,7 +1407,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/ui.js ===== */
 /* =====================================================================
-   NEXUS · UI — helpers de DOM, toasts y modal
+   OCTANAJE · UI — helpers de DOM, toasts y modal
    ===================================================================== */
 (function () {
   "use strict";
@@ -1621,7 +1621,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/icons.js ===== */
 /* =====================================================================
-   NEXUS · Icons — íconos SVG monocromáticos compartidos (amarillo neón)
+   OCTANAJE · Icons — íconos SVG monocromáticos compartidos (amarillo neón)
    Se usan en los títulos de cada vista y coinciden con las pestañas.
    ===================================================================== */
 (function () {
@@ -1657,7 +1657,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/foods.js ===== */
 /* =====================================================================
-   NEXUS · FOODS — base de datos nutricional (valores aproximados por 100 g)
+   OCTANAJE · FOODS — base de datos nutricional (valores aproximados por 100 g)
    Campos: name, cat, kcal, prot (proteína g), carb (carbohidratos g)
    portion (opcional): { grams, label } → porción típica del platillo,
    para que en platillos compuestos (caldos, tortas, sushi, etc.) no
@@ -1891,7 +1891,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/gamification.js ===== */
 /* =====================================================================
-   NEXUS · Gamification — XP, niveles, rachas y logros
+   OCTANAJE · Gamification — XP, niveles, rachas y logros
    ===================================================================== */
 (function () {
   "use strict";
@@ -2273,7 +2273,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/modules/dashboard.js ===== */
 /* =====================================================================
-   NEXUS · Dashboard — resumen general con gráficas en tiempo real
+   OCTANAJE · Dashboard — resumen general con gráficas en tiempo real
    ===================================================================== */
 (function () {
   "use strict";
@@ -2619,7 +2619,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/modules/habits.js ===== */
 /* =====================================================================
-   NEXUS · Módulo Hábitos
+   OCTANAJE · Módulo Hábitos
    Soporta hábitos simples (1 check) y hábitos con META DIARIA de N veces
    (se rellenan N cuadritos; el hábito se completa solo al llenarlos todos).
    ===================================================================== */
@@ -2808,7 +2808,7 @@ canvas { display: block; width: 100%; }
   function addToCalendar(h) {
     N.CalExport.open({
       title: h.name,
-      details: "Hábito diario en NEXUS" + (tgt(h) > 1 ? " · meta " + tgt(h) + " " + (h.unit || "veces") : ""),
+      details: "Hábito diario en OCTANAJE" + (tgt(h) > 1 ? " · meta " + tgt(h) + " " + (h.unit || "veces") : ""),
       dateKey: today(),
       recur: "RRULE:FREQ=DAILY"
     });
@@ -2956,7 +2956,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/modules/finance.js ===== */
 /* =====================================================================
-   NEXUS · Módulo Finanzas con IA
+   OCTANAJE · Módulo Finanzas con IA
    Motor de análisis por reglas: detecta patrones, sobregasto, tasa de
    ahorro, proyecciones y genera recomendaciones personalizadas.
    ===================================================================== */
@@ -3652,7 +3652,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/modules/tasks.js ===== */
 /* =====================================================================
-   NEXUS · Módulo Tareas
+   OCTANAJE · Módulo Tareas
    ===================================================================== */
 (function () {
   "use strict";
@@ -3718,7 +3718,7 @@ canvas { display: block; width: 100%; }
       UI.closeModal();
       render(document.getElementById("view-tasks"));
     }, existing ? "Guardar" : "Crear tarea",
-      (inputs) => N.CalExport.formRow(inputs.title, inputs.due, "Tarea en NEXUS"));
+      (inputs) => N.CalExport.formRow(inputs.title, inputs.due, "Tarea en OCTANAJE"));
     UI.openModal(existing ? "Editar tarea" : "Nueva tarea", body);
   }
 
@@ -3858,7 +3858,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/modules/workouts.js ===== */
 /* =====================================================================
-   NEXUS · Módulo Entrenamientos
+   OCTANAJE · Módulo Entrenamientos
    ===================================================================== */
 (function () {
   "use strict";
@@ -3982,7 +3982,7 @@ canvas { display: block; width: 100%; }
 
     const typeChips = Object.keys(byType).map((k) => typeEmoji(k) + " " + esc(typeName(k)) + ": " + byType[k]).join(" &nbsp;·&nbsp; ") || "—";
 
-    const html = "<!doctype html><html lang='es'><head><meta charset='utf-8'><title>NEXUS · Resumen " + r.label + "</title>" +
+    const html = "<!doctype html><html lang='es'><head><meta charset='utf-8'><title>OCTANAJE · Resumen " + r.label + "</title>" +
       "<style>" +
       "*{box-sizing:border-box;font-family:'Segoe UI',system-ui,Arial,sans-serif}" +
       "body{margin:0;padding:32px;color:#1a1a2e;background:#fff}" +
@@ -4003,7 +4003,7 @@ canvas { display: block; width: 100%; }
       ".ft{margin-top:24px;color:#999;font-size:11px;text-align:center;border-top:1px solid #eee;padding-top:12px}" +
       "@media print{body{padding:0}}" +
       "</style></head><body>" +
-      "<div class='hd'><div><div class='logo'>⬡ NE<span>XUS</span></div><div class='sub'>Salud y Disciplina</div></div>" +
+      "<div class='hd'><div><div class='logo'>⬡ OCTAN<span>AJE</span></div><div class='sub'>Salud y Disciplina</div></div>" +
       "<div style='text-align:right'><h1>Resumen de entrenamiento</h1><div class='sub'>" + r.label + " · " + (r.from === r.to ? fromLbl : fromLbl + " → " + toLbl) + "</div></div></div>" +
       "<div class='kpis'>" +
       "<div class='kpi'><div class='n'>" + list.length + "</div><div class='l'>Sesiones</div></div>" +
@@ -4012,7 +4012,7 @@ canvas { display: block; width: 100%; }
       "</div>" +
       "<div class='types'><b>Por tipo:</b> " + typeChips + "</div>" +
       "<table><thead><tr><th>Fecha</th><th>Sesión</th><th>Tipo</th><th style='text-align:center'>Duración</th><th style='text-align:center'>Kcal</th><th>Ejercicios / Notas</th></tr></thead><tbody>" + rows + "</tbody></table>" +
-      "<div class='ft'>Generado por NEXUS · " + new Date().toLocaleString("es-MX") + "</div>" +
+      "<div class='ft'>Generado por OCTANAJE · " + new Date().toLocaleString("es-MX") + "</div>" +
       "</body></html>";
 
     // Imprimir mediante un iframe oculto (no lo bloquean los popups)
@@ -4197,7 +4197,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/modules/goals.js ===== */
 /* =====================================================================
-   NEXUS · Módulo Metas
+   OCTANAJE · Módulo Metas
    ===================================================================== */
 (function () {
   "use strict";
@@ -4240,7 +4240,7 @@ canvas { display: block; width: 100%; }
       render(document.getElementById("view-goals"));
       N.App && N.App.refreshTop();
     }, existing ? "Guardar" : "Crear meta",
-      (inputs) => N.CalExport.formRow(inputs.title, inputs.deadline, "Meta en NEXUS"));
+      (inputs) => N.CalExport.formRow(inputs.title, inputs.deadline, "Meta en OCTANAJE"));
     UI.openModal(existing ? "Editar meta" : "Nueva meta", body);
   }
 
@@ -4350,7 +4350,7 @@ canvas { display: block; width: 100%; }
             dl ? el("span", { class: "chip " + dl.cls, text: "⏳ " + dl.text }) : null
           ])
         ]),
-        g.deadline ? el("button", { class: "icon-btn", html: "📅", title: "Añadir a Google Calendar", onclick: () => N.CalExport.open({ title: "Meta: " + g.title, details: "Meta en NEXUS · " + fmt.num(g.current) + "/" + fmt.num(g.target) + " " + (g.unit || ""), dateKey: g.deadline }) }) : null,
+        g.deadline ? el("button", { class: "icon-btn", html: "📅", title: "Añadir a Google Calendar", onclick: () => N.CalExport.open({ title: "Meta: " + g.title, details: "Meta en OCTANAJE · " + fmt.num(g.current) + "/" + fmt.num(g.target) + " " + (g.unit || ""), dateKey: g.deadline }) }) : null,
         el("button", { class: "icon-btn", html: "✏️", title: "Editar", onclick: () => addOrEdit(g) }),
         el("button", { class: "icon-btn", html: "🗑️", title: "Eliminar", onclick: () => remove(g) })
       ]),
@@ -4387,7 +4387,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/modules/focus.js ===== */
 /* =====================================================================
-   NEXUS · Módulo Foco / Pomodoro
+   OCTANAJE · Módulo Foco / Pomodoro
    Temporizador de trabajo/descanso configurable, con ciclos, anillo,
    XP, sonido y notificación al terminar cada fase.
    ===================================================================== */
@@ -4661,7 +4661,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/modules/nutrition.js ===== */
 /* =====================================================================
-   NEXUS · Módulo Alimentación
+   OCTANAJE · Módulo Alimentación
    Base de datos de alimentos + registro diario con gramos.
    Medidor radial de anillos (calorías/proteínas/carbohidratos vs metas)
    y exportación de resumen detallado a PDF (diario/semanal/mensual).
@@ -4953,7 +4953,7 @@ canvas { display: block; width: 100%; }
       });
     }
 
-    const html = "<!doctype html><html lang='es'><head><meta charset='utf-8'><title>NEXUS · Alimentación " + r.label + "</title>" +
+    const html = "<!doctype html><html lang='es'><head><meta charset='utf-8'><title>OCTANAJE · Alimentación " + r.label + "</title>" +
       "<style>" +
       "*{box-sizing:border-box;font-family:'Segoe UI',system-ui,Arial,sans-serif}" +
       "body{margin:0;padding:32px;color:#1a1a2e;background:#fff}" +
@@ -4975,7 +4975,7 @@ canvas { display: block; width: 100%; }
       ".ft{margin-top:24px;color:#999;font-size:11px;text-align:center;border-top:1px solid #eee;padding-top:12px}" +
       "@media print{body{padding:0}}" +
       "</style></head><body>" +
-      "<div class='hd'><div><div class='logo'>⬡ NE<span>XUS</span></div><div class='sub'>Salud y Disciplina</div></div>" +
+      "<div class='hd'><div><div class='logo'>⬡ OCTAN<span>AJE</span></div><div class='sub'>Salud y Disciplina</div></div>" +
       "<div style='text-align:right'><h1>Resumen de alimentación</h1><div class='sub'>" + r.label + " · " + (r.from === r.to ? fromLbl : fromLbl + " → " + toLbl) + "</div></div></div>" +
       "<div class='kpis'>" +
       "<div class='kpi'><div class='n'>" + nDays + "</div><div class='l'>Días con registro</div></div>" +
@@ -4988,7 +4988,7 @@ canvas { display: block; width: 100%; }
       "<table><thead><tr><th>Alimento / platillo</th><th class='c'>Cantidad</th><th class='c'>Kcal</th><th class='c'>Prot (g)</th><th class='c'>Carb (g)</th></tr></thead><tbody>" + rows +
       "<tr class='dh'><td><b>TOTAL DEL PERIODO</b></td><td></td><td style='text-align:center'><b>" + grand.kcal + "</b></td><td style='text-align:center'><b>" + r1(grand.prot) + "</b></td><td style='text-align:center'><b>" + r1(grand.carb) + "</b></td></tr>" +
       "</tbody></table>" +
-      "<div class='ft'>Generado por NEXUS · " + new Date().toLocaleString("es-MX") + "</div>" +
+      "<div class='ft'>Generado por OCTANAJE · " + new Date().toLocaleString("es-MX") + "</div>" +
       "</body></html>";
 
     const iframe = document.createElement("iframe");
@@ -5121,7 +5121,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/notifications.js ===== */
 /* =====================================================================
-   NEXUS · Notifications — Notification API + recordatorios de pendientes
+   OCTANAJE · Notifications — Notification API + recordatorios de pendientes
    Con degradación elegante a toasts si no hay permiso/soporte.
    ===================================================================== */
 (function () {
@@ -5149,12 +5149,12 @@ canvas { display: block; width: 100%; }
       return Promise.resolve("denied");
     }
     if (fileProto) {
-      UI.toast({ icon: "🌐", title: "Usa la versión web", msg: "Las notificaciones del sistema solo funcionan en https://dolarz1.github.io/NEXUS/, no abriendo el archivo local. Mientras, activo avisos dentro de la app.", duration: 8000 });
+      UI.toast({ icon: "🌐", title: "Usa la versión web", msg: "Las notificaciones del sistema solo funcionan en https://dolarz1.github.io/OCTANAJE/, no abriendo el archivo local. Mientras, activo avisos dentro de la app.", duration: 8000 });
     }
     return Notification.requestPermission().then((perm) => {
       Store.get().settings.notifications = true; Store.commit(true);
       if (perm === "granted") {
-        send("NEXUS activado 🔔", "Te avisaré de tus pendientes y sesiones de foco.");
+        send("OCTANAJE activado 🔔", "Te avisaré de tus pendientes y sesiones de foco.");
         UI.toast({ icon: "🔔", title: "Notificaciones activadas", msg: "Recibirás recordatorios." });
       } else if (perm === "denied") {
         UI.toast({ icon: "🔕", title: "Permiso denegado", msg: "Puedes permitirlo desde el 🔒 junto a la dirección. Mientras, usaré avisos dentro de la app.", duration: 8000 });
@@ -5179,7 +5179,7 @@ canvas { display: block; width: 100%; }
         const n = new Notification(title, {
           body: body || "",
           icon: opts.icon,
-          tag: opts.tag || "nexus",
+          tag: opts.tag || "octanaje",
           silent: false
         });
         if (opts.onClick) n.onclick = () => { window.focus(); opts.onClick(); n.close(); };
@@ -5210,7 +5210,7 @@ canvas { display: block; width: 100%; }
     if (!parts.length) return;
     s.notifyMeta.lastReminder = today;
     Store.commit(true);
-    send("Tu día en NEXUS 📋", "Tienes " + parts.join(" y ") + ".", { tag: "nexus-daily" });
+    send("Tu día en OCTANAJE 📋", "Tienes " + parts.join(" y ") + ".", { tag: "octanaje-daily" });
   }
 
   let interval = null;
@@ -5228,7 +5228,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/calexport.js ===== */
 /* =====================================================================
-   NEXUS · CalExport — añadir eventos a Google Calendar o descargar .ics
+   OCTANAJE · CalExport — añadir eventos a Google Calendar o descargar .ics
    Sin login ni configuración: crea el evento en el calendario del usuario
    y deja que Google/su app se encargue de los recordatorios/alertas.
    ===================================================================== */
@@ -5249,7 +5249,7 @@ canvas { display: block; width: 100%; }
       action: "TEMPLATE",
       text: title || "Recordatorio",
       dates: ymd(dateKey) + "/" + nextDay(dateKey),
-      details: (details || "") + "\n\nCreado desde NEXUS"
+      details: (details || "") + "\n\nCreado desde OCTANAJE"
     });
     if (recur) p.set("recur", recur); // p.ej. RRULE:FREQ=DAILY
     return "https://calendar.google.com/calendar/render?" + p.toString();
@@ -5260,14 +5260,14 @@ canvas { display: block; width: 100%; }
   // Genera y descarga un archivo .ics (Apple, Outlook, etc.) con alarma a las 9:00
   function downloadIcs(title, details, dateKey, recur) {
     const lines = [
-      "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//NEXUS//ES", "CALSCALE:GREGORIAN",
+      "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//OCTANAJE//ES", "CALSCALE:GREGORIAN",
       "BEGIN:VEVENT",
-      "UID:" + Store.uid() + "@nexus",
+      "UID:" + Store.uid() + "@octanaje",
       "DTSTAMP:" + stampUTC(),
       "DTSTART;VALUE=DATE:" + ymd(dateKey),
       "DTEND;VALUE=DATE:" + nextDay(dateKey),
       "SUMMARY:" + escICS(title),
-      "DESCRIPTION:" + escICS((details || "") + " — NEXUS")
+      "DESCRIPTION:" + escICS((details || "") + " — OCTANAJE")
     ];
     if (recur) lines.push(recur.replace(/^RRULE:/, "RRULE:")); // p.ej. "RRULE:FREQ=DAILY"
     lines.push(
@@ -5316,7 +5316,7 @@ canvas { display: block; width: 100%; }
         class: "btn block", html: "📆 Descargar .ics (Apple, Outlook, Samsung…)",
         onclick: () => { Audio.play("tap"); downloadIcs(title, details, dateKey, recur); UI.closeModal(); }
       }),
-      el("p", { class: "fs-12 text-faint mt-16", text: "Tu app de calendario se encargará de la alerta, incluso con NEXUS cerrado." })
+      el("p", { class: "fs-12 text-faint mt-16", text: "Tu app de calendario se encargará de la alerta, incluso con OCTANAJE cerrado." })
     ]);
     UI.openModal("Añadir recordatorio", body);
   }
@@ -5344,7 +5344,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/settings.js ===== */
 /* =====================================================================
-   NEXUS · Settings — exportar/importar datos y notificaciones
+   OCTANAJE · Settings — exportar/importar datos y notificaciones
    ===================================================================== */
 (function () {
   "use strict";
@@ -5421,7 +5421,7 @@ canvas { display: block; width: 100%; }
       const data = Store.serialize();
       const blob = new Blob([data], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const a = el("a", { href: url, download: "nexus-backup-" + Store.DateUtil.todayKey() + ".json" });
+      const a = el("a", { href: url, download: "octanaje-backup-" + Store.DateUtil.todayKey() + ".json" });
       document.body.appendChild(a);
       a.click();
       setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
@@ -5534,7 +5534,7 @@ canvas { display: block; width: 100%; }
 
 /* ===== assets/js/app.js ===== */
 /* =====================================================================
-   NEXUS · App — orquestador principal
+   OCTANAJE · App — orquestador principal
    ===================================================================== */
 (function () {
   "use strict";

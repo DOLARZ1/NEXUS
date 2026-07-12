@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · App — orquestador principal
+   OCTANAJE · App — orquestador principal
    ===================================================================== */
 (function () {
   "use strict";

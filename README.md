@@ -1,10 +1,10 @@
-# ⬡ NEXUS · Personal OS
+# ⬡ OCTANAJE · Personal OS
 
-Aplicación web **futurista de productividad personal**: hábitos, finanzas con IA, tareas, entrenamientos y metas — con **rachas**, **XP/niveles**, **gráficas en tiempo real**, **sonidos** y **3 temas** (claro, oscuro y gris).
+Aplicación web **futurista de productividad personal**: hábitos, finanzas con IA, tareas, entrenamientos, metas y alimentación — con **rachas**, **medallas**, **XP/niveles**, **gráficas en tiempo real**, **sonidos** y **4 temas** (claro, oscuro, gris y morado).
 
 Hecha en **HTML, CSS y JavaScript puro**, sin dependencias ni paso de build. Funciona offline: solo abre `index.html`.
 
-🌐 **App en vivo:** https://dolarz1.github.io/NEXUS/
+🌐 **App en vivo:** https://dolarz1.github.io/OCTANAJE/
 
 ![tech](https://img.shields.io/badge/stack-Vanilla%20JS-00e5ff) ![deps](https://img.shields.io/badge/dependencias-0-7c5cff)
 
@@ -80,4 +80,4 @@ Valida la carga de todos los scripts, el motor de IA financiera, la gamificació
 
 ---
 
-Hecho con ⬡ por NEXUS.
+Hecho con ⬡ por OCTANAJE.

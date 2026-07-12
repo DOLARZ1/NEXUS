@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Módulo Foco / Pomodoro
+   OCTANAJE · Módulo Foco / Pomodoro
    Temporizador de trabajo/descanso configurable, con ciclos, anillo,
    XP, sonido y notificación al terminar cada fase.
    ===================================================================== */

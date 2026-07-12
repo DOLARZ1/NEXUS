@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Audio — sonidos sintetizados con Web Audio API (sin archivos)
+   OCTANAJE · Audio — sonidos sintetizados con Web Audio API (sin archivos)
    ===================================================================== */
 (function () {
   "use strict";

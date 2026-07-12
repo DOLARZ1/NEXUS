@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Módulo Entrenamientos
+   OCTANAJE · Módulo Entrenamientos
    ===================================================================== */
 (function () {
   "use strict";
@@ -123,7 +123,7 @@
 
     const typeChips = Object.keys(byType).map((k) => typeEmoji(k) + " " + esc(typeName(k)) + ": " + byType[k]).join(" &nbsp;·&nbsp; ") || "—";
 
-    const html = "<!doctype html><html lang='es'><head><meta charset='utf-8'><title>NEXUS · Resumen " + r.label + "</title>" +
+    const html = "<!doctype html><html lang='es'><head><meta charset='utf-8'><title>OCTANAJE · Resumen " + r.label + "</title>" +
       "<style>" +
       "*{box-sizing:border-box;font-family:'Segoe UI',system-ui,Arial,sans-serif}" +
       "body{margin:0;padding:32px;color:#1a1a2e;background:#fff}" +
@@ -144,7 +144,7 @@
       ".ft{margin-top:24px;color:#999;font-size:11px;text-align:center;border-top:1px solid #eee;padding-top:12px}" +
       "@media print{body{padding:0}}" +
       "</style></head><body>" +
-      "<div class='hd'><div><div class='logo'>⬡ NE<span>XUS</span></div><div class='sub'>Salud y Disciplina</div></div>" +
+      "<div class='hd'><div><div class='logo'>⬡ OCTAN<span>AJE</span></div><div class='sub'>Salud y Disciplina</div></div>" +
       "<div style='text-align:right'><h1>Resumen de entrenamiento</h1><div class='sub'>" + r.label + " · " + (r.from === r.to ? fromLbl : fromLbl + " → " + toLbl) + "</div></div></div>" +
       "<div class='kpis'>" +
       "<div class='kpi'><div class='n'>" + list.length + "</div><div class='l'>Sesiones</div></div>" +
@@ -153,7 +153,7 @@
       "</div>" +
       "<div class='types'><b>Por tipo:</b> " + typeChips + "</div>" +
       "<table><thead><tr><th>Fecha</th><th>Sesión</th><th>Tipo</th><th style='text-align:center'>Duración</th><th style='text-align:center'>Kcal</th><th>Ejercicios / Notas</th></tr></thead><tbody>" + rows + "</tbody></table>" +
-      "<div class='ft'>Generado por NEXUS · " + new Date().toLocaleString("es-MX") + "</div>" +
+      "<div class='ft'>Generado por OCTANAJE · " + new Date().toLocaleString("es-MX") + "</div>" +
       "</body></html>";
 
     // Imprimir mediante un iframe oculto (no lo bloquean los popups)

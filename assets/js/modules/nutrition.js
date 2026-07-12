@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Módulo Alimentación
+   OCTANAJE · Módulo Alimentación
    Base de datos de alimentos + registro diario con gramos.
    Medidor radial de anillos (calorías/proteínas/carbohidratos vs metas)
    y exportación de resumen detallado a PDF (diario/semanal/mensual).
@@ -291,7 +291,7 @@
       });
     }
 
-    const html = "<!doctype html><html lang='es'><head><meta charset='utf-8'><title>NEXUS · Alimentación " + r.label + "</title>" +
+    const html = "<!doctype html><html lang='es'><head><meta charset='utf-8'><title>OCTANAJE · Alimentación " + r.label + "</title>" +
       "<style>" +
       "*{box-sizing:border-box;font-family:'Segoe UI',system-ui,Arial,sans-serif}" +
       "body{margin:0;padding:32px;color:#1a1a2e;background:#fff}" +
@@ -313,7 +313,7 @@
       ".ft{margin-top:24px;color:#999;font-size:11px;text-align:center;border-top:1px solid #eee;padding-top:12px}" +
       "@media print{body{padding:0}}" +
       "</style></head><body>" +
-      "<div class='hd'><div><div class='logo'>⬡ NE<span>XUS</span></div><div class='sub'>Salud y Disciplina</div></div>" +
+      "<div class='hd'><div><div class='logo'>⬡ OCTAN<span>AJE</span></div><div class='sub'>Salud y Disciplina</div></div>" +
       "<div style='text-align:right'><h1>Resumen de alimentación</h1><div class='sub'>" + r.label + " · " + (r.from === r.to ? fromLbl : fromLbl + " → " + toLbl) + "</div></div></div>" +
       "<div class='kpis'>" +
       "<div class='kpi'><div class='n'>" + nDays + "</div><div class='l'>Días con registro</div></div>" +
@@ -326,7 +326,7 @@
       "<table><thead><tr><th>Alimento / platillo</th><th class='c'>Cantidad</th><th class='c'>Kcal</th><th class='c'>Prot (g)</th><th class='c'>Carb (g)</th></tr></thead><tbody>" + rows +
       "<tr class='dh'><td><b>TOTAL DEL PERIODO</b></td><td></td><td style='text-align:center'><b>" + grand.kcal + "</b></td><td style='text-align:center'><b>" + r1(grand.prot) + "</b></td><td style='text-align:center'><b>" + r1(grand.carb) + "</b></td></tr>" +
       "</tbody></table>" +
-      "<div class='ft'>Generado por NEXUS · " + new Date().toLocaleString("es-MX") + "</div>" +
+      "<div class='ft'>Generado por OCTANAJE · " + new Date().toLocaleString("es-MX") + "</div>" +
       "</body></html>";
 
     const iframe = document.createElement("iframe");

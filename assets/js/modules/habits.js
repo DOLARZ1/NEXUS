@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Módulo Hábitos
+   OCTANAJE · Módulo Hábitos
    Soporta hábitos simples (1 check) y hábitos con META DIARIA de N veces
    (se rellenan N cuadritos; el hábito se completa solo al llenarlos todos).
    ===================================================================== */
@@ -188,7 +188,7 @@
   function addToCalendar(h) {
     N.CalExport.open({
       title: h.name,
-      details: "Hábito diario en NEXUS" + (tgt(h) > 1 ? " · meta " + tgt(h) + " " + (h.unit || "veces") : ""),
+      details: "Hábito diario en OCTANAJE" + (tgt(h) > 1 ? " · meta " + tgt(h) + " " + (h.unit || "veces") : ""),
       dateKey: today(),
       recur: "RRULE:FREQ=DAILY"
     });

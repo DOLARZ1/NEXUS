@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Gamification — XP, niveles, rachas y logros
+   OCTANAJE · Gamification — XP, niveles, rachas y logros
    ===================================================================== */
 (function () {
   "use strict";

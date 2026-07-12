@@ -1,7 +1,7 @@
 /* =====================================================================
-   NEXUS · Service Worker — offline con estrategia stale-while-revalidate
+   OCTANAJE · Service Worker — offline con estrategia stale-while-revalidate
    ===================================================================== */
-const CACHE = "nexus-cache-v38";
+const CACHE = "octanaje-cache-v1";
 
 const CORE = [
   "./", "./index.html", "./manifest.webmanifest",

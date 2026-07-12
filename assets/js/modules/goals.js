@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Módulo Metas
+   OCTANAJE · Módulo Metas
    ===================================================================== */
 (function () {
   "use strict";
@@ -42,7 +42,7 @@
       render(document.getElementById("view-goals"));
       N.App && N.App.refreshTop();
     }, existing ? "Guardar" : "Crear meta",
-      (inputs) => N.CalExport.formRow(inputs.title, inputs.deadline, "Meta en NEXUS"));
+      (inputs) => N.CalExport.formRow(inputs.title, inputs.deadline, "Meta en OCTANAJE"));
     UI.openModal(existing ? "Editar meta" : "Nueva meta", body);
   }
 
@@ -152,7 +152,7 @@
             dl ? el("span", { class: "chip " + dl.cls, text: "⏳ " + dl.text }) : null
           ])
         ]),
-        g.deadline ? el("button", { class: "icon-btn", html: "📅", title: "Añadir a Google Calendar", onclick: () => N.CalExport.open({ title: "Meta: " + g.title, details: "Meta en NEXUS · " + fmt.num(g.current) + "/" + fmt.num(g.target) + " " + (g.unit || ""), dateKey: g.deadline }) }) : null,
+        g.deadline ? el("button", { class: "icon-btn", html: "📅", title: "Añadir a Google Calendar", onclick: () => N.CalExport.open({ title: "Meta: " + g.title, details: "Meta en OCTANAJE · " + fmt.num(g.current) + "/" + fmt.num(g.target) + " " + (g.unit || ""), dateKey: g.deadline }) }) : null,
         el("button", { class: "icon-btn", html: "✏️", title: "Editar", onclick: () => addOrEdit(g) }),
         el("button", { class: "icon-btn", html: "🗑️", title: "Eliminar", onclick: () => remove(g) })
       ]),

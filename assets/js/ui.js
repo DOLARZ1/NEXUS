@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · UI — helpers de DOM, toasts y modal
+   OCTANAJE · UI — helpers de DOM, toasts y modal
    ===================================================================== */
 (function () {
   "use strict";

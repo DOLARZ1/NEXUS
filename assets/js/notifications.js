@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Notifications — Notification API + recordatorios de pendientes
+   OCTANAJE · Notifications — Notification API + recordatorios de pendientes
    Con degradación elegante a toasts si no hay permiso/soporte.
    ===================================================================== */
 (function () {
@@ -27,12 +27,12 @@
       return Promise.resolve("denied");
     }
     if (fileProto) {
-      UI.toast({ icon: "🌐", title: "Usa la versión web", msg: "Las notificaciones del sistema solo funcionan en https://dolarz1.github.io/NEXUS/, no abriendo el archivo local. Mientras, activo avisos dentro de la app.", duration: 8000 });
+      UI.toast({ icon: "🌐", title: "Usa la versión web", msg: "Las notificaciones del sistema solo funcionan en https://dolarz1.github.io/OCTANAJE/, no abriendo el archivo local. Mientras, activo avisos dentro de la app.", duration: 8000 });
     }
     return Notification.requestPermission().then((perm) => {
       Store.get().settings.notifications = true; Store.commit(true);
       if (perm === "granted") {
-        send("NEXUS activado 🔔", "Te avisaré de tus pendientes y sesiones de foco.");
+        send("OCTANAJE activado 🔔", "Te avisaré de tus pendientes y sesiones de foco.");
         UI.toast({ icon: "🔔", title: "Notificaciones activadas", msg: "Recibirás recordatorios." });
       } else if (perm === "denied") {
         UI.toast({ icon: "🔕", title: "Permiso denegado", msg: "Puedes permitirlo desde el 🔒 junto a la dirección. Mientras, usaré avisos dentro de la app.", duration: 8000 });
@@ -57,7 +57,7 @@
         const n = new Notification(title, {
           body: body || "",
           icon: opts.icon,
-          tag: opts.tag || "nexus",
+          tag: opts.tag || "octanaje",
           silent: false
         });
         if (opts.onClick) n.onclick = () => { window.focus(); opts.onClick(); n.close(); };
@@ -88,7 +88,7 @@
     if (!parts.length) return;
     s.notifyMeta.lastReminder = today;
     Store.commit(true);
-    send("Tu día en NEXUS 📋", "Tienes " + parts.join(" y ") + ".", { tag: "nexus-daily" });
+    send("Tu día en OCTANAJE 📋", "Tienes " + parts.join(" y ") + ".", { tag: "octanaje-daily" });
   }
 
   let interval = null;

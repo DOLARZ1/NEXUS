@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Charts — motor de gráficas propio sobre Canvas (sin librerías)
+   OCTANAJE · Charts — motor de gráficas propio sobre Canvas (sin librerías)
    Soporta: line, area, bar, doughnut, sparkline, ring
    ===================================================================== */
 (function () {

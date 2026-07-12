@@ -1,5 +1,5 @@
 /* =====================================================================
-   NEXUS · Settings — exportar/importar datos y notificaciones
+   OCTANAJE · Settings — exportar/importar datos y notificaciones
    ===================================================================== */
 (function () {
   "use strict";
@@ -76,7 +76,7 @@
       const data = Store.serialize();
       const blob = new Blob([data], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const a = el("a", { href: url, download: "nexus-backup-" + Store.DateUtil.todayKey() + ".json" });
+      const a = el("a", { href: url, download: "octanaje-backup-" + Store.DateUtil.todayKey() + ".json" });
       document.body.appendChild(a);
       a.click();
       setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
