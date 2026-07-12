@@ -125,13 +125,87 @@
       open(); // re-render del modal
     });
 
-    return el("div", { class: "set-row" }, [
-      el("div", {}, [
-        el("div", { class: "set-title", text: "🔔 Notificaciones y recordatorios" }),
-        el("div", { class: "set-desc", text: status })
+    const rows = [
+      el("div", { class: "set-row" }, [
+        el("div", {}, [
+          el("div", { class: "set-title", text: "🔔 Notificaciones y recordatorios" }),
+          el("div", { class: "set-desc", text: status })
+        ]),
+        toggle
+      ])
+    ];
+    if (on) {
+      rows.push(el("div", { class: "set-row", style: "padding-top:0" }, [
+        el("div", {}, [
+          el("div", { class: "set-title fs-12", text: "Sonidos, horario y días" }),
+          el("div", { class: "set-desc", text: (Notify.reminders().length) + " recordatorio(s) configurado(s)" })
+        ]),
+        el("button", { class: "btn sm", html: "⏰ Configurar recordatorios", onclick: openReminders })
+      ]));
+    }
+    return el("div", {}, rows);
+  }
+
+  // ---------- panel de recordatorios personalizados ----------
+  function reminderRow(r) {
+    const Notify = N.Notify;
+    const toggle = el("button", { class: "switch sm" + (r.enabled ? " on" : ""), role: "switch", "aria-checked": r.enabled ? "true" : "false" }, [el("span", { class: "knob" })]);
+    toggle.addEventListener("click", () => { Notify.toggleReminder(r); Audio.play("tap"); openReminders(); });
+
+    return el("div", { class: "item", style: "padding:10px 12px" }, [
+      el("div", { class: "item-main" }, [
+        el("div", { class: "item-title", text: "⏰ " + r.title }),
+        el("div", { class: "item-meta" }, [
+          el("span", { class: "chip accent", text: r.time }),
+          el("span", { class: "chip", text: Notify.reminderDaysLabel(r) }),
+          r.sound ? el("span", { class: "chip warn", text: "🔊 alarma" }) : el("span", { class: "chip", text: "🔇 silencioso" })
+        ])
       ]),
-      toggle
+      toggle,
+      el("button", { class: "icon-btn", title: "Editar", onclick: () => openReminderForm(r) , html: "✏️" }),
+      el("button", { class: "icon-btn", title: "Eliminar", onclick: () => {
+        UI.confirmBox("Eliminar recordatorio", "¿Eliminar \"" + r.title + "\"?", () => {
+          Notify.removeReminder(r); Audio.play("delete"); toast({ icon: "🗑️", msg: "Recordatorio eliminado" }); openReminders();
+        }, "Eliminar");
+      }, html: "🗑️" })
     ]);
+  }
+
+  function openReminders() {
+    const Notify = N.Notify;
+    const list = Notify.reminders();
+    const body = el("div", {}, [
+      el("button", { class: "btn primary block mb-16", html: "＋ Nuevo recordatorio", onclick: () => openReminderForm() }),
+      list.length
+        ? el("div", {}, list.map(reminderRow))
+        : el("div", { class: "empty" }, [el("span", { class: "big", text: "⏰" }), el("div", { text: "Aún no tienes recordatorios personalizados." })]),
+      el("p", { class: "fs-12 text-faint mt-16", text: "Los recordatorios suenan mientras OCTANAJE esté abierto (en primer o segundo plano). Para alarmas que funcionen con la app cerrada, usa \"Añadir a Google Calendar\" en Hábitos/Tareas/Metas." })
+    ]);
+    UI.openModal("⏰ Recordatorios", body);
+  }
+
+  function openReminderForm(existing) {
+    const Notify = N.Notify;
+    const testBtn = el("button", { type: "button", class: "btn sm", html: "🔊 Probar sonido de alarma", onclick: () => Audio.preview("alarm") });
+    const body = UI.form([
+      { name: "title", label: "Título", value: existing ? existing.title : "", placeholder: "Ej. Revisar hábitos", required: true },
+      { name: "message", label: "Mensaje (opcional)", type: "textarea", value: existing ? existing.message : "", placeholder: "Detalle del recordatorio…" },
+      { name: "time", label: "Hora", type: "time", value: existing ? existing.time : "08:00", required: true },
+      { name: "days", label: "¿Qué días?", type: "weekdays", value: (existing && existing.days && existing.days.length) ? existing.days : [0, 1, 2, 3, 4, 5, 6] },
+      { name: "sound", label: "Sonido de alarma", type: "select", value: existing ? (existing.sound !== false ? "1" : "0") : "1", options: [
+        { value: "1", label: "🔊 Con alarma" }, { value: "0", label: "🔇 Silencioso (solo notificación)" }
+      ]}
+    ], (data) => {
+      const payload = {
+        title: data.title, message: data.message, time: data.time,
+        days: typeof data.days === "string" ? data.days.split(",").filter((x) => x !== "").map(Number) : (data.days || []),
+        sound: data.sound === "1"
+      };
+      if (existing) { Notify.updateReminder(existing, payload); toast({ icon: "✏️", msg: "Recordatorio actualizado" }); }
+      else { Notify.addReminder(payload); Audio.play("add"); toast({ icon: "⏰", title: "Recordatorio creado", msg: payload.title }); }
+      openReminders();
+    }, existing ? "Guardar cambios" : "Crear recordatorio", () => testBtn);
+    UI.openModal(existing ? "Editar recordatorio" : "Nuevo recordatorio", body);
   }
 
   // ---------- modal principal ----------

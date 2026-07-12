@@ -40,6 +40,7 @@
       profile: { xp: 0, level: 1, createdAt: DateUtil.todayKey() },
       settings: { theme: "dark", sound: true, notifications: false, currency: "MXN", locale: "es-MX" },
       notifyMeta: { lastReminder: "" },   // "YYYY-MM-DD" del último recordatorio enviado
+      reminders: [],           // recordatorios personalizados: {id,title,message,time,days,sound,enabled,lastFired}
       activity: {},            // { "YYYY-MM-DD": true }  días con alguna acción
       xpLog: {},               // { "YYYY-MM-DD": xpGanado }
       achievements: [],        // ids de logros desbloqueados

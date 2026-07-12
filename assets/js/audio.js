@@ -66,7 +66,15 @@
       notes.forEach((f, i) => tone(f, i * 0.09, 0.28, "triangle", 0.42));
       sweep(300, 1400, 0.1, 0.6, "sine", 0.2);
     },
-    achieve()  { tone(784, 0, 0.12, "sine", 0.4); tone(1047, 0.1, 0.14, "sine", 0.4); tone(1568, 0.22, 0.24, "sine", 0.35); }
+    achieve()  { tone(784, 0, 0.12, "sine", 0.4); tone(1047, 0.1, 0.14, "sine", 0.4); tone(1568, 0.22, 0.24, "sine", 0.35); },
+    // alarma de recordatorio: patrón repetitivo tipo "beep-beep" para
+    // distinguirse claramente de los demás sonidos de la interfaz
+    alarm()    {
+      for (let i = 0; i < 3; i++) {
+        tone(880, i * 0.28, 0.14, "square", 0.5);
+        tone(1108, i * 0.28 + 0.15, 0.12, "square", 0.42);
+      }
+    }
   };
 
   const Audio = {
@@ -85,7 +93,14 @@
       return enabled;
     },
     // desbloquea el contexto tras el primer gesto del usuario
-    unlock() { ensure(); }
+    unlock() { ensure(); },
+    // reproduce un sonido aunque el interruptor general esté apagado
+    // (para botones explícitos de "probar sonido")
+    preview(name) {
+      if (!ensure()) return;
+      const fn = sounds[name];
+      if (fn) { try { fn(); } catch (e) {} }
+    }
   };
 
   window.NEXUS.Audio = Audio;
