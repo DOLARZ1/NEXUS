@@ -1,4 +1,4 @@
-# ⬡ OCTANAJE · Personal OS
+# ▲ OCTANAJE · Personal OS
 
 Aplicación web **futurista de productividad personal**: hábitos, finanzas con IA, tareas, entrenamientos, metas y alimentación — con **rachas**, **medallas**, **XP/niveles**, **gráficas en tiempo real**, **sonidos** y **4 temas** (claro, oscuro, gris y morado).
 
@@ -80,4 +80,4 @@ Valida la carga de todos los scripts, el motor de IA financiera, la gamificació
 
 ---
 
-Hecho con ⬡ por OCTANAJE.
+Hecho con ▲ por OCTANAJE.

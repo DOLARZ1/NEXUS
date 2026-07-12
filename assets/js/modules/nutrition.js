@@ -313,7 +313,7 @@
       ".ft{margin-top:24px;color:#999;font-size:11px;text-align:center;border-top:1px solid #eee;padding-top:12px}" +
       "@media print{body{padding:0}}" +
       "</style></head><body>" +
-      "<div class='hd'><div><div class='logo'>⬡ OCTAN<span>AJE</span></div><div class='sub'>Salud y Disciplina</div></div>" +
+      "<div class='hd'><div><div class='logo'>▲ OCTAN<span>AJE</span></div><div class='sub'>Salud y Disciplina</div></div>" +
       "<div style='text-align:right'><h1>Resumen de alimentación</h1><div class='sub'>" + r.label + " · " + (r.from === r.to ? fromLbl : fromLbl + " → " + toLbl) + "</div></div></div>" +
       "<div class='kpis'>" +
       "<div class='kpi'><div class='n'>" + nDays + "</div><div class='l'>Días con registro</div></div>" +

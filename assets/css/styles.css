@@ -118,6 +118,32 @@ input, select, textarea { font-family: inherit; }
   --blur: 16px;
 }
 
+/* Dark Brillante — variante del oscuro con neones mucho más vívidos e
+   intensos: fondo casi negro + acentos eléctricos muy saturados y brillo
+   ampliado en todos los componentes (cards, botones, barras, etc). */
+[data-theme="neon"] {
+  --bg: #020108;
+  --bg-2: #060212;
+  --panel: rgba(18, 8, 34, .55);
+  --panel-solid: #0d0620;
+  --panel-2: rgba(28, 14, 52, .62);
+  --txt: #f6f2ff;
+  --txt-dim: #c2a9f2;
+  --txt-faint: #7d5cb8;
+  --border: rgba(200, 90, 255, .16);
+  --border-strong: rgba(200, 90, 255, .34);
+  --accent: #00fff2;
+  --accent-2: #ff00e5;
+  --accent-3: #faff00;
+  --good: #00ff9d;
+  --warn: #ffea00;
+  --bad: #ff0844;
+  --glow: 0 0 30px rgba(0, 255, 242, .6);
+  --shadow: 0 20px 60px rgba(0, 0, 0, .7);
+  --grid-line: rgba(0, 255, 242, .14);
+  --blur: 18px;
+}
+
 /* =====================================================================
    FONDO
    ===================================================================== */
@@ -151,11 +177,25 @@ input, select, textarea { font-family: inherit; }
   transition: opacity .35s ease;
 }
 .boot-screen.hide { opacity: 0; pointer-events: none; }
-.boot-logo { font-size: 64px; filter: drop-shadow(var(--glow)); animation: spin 3s ease-in-out infinite; }
+.boot-logo {
+  color: #ffd700;
+  filter: drop-shadow(0 0 10px #ff1a1a) drop-shadow(0 0 22px #ffd700) drop-shadow(0 0 36px #ff1a1a);
+  animation: spin 3s ease-in-out infinite;
+}
+.boot-logo svg { display: block; }
 @keyframes spin { 0%,100% { transform: rotate(0) scale(1);} 50% { transform: rotate(180deg) scale(1.1);} }
 .boot-title {
   font-family: "Orbitron", "Segoe UI", system-ui, sans-serif;
-  font-size: 40px; font-weight: 800; letter-spacing: 10px; color: var(--accent); text-shadow: var(--glow);
+  font-size: 40px; font-weight: 800; letter-spacing: 10px;
+  background: linear-gradient(100deg,
+    #ffd700 0%, #ffd700 42%,
+    #ffffff 49%, #ffffff 51%,
+    #ff1a1a 58%, #ff1a1a 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  filter: drop-shadow(0 0 8px rgba(255, 26, 26, .8)) drop-shadow(0 0 14px rgba(255, 215, 0, .55));
+  animation: nexusShine 6s linear infinite;
 }
 .boot-sub { color: var(--txt-dim); letter-spacing: 3px; font-size: 12px; text-transform: uppercase; }
 .boot-bar { width: 220px; height: 4px; border-radius: 4px; background: var(--border); overflow: hidden; }
@@ -176,24 +216,25 @@ input, select, textarea { font-family: inherit; }
 }
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand-hex {
-  font-size: 42px; color: var(--accent);
-  text-shadow: 0 0 10px var(--accent), 0 0 24px var(--accent), 0 0 44px var(--accent-2), 0 0 66px var(--accent-2);
+  display: inline-grid; place-items: center; color: #ffd700;
+  filter: drop-shadow(0 0 6px #ff1a1a) drop-shadow(0 0 14px #ffd700) drop-shadow(0 0 22px #ff1a1a);
   animation: pulse 3.4s ease-in-out infinite;
 }
+.brand-hex svg { display: block; }
 @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.6;} }
 .brand-text { display: flex; flex-direction: column; line-height: 1; }
 .brand-name {
   font-family: "Orbitron", "Segoe UI", system-ui, sans-serif;
   font-weight: 800; letter-spacing: 3px; font-size: 19px;
-  /* verde neón + banda blanca (haz de luz) que barre lento de izq. a der. */
+  /* dorado + rojo neón con banda blanca (haz de luz) que barre lento de izq. a der. */
   background: linear-gradient(100deg,
-    #00ffa3 0%, #00ffa3 42%,
+    #ffd700 0%, #ffd700 42%,
     #ffffff 49%, #ffffff 51%,
-    #39ff14 58%, #39ff14 100%);
+    #ff1a1a 58%, #ff1a1a 100%);
   background-size: 250% 100%;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
-  filter: drop-shadow(0 0 6px rgba(57, 255, 20, .75));
+  filter: drop-shadow(0 0 6px rgba(255, 26, 26, .75)) drop-shadow(0 0 10px rgba(255, 215, 0, .5));
   animation: nexusShine 6s linear infinite;
 }
 @keyframes nexusShine {

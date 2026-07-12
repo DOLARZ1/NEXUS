@@ -1,6 +1,7 @@
 /* Genera los iconos PNG de la PWA (sin librerías externas, solo zlib de Node).
-   Diseño futurista: nodo "nexus" holográfico — hexágono neón con radios y
-   nodos brillantes, glow real y fondo tipo HUD. */
+   Diseño futurista: gema "octanaje" holográfica — triángulo neón con un
+   triángulo interior unido por sus aristas, nodos brillantes, glow real
+   dorado + rojo, y fondo tipo HUD. */
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
@@ -39,13 +40,14 @@ function distSeg(px, py, ax, ay, bx, by) {
   const cx = ax + t * dx, cy = ay + t * dy;
   return Math.hypot(px - cx, py - cy);
 }
-function hexPts(cx, cy, R) {
+// vértices de un triángulo equilátero apuntando hacia arriba
+function triPts(cx, cy, R) {
   const p = [];
-  for (let i = 0; i < 6; i++) { const a = Math.PI / 180 * (60 * i - 90); p.push([cx + R * Math.cos(a), cy + R * Math.sin(a)]); }
+  for (let i = 0; i < 3; i++) { const a = Math.PI / 180 * (120 * i - 90); p.push([cx + R * Math.cos(a), cy + R * Math.sin(a)]); }
   return p;
 }
-// distancia al contorno del hexágono (mín. de las 6 aristas)
-function distHexEdge(px, py, pts) {
+// distancia al contorno del triángulo (mín. de las 3 aristas)
+function distTriEdge(px, py, pts) {
   let d = 1e9;
   for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) d = Math.min(d, distSeg(px, py, pts[j][0], pts[j][1], pts[i][0], pts[i][1]));
   return d;
@@ -58,8 +60,8 @@ function sdfRoundRect(px, py, cx, cy, half, r) {
   return Math.hypot(ox, oy) + Math.min(Math.max(qx, qy), 0) - r;
 }
 
-// paleta neón cíclica (cian -> violeta -> magenta -> cian)
-const STOPS = [[0, 229, 255], [124, 92, 255], [255, 47, 176], [0, 229, 255]];
+// paleta neón cíclica (dorado -> blanco -> rojo -> dorado)
+const STOPS = [[255, 215, 0], [255, 255, 255], [255, 26, 26], [255, 215, 0]];
 function neon(t) {
   t = (t % 1 + 1) % 1;
   const seg = t * 3, i = Math.floor(seg), f = seg - i;
@@ -70,13 +72,16 @@ function neon(t) {
 function render(S, maskable) {
   const buf = Buffer.alloc(S * S * 4);
   const cx = S / 2, cy = S / 2;
-  const R = (maskable ? 0.30 : 0.345) * S;          // radio del hexágono
-  const strokeHW = S * 0.021;                        // grosor del trazo del anillo
-  const spokeHW = S * 0.008;                          // grosor de los radios
-  const vR = S * 0.030;                               // radio de los nodos exteriores
-  const cR = S * 0.058;                               // radio del nodo central
-  const glowR = S * 0.05;                             // alcance del halo
-  const verts = hexPts(cx, cy, R);
+  const R = (maskable ? 0.28 : 0.32) * S;             // radio del triángulo exterior
+  const innerScale = 0.42;                            // escala del triángulo interior
+  const strokeHW = S * 0.021;                          // grosor de los trazos de los triángulos
+  const linkHW = S * 0.010;                            // grosor de las líneas que unen los vértices
+  const vR = S * 0.028;                                 // radio de los nodos en los vértices
+  const cR = S * 0.050;                                 // radio del nodo central
+  const glowR = S * 0.05;                               // alcance del halo
+  // ligera rotación hacia arriba (vértice superior) para que se lea como "▲"
+  const outer = triPts(cx, cy, R);
+  const inner = outer.map(([px, py]) => [cx + (px - cx) * innerScale, cy + (py - cy) * innerScale]);
   const framePad = S * 0.085, frameR = S * 0.24, frameHW = S * 0.006;
 
   // color de un elemento según su ángulo respecto al centro
@@ -84,10 +89,12 @@ function render(S, maskable) {
 
   // distancia a los elementos neón (para glow) y cobertura sólida por supersampling
   function neonDist(px, py) {
-    let d = distHexEdge(px, py, verts) - strokeHW;       // anillo
-    for (let k = 0; k < 6; k++) d = Math.min(d, distSeg(px, py, cx, cy, verts[k][0], verts[k][1]) - spokeHW); // radios
-    for (let k = 0; k < 6; k++) d = Math.min(d, Math.hypot(px - verts[k][0], py - verts[k][1]) - vR);          // nodos
-    d = Math.min(d, Math.hypot(px - cx, py - cy) - cR);  // nodo central
+    let d = distTriEdge(px, py, outer) - strokeHW;        // triángulo exterior
+    d = Math.min(d, distTriEdge(px, py, inner) - strokeHW); // triángulo interior
+    for (let k = 0; k < 3; k++) d = Math.min(d, distSeg(px, py, outer[k][0], outer[k][1], inner[k][0], inner[k][1]) - linkHW); // aristas de unión
+    for (let k = 0; k < 3; k++) d = Math.min(d, Math.hypot(px - outer[k][0], py - outer[k][1]) - vR); // nodos exteriores
+    for (let k = 0; k < 3; k++) d = Math.min(d, Math.hypot(px - inner[k][0], py - inner[k][1]) - vR * 0.75); // nodos interiores
+    d = Math.min(d, Math.hypot(px - cx, py - cy) - cR);   // nodo central
     return d;
   }
 
@@ -97,10 +104,10 @@ function render(S, maskable) {
 
       /* ---- fondo tipo HUD (degradado diagonal + brillo radial) ---- */
       const diag = (x + y) / (2 * S);
-      let r = lerp(6, 13, diag), g = lerp(8, 11, diag), b = lerp(20, 34, diag);
+      let r = lerp(6, 13, diag), g = lerp(4, 6, diag), b = lerp(8, 14, diag);
       const gd = Math.hypot(x - cx, y - cy) / (S * 0.5);
       const halo = Math.max(0, 1 - gd);
-      r += halo * halo * 26; g += halo * halo * 20; b += halo * halo * 70;
+      r += halo * halo * 34; g += halo * halo * 18; b += halo * halo * 10;
 
       /* ---- marco HUD sutil (solo iconos "any") ---- */
       if (!maskable) {
@@ -121,12 +128,14 @@ function render(S, maskable) {
       let cov = 0, nodeCov = 0;
       for (let sy = 0; sy < 3; sy++) for (let sx = 0; sx < 3; sx++) {
         const px = x + (sx + 0.5) / 3, py = y + (sy + 0.5) / 3;
-        const ring = distHexEdge(px, py, verts) <= strokeHW;
-        let spoke = false, node = false;
-        for (let k = 0; k < 6 && !spoke; k++) if (distSeg(px, py, cx, cy, verts[k][0], verts[k][1]) <= spokeHW) spoke = true;
-        for (let k = 0; k < 6 && !node; k++) if (Math.hypot(px - verts[k][0], py - verts[k][1]) <= vR) node = true;
+        const outerRing = distTriEdge(px, py, outer) <= strokeHW;
+        const innerRing = distTriEdge(px, py, inner) <= strokeHW;
+        let link = false, node = false;
+        for (let k = 0; k < 3 && !link; k++) if (distSeg(px, py, outer[k][0], outer[k][1], inner[k][0], inner[k][1]) <= linkHW) link = true;
+        for (let k = 0; k < 3 && !node; k++) if (Math.hypot(px - outer[k][0], py - outer[k][1]) <= vR) node = true;
+        for (let k = 0; k < 3 && !node; k++) if (Math.hypot(px - inner[k][0], py - inner[k][1]) <= vR * 0.75) node = true;
         if (Math.hypot(px - cx, py - cy) <= cR) node = true;
-        if (ring || spoke) cov++;
+        if (outerRing || innerRing || link) cov++;
         if (node) { cov++; nodeCov++; }
       }
       cov = Math.min(1, cov / 9); nodeCov /= 9;
@@ -134,7 +143,7 @@ function render(S, maskable) {
       if (cov > 0) {
         let sc = angColor(x, y);
         // los nodos brillan casi blancos para dar profundidad
-        if (nodeCov > 0) { const w = Math.min(1, nodeCov * 1.2); sc = [lerp(sc[0], 236, w), lerp(sc[1], 244, w), lerp(sc[2], 255, w)]; }
+        if (nodeCov > 0) { const w = Math.min(1, nodeCov * 1.2); sc = [lerp(sc[0], 255, w), lerp(sc[1], 255, w), lerp(sc[2], 250, w)]; }
         r = lerp(r, sc[0], cov); g = lerp(g, sc[1], cov); b = lerp(b, sc[2], cov);
       }
 

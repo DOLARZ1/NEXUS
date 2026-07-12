@@ -129,6 +129,32 @@ input, select, textarea { font-family: inherit; }
   --blur: 16px;
 }
 
+/* Dark Brillante — variante del oscuro con neones mucho más vívidos e
+   intensos: fondo casi negro + acentos eléctricos muy saturados y brillo
+   ampliado en todos los componentes (cards, botones, barras, etc). */
+[data-theme="neon"] {
+  --bg: #020108;
+  --bg-2: #060212;
+  --panel: rgba(18, 8, 34, .55);
+  --panel-solid: #0d0620;
+  --panel-2: rgba(28, 14, 52, .62);
+  --txt: #f6f2ff;
+  --txt-dim: #c2a9f2;
+  --txt-faint: #7d5cb8;
+  --border: rgba(200, 90, 255, .16);
+  --border-strong: rgba(200, 90, 255, .34);
+  --accent: #00fff2;
+  --accent-2: #ff00e5;
+  --accent-3: #faff00;
+  --good: #00ff9d;
+  --warn: #ffea00;
+  --bad: #ff0844;
+  --glow: 0 0 30px rgba(0, 255, 242, .6);
+  --shadow: 0 20px 60px rgba(0, 0, 0, .7);
+  --grid-line: rgba(0, 255, 242, .14);
+  --blur: 18px;
+}
+
 /* =====================================================================
    FONDO
    ===================================================================== */
@@ -162,11 +188,25 @@ input, select, textarea { font-family: inherit; }
   transition: opacity .35s ease;
 }
 .boot-screen.hide { opacity: 0; pointer-events: none; }
-.boot-logo { font-size: 64px; filter: drop-shadow(var(--glow)); animation: spin 3s ease-in-out infinite; }
+.boot-logo {
+  color: #ffd700;
+  filter: drop-shadow(0 0 10px #ff1a1a) drop-shadow(0 0 22px #ffd700) drop-shadow(0 0 36px #ff1a1a);
+  animation: spin 3s ease-in-out infinite;
+}
+.boot-logo svg { display: block; }
 @keyframes spin { 0%,100% { transform: rotate(0) scale(1);} 50% { transform: rotate(180deg) scale(1.1);} }
 .boot-title {
   font-family: "Orbitron", "Segoe UI", system-ui, sans-serif;
-  font-size: 40px; font-weight: 800; letter-spacing: 10px; color: var(--accent); text-shadow: var(--glow);
+  font-size: 40px; font-weight: 800; letter-spacing: 10px;
+  background: linear-gradient(100deg,
+    #ffd700 0%, #ffd700 42%,
+    #ffffff 49%, #ffffff 51%,
+    #ff1a1a 58%, #ff1a1a 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  filter: drop-shadow(0 0 8px rgba(255, 26, 26, .8)) drop-shadow(0 0 14px rgba(255, 215, 0, .55));
+  animation: nexusShine 6s linear infinite;
 }
 .boot-sub { color: var(--txt-dim); letter-spacing: 3px; font-size: 12px; text-transform: uppercase; }
 .boot-bar { width: 220px; height: 4px; border-radius: 4px; background: var(--border); overflow: hidden; }
@@ -187,24 +227,25 @@ input, select, textarea { font-family: inherit; }
 }
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand-hex {
-  font-size: 42px; color: var(--accent);
-  text-shadow: 0 0 10px var(--accent), 0 0 24px var(--accent), 0 0 44px var(--accent-2), 0 0 66px var(--accent-2);
+  display: inline-grid; place-items: center; color: #ffd700;
+  filter: drop-shadow(0 0 6px #ff1a1a) drop-shadow(0 0 14px #ffd700) drop-shadow(0 0 22px #ff1a1a);
   animation: pulse 3.4s ease-in-out infinite;
 }
+.brand-hex svg { display: block; }
 @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.6;} }
 .brand-text { display: flex; flex-direction: column; line-height: 1; }
 .brand-name {
   font-family: "Orbitron", "Segoe UI", system-ui, sans-serif;
   font-weight: 800; letter-spacing: 3px; font-size: 19px;
-  /* verde neón + banda blanca (haz de luz) que barre lento de izq. a der. */
+  /* dorado + rojo neón con banda blanca (haz de luz) que barre lento de izq. a der. */
   background: linear-gradient(100deg,
-    #00ffa3 0%, #00ffa3 42%,
+    #ffd700 0%, #ffd700 42%,
     #ffffff 49%, #ffffff 51%,
-    #39ff14 58%, #39ff14 100%);
+    #ff1a1a 58%, #ff1a1a 100%);
   background-size: 250% 100%;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
-  filter: drop-shadow(0 0 6px rgba(57, 255, 20, .75));
+  filter: drop-shadow(0 0 6px rgba(255, 26, 26, .75)) drop-shadow(0 0 10px rgba(255, 215, 0, .5));
   animation: nexusShine 6s linear infinite;
 }
 @keyframes nexusShine {
@@ -761,7 +802,7 @@ canvas { display: block; width: 100%; }
 .ach-card:hover { transform: translateY(-3px); }
 
 </style>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='64' y2='64'><stop offset='0' stop-color='%2300e5ff'/><stop offset='.5' stop-color='%237c5cff'/><stop offset='1' stop-color='%23ff2fb0'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='%23060814'/><polygon points='32,9 51,20 51,44 32,55 13,44 13,20' fill='none' stroke='url(%23g)' stroke-width='4'/><circle cx='32' cy='32' r='6' fill='url(%23g)'/></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='100' y2='100'><stop offset='0' stop-color='%23ffd700'/><stop offset='.5' stop-color='%23ffffff'/><stop offset='1' stop-color='%23ff1a1a'/></linearGradient></defs><rect width='100' height='100' rx='20' fill='%23060814'/><g fill='none' stroke='url(%23g)' stroke-width='4' stroke-linejoin='round' stroke-linecap='round'><polygon points='50,10 87,73 13,73'/><polygon points='50,33 66,60 34,60'/><line x1='50' y1='10' x2='50' y2='33'/><line x1='87' y1='73' x2='66' y2='60'/><line x1='13' y1='73' x2='34' y2='60'/></g></svg>" />
   <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#060814" />
@@ -778,7 +819,9 @@ canvas { display: block; width: 100%; }
 
   <!-- Pantalla de bienvenida -->
   <div id="boot-screen" class="boot-screen">
-    <div class="boot-logo">⬡</div>
+    <div class="boot-logo">
+      <svg viewBox="0 0 100 100" width="64" height="64"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"><polygon points="50,8 90,76 10,76"/><polygon points="50,34 68,64 32,64"/><line x1="50" y1="8" x2="50" y2="34"/><line x1="90" y1="76" x2="68" y2="64"/><line x1="10" y1="76" x2="32" y2="64"/></g></svg>
+    </div>
     <div class="boot-title">OCTANAJE</div>
     <div class="boot-sub">Inicializando sistema…</div>
     <div class="boot-bar"><span></span></div>
@@ -788,7 +831,9 @@ canvas { display: block; width: 100%; }
     <!-- ====================== TOPBAR ====================== -->
     <header class="topbar">
       <div class="brand">
-        <span class="brand-hex">⬡</span>
+        <span class="brand-hex">
+          <svg viewBox="0 0 100 100" width="34" height="34"><g fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"><polygon points="50,8 90,76 10,76"/><polygon points="50,34 68,64 32,64"/><line x1="50" y1="8" x2="50" y2="34"/><line x1="90" y1="76" x2="68" y2="64"/><line x1="10" y1="76" x2="32" y2="64"/></g></svg>
+        </span>
         <div class="brand-text">
           <span class="brand-name">OCTANAJE</span>
           <span class="brand-tag">Salud y Disciplina</span>
@@ -4009,7 +4054,7 @@ canvas { display: block; width: 100%; }
       ".ft{margin-top:24px;color:#999;font-size:11px;text-align:center;border-top:1px solid #eee;padding-top:12px}" +
       "@media print{body{padding:0}}" +
       "</style></head><body>" +
-      "<div class='hd'><div><div class='logo'>⬡ OCTAN<span>AJE</span></div><div class='sub'>Salud y Disciplina</div></div>" +
+      "<div class='hd'><div><div class='logo'>▲ OCTAN<span>AJE</span></div><div class='sub'>Salud y Disciplina</div></div>" +
       "<div style='text-align:right'><h1>Resumen de entrenamiento</h1><div class='sub'>" + r.label + " · " + (r.from === r.to ? fromLbl : fromLbl + " → " + toLbl) + "</div></div></div>" +
       "<div class='kpis'>" +
       "<div class='kpi'><div class='n'>" + list.length + "</div><div class='l'>Sesiones</div></div>" +
@@ -4981,7 +5026,7 @@ canvas { display: block; width: 100%; }
       ".ft{margin-top:24px;color:#999;font-size:11px;text-align:center;border-top:1px solid #eee;padding-top:12px}" +
       "@media print{body{padding:0}}" +
       "</style></head><body>" +
-      "<div class='hd'><div><div class='logo'>⬡ OCTAN<span>AJE</span></div><div class='sub'>Salud y Disciplina</div></div>" +
+      "<div class='hd'><div><div class='logo'>▲ OCTAN<span>AJE</span></div><div class='sub'>Salud y Disciplina</div></div>" +
       "<div style='text-align:right'><h1>Resumen de alimentación</h1><div class='sub'>" + r.label + " · " + (r.from === r.to ? fromLbl : fromLbl + " → " + toLbl) + "</div></div></div>" +
       "<div class='kpis'>" +
       "<div class='kpi'><div class='n'>" + nDays + "</div><div class='l'>Días con registro</div></div>" +
@@ -5368,7 +5413,7 @@ canvas { display: block; width: 100%; }
   function themeRow() {
     const cur = Store.get().settings.theme || "dark";
     const seg = el("div", { class: "seg", style: "flex-wrap:wrap" });
-    [["light", "☀️ Claro"], ["gray", "◐ Gris"], ["dark", "🌙 Oscuro"], ["purple", "🟣 Morado"]].forEach(([val, label]) => {
+    [["light", "☀️ Claro"], ["gray", "◐ Gris"], ["dark", "🌙 Oscuro"], ["purple", "🟣 Morado"], ["neon", "⚡ Dark Brillante"]].forEach(([val, label]) => {
       const b = el("button", { text: label, onclick: () => { if (N.App) N.App.applyTheme(val); Audio.play("tap"); open(); } });
       if (val === cur) b.classList.add("on");
       seg.appendChild(b);
@@ -5376,7 +5421,7 @@ canvas { display: block; width: 100%; }
     return el("div", { class: "set-row", style: "flex-direction:column;align-items:stretch;gap:10px" }, [
       el("div", {}, [
         el("div", { class: "set-title", text: "🎨 Tema" }),
-        el("div", { class: "set-desc", text: "Elige entre claro, gris u oscuro." })
+        el("div", { class: "set-desc", text: "Elige entre claro, gris, oscuro, morado o dark brillante." })
       ]),
       seg
     ]);
