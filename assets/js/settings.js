@@ -143,7 +143,31 @@
         el("button", { class: "btn sm", html: "⏰ Configurar recordatorios", onclick: openReminders })
       ]));
     }
+    rows.push(el("div", { class: "set-row", style: "padding-top:0" }, [
+      el("div", {}, [
+        el("div", { class: "set-title fs-12", text: "🗓️ Recordatorio en tu calendario" }),
+        el("div", { class: "set-desc", text: "Alarma real del sistema (Google Calendar/.ics), funciona con la app cerrada." })
+      ]),
+      el("button", { class: "btn sm", html: "🗓️ Configurar horario", onclick: openSystemReminder })
+    ]));
     return el("div", {}, rows);
+  }
+
+  // ---------- recordatorio de calendario del sistema (Google Calendar / .ics) ----------
+  function openSystemReminder() {
+    const body = UI.form([
+      { name: "title", label: "Título", value: "Recordatorio OCTANAJE", placeholder: "Ej. Revisar hábitos", required: true },
+      { name: "message", label: "Mensaje (opcional)", type: "textarea", placeholder: "Detalle del recordatorio…" },
+      { name: "time", label: "Hora de inicio", type: "time", value: "08:00", required: true },
+      { name: "days", label: "¿Qué días se repite?", type: "weekdays", value: [0, 1, 2, 3, 4, 5, 6] }
+    ], (data) => {
+      const days = typeof data.days === "string" ? data.days.split(",").filter((x) => x !== "").map(Number) : (data.days || []);
+      N.CalExport.openTimed({
+        title: data.title, details: data.message, time: data.time, days,
+        dateKey: Store.DateUtil.todayKey()
+      });
+    }, "Continuar");
+    UI.openModal("🗓️ Configurar recordatorio de calendario", body);
   }
 
   // ---------- panel de recordatorios personalizados ----------
