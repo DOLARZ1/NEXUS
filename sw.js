@@ -1,7 +1,7 @@
 /* =====================================================================
    OCTANAJE · Service Worker — offline con estrategia stale-while-revalidate
    ===================================================================== */
-const CACHE = "octanaje-cache-v19";
+const CACHE = "octanaje-cache-v20";
 
 const CORE = [
   "./", "./index.html", "./manifest.webmanifest",

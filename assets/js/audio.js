@@ -7,6 +7,7 @@
 
   let ctx = null;
   let master = null;
+  let loud = null; // bus separado y más alto para alarmas críticas (fin de temporizador, recordatorios)
   let enabled = Store.get().settings.sound !== false;
 
   function ensure() {
@@ -17,13 +18,16 @@
       master = ctx.createGain();
       master.gain.value = 0.22;
       master.connect(ctx.destination);
+      loud = ctx.createGain();
+      loud.gain.value = 0.6; // ~3x más fuerte que los sonidos normales de la interfaz
+      loud.connect(ctx.destination);
     }
     if (ctx.state === "suspended") ctx.resume();
     return true;
   }
 
-  // Genera un tono con envolvente
-  function tone(freq, start, dur, type, vol) {
+  // Genera un tono con envolvente. bus: "master" (normal) | "loud" (alarmas)
+  function tone(freq, start, dur, type, vol, bus) {
     const osc = ctx.createOscillator();
     const g = ctx.createGain();
     osc.type = type || "sine";
@@ -32,11 +36,11 @@
     g.gain.setValueAtTime(0, t0);
     g.gain.linearRampToValueAtTime(vol == null ? 1 : vol, t0 + 0.012);
     g.gain.exponentialRampToValueAtTime(0.0008, t0 + dur);
-    osc.connect(g); g.connect(master);
+    osc.connect(g); g.connect(bus === "loud" ? loud : master);
     osc.start(t0); osc.stop(t0 + dur + 0.02);
   }
 
-  function sweep(f1, f2, start, dur, type, vol) {
+  function sweep(f1, f2, start, dur, type, vol, bus) {
     const osc = ctx.createOscillator();
     const g = ctx.createGain();
     osc.type = type || "sawtooth";
@@ -46,7 +50,7 @@
     g.gain.setValueAtTime(0, t0);
     g.gain.linearRampToValueAtTime(vol == null ? 0.8 : vol, t0 + 0.02);
     g.gain.exponentialRampToValueAtTime(0.0008, t0 + dur);
-    osc.connect(g); g.connect(master);
+    osc.connect(g); g.connect(bus === "loud" ? loud : master);
     osc.start(t0); osc.stop(t0 + dur + 0.02);
   }
 
@@ -73,6 +77,30 @@
       for (let i = 0; i < 3; i++) {
         tone(880, i * 0.28, 0.14, "square", 0.5);
         tone(1108, i * 0.28 + 0.15, 0.12, "square", 0.42);
+      }
+    },
+    // --- alarmas FUERTES (bus "loud", volumen alto) para eventos que no
+    // se deben pasar por alto: fin de temporizador de Enfoque, recordatorios
+    // críticos. Se pueden usar aunque tengas la pantalla apagada o el
+    // celular guardado, siempre que el sistema no haya cerrado la app.
+    alarmLoud() {
+      for (let i = 0; i < 5; i++) {
+        tone(1046, i * 0.32, 0.16, "square", 0.9, "loud");
+        tone(1318, i * 0.32 + 0.16, 0.14, "square", 0.8, "loud");
+      }
+    },
+    // sirena tipo campana de reloj (más grave y sostenida, buena para "se acabó el tiempo")
+    bellLoud() {
+      for (let i = 0; i < 4; i++) {
+        tone(660, i * 0.55, 0.5, "sine", 0.85, "loud");
+        tone(990, i * 0.55, 0.5, "sine", 0.5, "loud");
+      }
+    },
+    // sirena ascendente/descendente estilo alarma de emergencia (la más notoria)
+    sirenLoud() {
+      for (let i = 0; i < 3; i++) {
+        sweep(500, 1400, i * 0.7, 0.35, "sawtooth", 0.75, "loud");
+        sweep(1400, 500, i * 0.7 + 0.35, 0.35, "sawtooth", 0.75, "loud");
       }
     }
   };

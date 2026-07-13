@@ -36,6 +36,30 @@
   }
   function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || "#00e5ff"; }
 
+  // ---------- Wake Lock: mantiene la pantalla ENCENDIDA mientras corre
+  // una sesión, para que el navegador no congele el temporizador y la
+  // alarma suene exactamente al terminar (evita el "apagado parcial").
+  // Se libera solo al pausar/terminar, o si el propio sistema la quita.
+  let wakeLock = null;
+  async function requestWakeLock() {
+    try {
+      if (typeof navigator !== "undefined" && navigator.wakeLock && navigator.wakeLock.request) {
+        wakeLock = await navigator.wakeLock.request("screen");
+        wakeLock.addEventListener("release", () => { wakeLock = null; });
+      }
+    } catch (e) { wakeLock = null; } // no soportado o permiso denegado: seguimos sin bloquear pantalla
+  }
+  function releaseWakeLock() {
+    try { if (wakeLock) wakeLock.release(); } catch (e) {}
+    wakeLock = null;
+  }
+  // si el sistema quitó el wake lock al ocultar la pestaña, lo recuperamos al volver
+  if (typeof document !== "undefined" && document.addEventListener) {
+    document.addEventListener("visibilitychange", () => {
+      if (running && !document.hidden && !wakeLock) requestWakeLock();
+    });
+  }
+
   // ---------- controles ----------
   function start() {
     ensureRemaining();
@@ -43,6 +67,7 @@
     running = true;
     endAt = Date.now() + remaining * 1000;
     Audio.play("toggleOn");
+    requestWakeLock();
     startTicking();
     paint();
   }
@@ -51,6 +76,7 @@
     remaining = Math.max(0, Math.round((endAt - Date.now()) / 1000));
     running = false;
     stopTicking();
+    releaseWakeLock();
     Audio.play("tap");
     paint();
   }
@@ -73,15 +99,20 @@
     });
   }
   function reset() {
-    running = false; stopTicking();
+    running = false; stopTicking(); releaseWakeLock();
     remaining = secondsFor(mode);
     Audio.play("tap");
     paint();
   }
   function skip() {
-    running = false; stopTicking();
+    running = false; stopTicking(); releaseWakeLock();
     Audio.play("tap");
     nextPhase(false);
+  }
+  // vibración corta como respaldo del sonido (útil si el volumen está bajo
+  // o en silencio); no falla si el dispositivo/navegador no la soporta
+  function buzz(pattern) {
+    try { if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
   }
   function tick() {
     remaining = Math.max(0, Math.round((endAt - Date.now()) / 1000));
@@ -90,7 +121,8 @@
   }
 
   function complete() {
-    running = false; stopTicking();
+    running = false; stopTicking(); releaseWakeLock();
+    buzz([300, 150, 300, 150, 300]); // vibración larga de respaldo, además del sonido
     if (mode === "work") {
       // registrar sesión
       const c = cfg();
@@ -101,18 +133,20 @@
       Store.markActive();
       Store.commit(true);
       cyclesDone++;
-      Audio.play("levelup");
+      Audio.play(alarmSoundName());
       Gami.award(20, "Sesión de foco completada 🎯");
       Gami.burst();
       if (N.Notify) N.Notify.send("¡Sesión completada! 🎯", "Buen trabajo. Toca un descanso.", { tag: "nexus-focus" });
       nextPhase(true);
     } else {
-      Audio.play("complete");
+      Audio.play(alarmSoundName());
       if (N.Notify) N.Notify.send("Descanso terminado ☕", "Hora de volver al enfoque.", { tag: "nexus-focus" });
       nextPhase(true);
     }
     N.App && N.App.refreshTop();
   }
+  // sonido de alarma configurable (guardado en Ajustes del temporizador)
+  function alarmSoundName() { return cfg().alarmSound || "alarmLoud"; }
 
   // pasa a la siguiente fase; autostart=true la inicia automáticamente
   function nextPhase(autostart) {
@@ -241,6 +275,8 @@
       durField("Descanso (min)", "break", c.break),
       durField("Descanso largo (min)", "longBreak", c.longBreak),
       durField("Largo cada N sesiones", "longEvery", c.longEvery, 1, 12),
+      alarmField(c),
+      el("p", { class: "fs-12 text-faint mt-8", text: "La pantalla se mantiene encendida durante una sesión activa para que la alarma suene puntual (se apaga sola al pausar/terminar)." }),
       el("div", { class: "card-title mt-16", style: "margin-bottom:10px" }, [el("span", { class: "dot" }), "Foco · últimos 7 días"]),
     ]);
     const spark = el("canvas", { id: "focus-spark" });
@@ -264,6 +300,22 @@
     const b = el("button", { id: "fmode-" + m, text: label, onclick: () => { setMode(m); Audio.play("tab"); } });
     if (m === mode) b.classList.add("on");
     return b;
+  }
+  const ALARM_SOUNDS = [
+    { value: "alarmLoud", label: "🔔 Timbre fuerte (recomendado)" },
+    { value: "sirenLoud", label: "🚨 Sirena" },
+    { value: "bellLoud", label: "🛎️ Campana" },
+    { value: "levelup", label: "🎵 Melodía suave (menos fuerte)" }
+  ];
+  function alarmField(c) {
+    const sel = el("select", { class: "input" }, ALARM_SOUNDS.map((s) => {
+      const o = el("option", { value: s.value, text: s.label });
+      if ((c.alarmSound || "alarmLoud") === s.value) o.setAttribute("selected", "");
+      return o;
+    }));
+    sel.addEventListener("change", () => { cfg().alarmSound = sel.value; Store.commit(true); Audio.play(sel.value); });
+    const testBtn = el("button", { class: "btn sm", style: "margin-top:6px", html: "🔊 Probar sonido", onclick: () => Audio.play(cfg().alarmSound || "alarmLoud") });
+    return el("div", { class: "field" }, [el("label", { text: "Sonido de alarma al terminar" }), sel, testBtn]);
   }
   function durField(label, key, val, min, max) {
     const inp = el("input", { class: "input", type: "number", min: min || 1, max: max || 180, value: val });
