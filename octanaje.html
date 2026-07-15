@@ -4367,12 +4367,11 @@ canvas { display: block; width: 100%; }
   const { el, fmt, toast } = UI;
   const DateUtil = Store.DateUtil;
 
-  // Ícono SVG a medida: misil estallando para Calistenia
-  const CALISTENIA_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<polygon points="14,4 15.3,7.75 19.2,7 16.6,10 19.2,13 15.3,12.25 14,16 12.7,12.25 8.8,13 11.4,10 8.8,7 12.7,7.75" fill="currentColor" stroke="none"/>' + /* explosión */
-    '<path d="M3 19 L8.6 13.4" stroke-width="2.4"/>' +   /* cuerpo del misil */
-    '<path d="M2.2 20.4 L4.6 18"/>' +                    /* estela 1 */
-    '<path d="M4 21.2 L6.2 19"/>' +                      /* estela 2 */
+  // Ícono SVG a medida: llama estilo Crossfit para Calistenia
+  // (misma familia visual que 🔥, pero como trazo propio para diferenciarla
+  //  ligeramente del emoji de Crossfit)
+  const CALISTENIA_SVG = '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">' +
+    '<path d="M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16Zm0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1-2.75.25 1.25-1 2.5-1 2.5S6.5 12 6.5 10.5c0-1.5 1-3.5 1.5-4C7.5 8 7 6 6 4c0 0 3.5 1 3.5 4.5V9c0 1.5 1.5 2.5 1.5 4.25S9.657 15 8 15Z"/>' +
     '</svg>';
 
   const TYPES = [
@@ -4380,7 +4379,7 @@ canvas { display: block; width: 100%; }
     { value: "cardio", name: "Cardio", icon: "🏃" },
     { value: "hiit", name: "HIIT", icon: "⚡" },
     { value: "crossfit", name: "Crossfit", icon: "🔥" },
-    { value: "calistenia", name: "Calistenia", icon: "💥", svg: CALISTENIA_SVG },
+    { value: "calistenia", name: "Calistenia", icon: "🔥", svg: CALISTENIA_SVG },
     { value: "yoga", name: "Yoga / Movilidad", icon: "🧘" },
     { value: "estiramiento", name: "Estiramiento", icon: "🤸" },
     { value: "caminata", name: "Caminata", icon: "🚶" },
