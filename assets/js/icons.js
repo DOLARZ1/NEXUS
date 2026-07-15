@@ -19,7 +19,8 @@
     bulb: '<svg ' + A + ' stroke-width="1.8"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 .6v1.4"/><path d="M3.6 4.4l1.2 1.1"/><path d="M20.4 4.4l-1.2 1.1"/></svg>',
     piggy: '<svg ' + A + ' stroke-width="1.7"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>',
     plate: '<svg ' + A + ' stroke-width="1.6"><circle cx="12" cy="12" r="5.2"/><circle cx="12" cy="12" r="2.5"/><path d="M3 3.5v3.5M4.3 3.5v3.5M5.6 3.5v3.5"/><path d="M2.8 7h3"/><path d="M4.3 7v13.5"/><ellipse cx="20" cy="5.6" rx="1.7" ry="2.7"/><path d="M20 8.3v12.2"/></svg>',
-    heart: '<svg ' + A + ' stroke-width="1.7"><path d="M12 20c-4.8-3.1-9-6.9-9-11.3C3 5.9 5.2 3.8 8 3.8c1.8 0 3.4.9 4 2.4.6-1.5 2.2-2.4 4-2.4 2.8 0 5 2.1 5 4.9 0 4.4-4.2 8.2-9 11.3z"/><path d="M3.6 11h3.4l1.7 3 2.3-6 1.7 3h3.2l1.5-2"/></svg>'
+    heart: '<svg ' + A + ' stroke-width="1.7"><path d="M12 20c-4.8-3.1-9-6.9-9-11.3C3 5.9 5.2 3.8 8 3.8c1.8 0 3.4.9 4 2.4.6-1.5 2.2-2.4 4-2.4 2.8 0 5 2.1 5 4.9 0 4.4-4.2 8.2-9 11.3z"/><path d="M3.6 11h3.4l1.7 3 2.3-6 1.7 3h3.2l1.5-2"/></svg>',
+    moon: '<svg ' + A + ' stroke-width="1.8"><path d="M20 14.2A8.4 8.4 0 1 1 9.3 3.6a7 7 0 0 0 10.7 10.6z"/><circle cx="17.3" cy="6.2" r=".6" fill="currentColor" stroke="none"/><circle cx="19.4" cy="9" r=".4" fill="currentColor" stroke="none"/></svg>'
   };
 
   // devuelve un <span class="ico"> con el SVG del ícono indicado

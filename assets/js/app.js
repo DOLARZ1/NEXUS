@@ -16,7 +16,8 @@
     goals: N.Goals,
     focus: N.Focus,
     nutrition: N.Nutrition,
-    health: N.Health
+    health: N.Health,
+    sleep: N.Sleep
   };
   let current = "dashboard";
 
