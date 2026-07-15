@@ -61,7 +61,11 @@
         focusLog: {},          // { "YYYY-MM-DD": minutos enfocados }
         sessionsLog: {}        // { "YYYY-MM-DD": nº de sesiones de trabajo }
       },
-      nutrition: { log: [] }   // registro de alimentos: {id,name,cat,grams,kcal,prot,carb,date}
+      nutrition: { log: [] },  // registro de alimentos: {id,name,cat,grams,kcal,prot,carb,date}
+      health: {                // biometría: perfil actual + historial de revisiones
+        profile: { name: "", sex: "F", age: null, weight: null, height: null, activity: "moderate", lastCheck: "" },
+        history: []            // {id,date,weight,height,age,imc,geb,get}
+      }
     };
   }
 

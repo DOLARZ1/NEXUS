@@ -15,7 +15,8 @@
     workouts: N.Workouts,
     goals: N.Goals,
     focus: N.Focus,
-    nutrition: N.Nutrition
+    nutrition: N.Nutrition,
+    health: N.Health
   };
   let current = "dashboard";
 
