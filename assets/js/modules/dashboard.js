@@ -125,7 +125,7 @@
     const todayKey = DateUtil.todayKey();
     const q = N.pickQuote(todayKey, quoteOverride);
     const card = el("div", { class: "card quote-card mb-16" }, [
-      el("div", { class: "quote-ico", text: "💬" }),
+      el("div", { class: "quote-ico", text: "🔥" }),
       el("div", { class: "quote-body" }, [
         el("div", { class: "quote-text", text: "“" + q.text + "”" }),
         el("div", { class: "quote-author", text: "— " + q.author })
