@@ -165,6 +165,34 @@ html.app-hidden * { animation-play-state: paused !important; }
   --blur: 18px;
 }
 
+/* Dark Black — fondo negro puro, contornos/bordes en rojo y letras en
+   dorado. Pensado para cansar lo menos posible la vista en sesiones
+   largas: el dorado usado en el texto es cálido y algo apagado (no un
+   amarillo brillante que fatigue), y el brillo/glow rojo es suave en
+   vez de intenso como en el tema Dark (neón). */
+[data-theme="blackgold"] {
+  --bg: #000000;
+  --bg-2: #060505;
+  --panel: rgba(20, 12, 12, .55);
+  --panel-solid: #0c0909;
+  --panel-2: rgba(32, 18, 18, .6);
+  --txt: #e3c26b;
+  --txt-dim: #a68a54;
+  --txt-faint: #6e5a38;
+  --border: rgba(220, 40, 40, .22);
+  --border-strong: rgba(220, 40, 40, .42);
+  --accent: #d8a93a;
+  --accent-2: #c0392b;
+  --accent-3: #e3c26b;
+  --good: #4caf6b;
+  --warn: #d8a93a;
+  --bad: #e04040;
+  --glow: 0 0 16px rgba(200, 30, 30, .30);
+  --shadow: 0 18px 50px rgba(0, 0, 0, .8);
+  --grid-line: rgba(220, 40, 40, .09);
+  --blur: 14px;
+}
+
 /* =====================================================================
    FONDO
    ===================================================================== */
