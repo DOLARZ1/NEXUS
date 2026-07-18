@@ -1082,6 +1082,8 @@ canvas { display: block; width: 100%; }
         customFastH: 16,       // horas de ayuno (solo si plan === "custom")
         eatStart: "13:00",     // hora en que se abre la ventana de alimentación
         reminders: true,       // si ya se crearon recordatorios en el calendario del sistema
+        lastEatNotif: "",      // "YYYY-MM-DD_HH:MM" del último aviso de "se abrió tu ventana" ya enviado
+        lastFastNotif: "",     // "YYYY-MM-DD_HH:MM" (o "..._5:2") del último aviso de inicio de ayuno/restricción
         log: {}                // { "YYYY-MM-DD": { done:true/false, plan:"16:8", note:"" } }
       }
     };
@@ -2369,6 +2371,10 @@ canvas { display: block; width: 100%; }
     { id: "athlete_50", name: "Atleta de élite", icon: "🥇", desc: "Registra 50 entrenamientos", tier: "epic", test: (s) => s.workouts.length >= 50 },
     { id: "achiever", name: "Cumplidor", icon: "◉", desc: "Completa una meta al 100%", tier: "rare", test: (s) => s.goals.some((g) => g.current >= g.target && g.target > 0) },
     { id: "nutrition_30", name: "Nutrición constante", icon: "🍽️", desc: "Registra 30 alimentos", tier: "rare", test: (s) => ((s.nutrition && s.nutrition.log) || []).length >= 30 },
+    { id: "fasting_first", name: "Primer ayuno", icon: "🕐", desc: "Cumple tu primer día de ayuno", tier: "common", test: (s) => Object.values((s.fasting && s.fasting.log) || {}).some((e) => e.status === "done") },
+    { id: "fasting_streak_7", name: "Ayuno constante", icon: "⏳", desc: "Racha de 7 días de ayuno cumplidos", tier: "rare", test: (s) => window.NEXUS.Fasting && window.NEXUS.Fasting.complianceStreak() >= 7 },
+    { id: "fasting_streak_30", name: "Disciplina de acero", icon: "🛡️", desc: "Racha de 30 días de ayuno cumplidos", tier: "epic", test: (s) => window.NEXUS.Fasting && window.NEXUS.Fasting.complianceStreak() >= 30 },
+    { id: "fasting_total_50", name: "Ayunador experto", icon: "🏅", desc: "Cumple 50 días de ayuno en total", tier: "legendary", test: (s) => Object.values((s.fasting && s.fasting.log) || {}).filter((e) => e.status === "done").length >= 50 },
     { id: "diamond_rank", name: "Rango Diamante", icon: "💎", desc: "Alcanza el rango Diamante por racha", tier: "epic", test: (s) => Gami.medalForStreak(Gami.globalStreak()).cls === "diamond" },
     { id: "heroic_rank", name: "Rango Heroico", icon: "⚔️", desc: "Alcanza el rango Heroico por racha", tier: "legendary", test: (s) => Gami.medalForStreak(Gami.globalStreak()).cls === "heroic" },
     { id: "grandmaster_rank", name: "Gran Maestro", icon: "🎖️", desc: "Alcanza el rango máximo: Gran Maestro", tier: "legendary", test: (s) => Gami.medalForStreak(Gami.globalStreak()).id === "grandmaster" },
@@ -8373,6 +8379,7 @@ canvas { display: block; width: 100%; }
     bindPowerSaving();
     Gami.checkAchievements();
     if (N.Notify) N.Notify.init();
+    if (N.Fasting) N.Fasting.init();
     switchView("dashboard", true);
 
     // mostrar la app cuanto antes y ocultar el arranque

@@ -139,6 +139,95 @@
     };
   }
 
+  // ---------------- Cronómetro en vivo ----------------
+  // Muestra cuánto llevas en tu fase actual (ayunando o comiendo) y
+  // cuánto falta para que cambie, actualizándose cada segundo mientras
+  // la pestaña de Ayuno esté visible (se detiene si sales de la vista
+  // o la app pasa a segundo plano, para no gastar batería de más).
+  let tickHandle = null;
+  let liveEls = null; // {phase, elapsed, remaining, bar}
+
+  function msUntil(hhmm) {
+    const now = new Date();
+    const [hh, mm] = hhmm.split(":").map(Number);
+    const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
+    let diff = target - now;
+    if (diff < 0) diff += 24 * 3600 * 1000;
+    return diff;
+  }
+  function fmtHM(ms) {
+    const totalMin = Math.max(0, Math.floor(ms / 60000));
+    const h = Math.floor(totalMin / 60), m = totalMin % 60, s = Math.floor((ms % 60000) / 1000);
+    return h + "h " + String(m).padStart(2, "0") + "m " + String(s).padStart(2, "0") + "s";
+  }
+
+  function liveStatus() {
+    const w = windowInfo();
+    if (w.type === "5:2") return null; // el plan 5:2 no tiene ventana horaria fija
+    const untilFastStart = msUntil(w.fastStart);
+    const untilEatStart = msUntil(w.eatStart);
+    // si falta menos para que empiece el ayuno que para que empiece a comer, estamos en ventana de comer
+    const inEatWindow = untilFastStart < untilEatStart;
+    const totalMs = (inEatWindow ? w.eatH : w.fastH) * 3600 * 1000;
+    const remainingMs = inEatWindow ? untilFastStart : untilEatStart;
+    const elapsedMs = Math.max(0, totalMs - remainingMs);
+    const pct = Math.max(0, Math.min(100, (elapsedMs / totalMs) * 100));
+    return { inEatWindow, remainingMs, elapsedMs, pct };
+  }
+
+  function liveCard() {
+    const st = liveStatus();
+    if (!st) return null;
+    const phaseLbl = st.inEatWindow ? "🍽️ Estás en tu ventana para comer" : "🕐 Estás ayunando";
+    const nextLbl = st.inEatWindow ? "Tu ayuno empieza en" : "Tu ventana para comer empieza en";
+
+    const bar = el("div", { class: "xp-bar", style: "height:10px;margin-top:10px" }, [el("div", { class: "xp-fill", style: "width:" + st.pct.toFixed(1) + "%" })]);
+    const remainNode = el("div", { class: "kpi-val", style: "font-size:26px;color:var(--accent)", text: fmtHM(st.remainingMs) });
+    const card = el("div", { class: "card mb-16" }, [
+      el("div", { class: "card-head" }, [el("div", { class: "card-title" }, [el("span", { class: "dot" }), phaseLbl])]),
+      el("div", { class: "fs-12 text-faint", text: "Llevas " + fmtHM(st.elapsedMs) }),
+      bar,
+      el("div", { class: "mt-16" }, [
+        el("div", { class: "fs-12 text-faint", text: nextLbl }),
+        remainNode
+      ])
+    ]);
+    liveEls = { bar: bar.children[0], remain: remainNode, elapsed: card.children[1] };
+    return card;
+  }
+
+  function viewIsActive() {
+    const v = document.getElementById("view-fasting");
+    return !!(v && v.classList && v.classList.contains("is-active"));
+  }
+  function liveTick() {
+    if (!liveEls) return;
+    // si el usuario cambió de pestaña sin volver a renderizar Ayuno, o la
+    // app pasó a segundo plano, detenemos el cronómetro (ahorro de batería)
+    if (!viewIsActive() || (typeof document !== "undefined" && document.hidden)) { stopLiveTicking(); return; }
+    const st = liveStatus();
+    if (!st) return;
+    liveEls.bar.style.width = st.pct.toFixed(1) + "%";
+    liveEls.remain.textContent = fmtHM(st.remainingMs);
+    liveEls.elapsed.textContent = "Llevas " + fmtHM(st.elapsedMs);
+  }
+
+  function startLiveTicking() {
+    stopLiveTicking();
+    if (typeof document !== "undefined" && document.hidden) return;
+    tickHandle = setInterval(liveTick, 1000);
+  }
+  function stopLiveTicking() {
+    if (tickHandle) { clearInterval(tickHandle); tickHandle = null; }
+    liveEls = null;
+  }
+  if (typeof document !== "undefined" && document.addEventListener) {
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) { if (tickHandle) { clearInterval(tickHandle); tickHandle = null; } }
+      else if (viewIsActive() && liveEls) { liveTick(); startLiveTicking(); }
+    });
+  }
+
   // ---------------- Activar / desactivar ----------------
   function toggleEnabled() {
     fasting().enabled = !fasting().enabled;
@@ -435,6 +524,7 @@
     ]));
 
     if (!st.enabled) {
+      stopLiveTicking();
       container.appendChild(el("div", { class: "card mb-16" }, [
         el("div", { class: "empty" }, [
           el("span", { class: "big", text: "🕐" }),
@@ -475,6 +565,11 @@
     ]);
     container.appendChild(planCard);
 
+    // ---- Cronómetro en vivo (solo si el plan tiene horario fijo) ----
+    const lc = liveCard();
+    if (lc) { container.appendChild(lc); startLiveTicking(); }
+    else stopLiveTicking();
+
     // ---- Marcar hoy ----
     const todEntry = entryOn(today());
     const todRelevant = isRelevantDay(today());
@@ -510,5 +605,51 @@
     ])]);
   }
 
-  N.Fasting = { render, complianceStreak };
+  // ---------------- Notificación automática al abrir/cerrar tu ventana ----------------
+  // Revisa cada minuto si es exactamente la hora de empezar a comer o de
+  // empezar a ayunar (o el día de restricción del plan 5:2), y avisa una
+  // sola vez por ocurrencia usando el sistema de notificaciones/toasts
+  // que ya existe en la app (respeta el interruptor general de Ajustes).
+  function checkAutoNotify() {
+    const st = fasting();
+    if (!st.enabled || !N.Notify) return;
+    const now = new Date();
+    const hhmm = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
+    const todayKey = today();
+
+    if (st.plan === "5:2") {
+      if (isRelevantDay(todayKey) && hhmm === "08:00") {
+        const stamp = todayKey + "_5:2";
+        if (st.lastFastNotif !== stamp) {
+          st.lastFastNotif = stamp; Store.commit(true);
+          N.Notify.send("🕐 Hoy es día de ayuno 5:2", "Restringe tu ingesta a ~500-600 kcal.", { emoji: "🕐", tag: "octanaje-fasting" });
+        }
+      }
+      return;
+    }
+    const w = windowInfo();
+    if (hhmm === w.eatStart) {
+      const stamp = todayKey + "_" + w.eatStart;
+      if (st.lastEatNotif !== stamp) {
+        st.lastEatNotif = stamp; Store.commit(true);
+        N.Notify.send("🍽️ Se abrió tu ventana para comer", "Plan " + planInfo(st.plan).label + " · dura " + w.eatH + " horas.", { emoji: "🍽️", tag: "octanaje-fasting" });
+      }
+    }
+    if (hhmm === w.fastStart) {
+      const stamp = todayKey + "_" + w.fastStart;
+      if (st.lastFastNotif !== stamp) {
+        st.lastFastNotif = stamp; Store.commit(true);
+        N.Notify.send("🕐 Empezó tu ayuno", "Plan " + planInfo(st.plan).label + " · dura " + w.fastH + " horas.", { emoji: "🕐", tag: "octanaje-fasting" });
+      }
+    }
+  }
+
+  let autoNotifyHandle = null;
+  function init() {
+    setTimeout(checkAutoNotify, 5000);
+    if (autoNotifyHandle) clearInterval(autoNotifyHandle);
+    autoNotifyHandle = setInterval(checkAutoNotify, 30 * 1000);
+  }
+
+  N.Fasting = { render, complianceStreak, init };
 })();

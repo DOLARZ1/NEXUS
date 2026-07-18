@@ -119,6 +119,7 @@
     bindPowerSaving();
     Gami.checkAchievements();
     if (N.Notify) N.Notify.init();
+    if (N.Fasting) N.Fasting.init();
     switchView("dashboard", true);
 
     // mostrar la app cuanto antes y ocultar el arranque

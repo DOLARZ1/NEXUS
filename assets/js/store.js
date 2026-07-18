@@ -74,6 +74,8 @@
         customFastH: 16,       // horas de ayuno (solo si plan === "custom")
         eatStart: "13:00",     // hora en que se abre la ventana de alimentación
         reminders: true,       // si ya se crearon recordatorios en el calendario del sistema
+        lastEatNotif: "",      // "YYYY-MM-DD_HH:MM" del último aviso de "se abrió tu ventana" ya enviado
+        lastFastNotif: "",     // "YYYY-MM-DD_HH:MM" (o "..._5:2") del último aviso de inicio de ayuno/restricción
         log: {}                // { "YYYY-MM-DD": { done:true/false, plan:"16:8", note:"" } }
       }
     };
