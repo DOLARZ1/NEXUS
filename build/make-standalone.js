@@ -12,7 +12,7 @@ const jsFiles = [
   "assets/js/modules/goals.js", "assets/js/modules/focus.js", "assets/js/modules/nutrition.js",
   "assets/js/modules/health.js", "assets/js/modules/sleep.js", "assets/js/modules/fasting.js",
   "assets/js/notifications.js",
-  "assets/js/calexport.js", "assets/js/settings.js", "assets/js/app.js"
+  "assets/js/calexport.js", "assets/js/settings.js", "assets/js/profile.js", "assets/js/app.js"
 ];
 const js = jsFiles.map((f) => "/* ===== " + f + " ===== */\n" + fs.readFileSync(path.join(root, f), "utf8")).join("\n\n");
 

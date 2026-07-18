@@ -37,7 +37,7 @@
   // ---------- estado por defecto ----------
   function defaultState() {
     return {
-      profile: { xp: 0, level: 1, createdAt: DateUtil.todayKey() },
+      profile: { xp: 0, level: 1, createdAt: DateUtil.todayKey(), avatar: "", nickname: "" }, // avatar: dataURL de la foto (redimensionada), nickname: texto corto
       settings: { theme: "dark", sound: true, notifications: false, currency: "MXN", locale: "es-MX" },
       notifyMeta: { lastReminder: "" },   // "YYYY-MM-DD" del último recordatorio enviado
       reminders: [],           // recordatorios personalizados: {id,title,message,time,days,sound,enabled,lastFired}

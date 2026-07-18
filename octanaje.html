@@ -251,6 +251,34 @@ html.app-hidden * { animation-play-state: paused !important; }
   border: 1px solid var(--border); box-shadow: var(--shadow);
 }
 .brand { display: flex; align-items: center; gap: 10px; }
+
+/* ---------- Foto de perfil + nickname (junto al logo) ---------- */
+.user-badge {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 2px 4px 0; border-radius: 12px; transition: background .2s;
+}
+.user-badge:hover { background: var(--panel-2); }
+.user-badge-pic {
+  width: 36px; height: 36px; border-radius: 50%; overflow: hidden;
+  display: grid; place-items: center; background: var(--panel-2);
+  border: 2px solid var(--accent); box-shadow: var(--glow);
+}
+.user-badge-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.user-badge-pic .ph { font-size: 16px; line-height: 1; }
+.user-badge-name {
+  font-size: 9px; font-weight: 700; letter-spacing: .4px; color: var(--txt-dim);
+  max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+@media (max-width: 560px) { .user-badge-name { max-width: 44px; } }
+
+/* Editor de foto + nickname dentro del modal */
+.avatar-editor { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.avatar-editor-pic {
+  width: 110px; height: 110px; border-radius: 50%; overflow: hidden;
+  display: grid; place-items: center; background: var(--panel-2);
+  border: 3px solid var(--accent); box-shadow: var(--glow); font-size: 40px;
+}
+.avatar-editor-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .brand-hex {
   display: inline-grid; place-items: center; color: #ffd700;
   filter: drop-shadow(0 0 6px #ff1a1a) drop-shadow(0 0 16px #ffd700);
@@ -921,6 +949,13 @@ canvas { display: block; width: 100%; }
     <!-- ====================== TOPBAR ====================== -->
     <header class="topbar">
       <div class="brand">
+        <button class="user-badge" id="user-badge" type="button" title="Tu foto y nickname">
+          <span class="user-badge-pic">
+            <img id="user-avatar-img" alt="" hidden />
+            <span class="ph" id="user-avatar-placeholder">👤</span>
+          </span>
+          <span class="user-badge-name" id="user-badge-name">Perfil</span>
+        </button>
         <span class="brand-hex">
           <svg viewBox="0 0 100 100" width="34" height="34"><g fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"><polygon points="50,8 90,76 10,76"/><polygon points="50,34 68,64 32,64"/><line x1="50" y1="8" x2="50" y2="34"/><line x1="90" y1="76" x2="68" y2="64"/><line x1="10" y1="76" x2="32" y2="64"/></g></svg>
         </span>
@@ -1045,7 +1080,7 @@ canvas { display: block; width: 100%; }
   // ---------- estado por defecto ----------
   function defaultState() {
     return {
-      profile: { xp: 0, level: 1, createdAt: DateUtil.todayKey() },
+      profile: { xp: 0, level: 1, createdAt: DateUtil.todayKey(), avatar: "", nickname: "" }, // avatar: dataURL de la foto (redimensionada), nickname: texto corto
       settings: { theme: "dark", sound: true, notifications: false, currency: "MXN", locale: "es-MX" },
       notifyMeta: { lastReminder: "" },   // "YYYY-MM-DD" del último recordatorio enviado
       reminders: [],           // recordatorios personalizados: {id,title,message,time,days,sound,enabled,lastFired}
@@ -8920,6 +8955,134 @@ canvas { display: block; width: 100%; }
   }
 
   N.Settings = { open, exportData, importData };
+})();
+
+
+/* ===== assets/js/profile.js ===== */
+/* =====================================================================
+   OCTANAJE · Profile — foto de perfil (desde el celular) + nickname
+   Se muestran junto al logo en la cabecera. La foto se redimensiona a
+   un cuadrado pequeño antes de guardarla (localStorage tiene límite de
+   espacio, y una foto de cámara sin comprimir podría ser varios MB).
+   ===================================================================== */
+(function () {
+  "use strict";
+  const N = window.NEXUS;
+  const { Store, UI, Audio } = N;
+  const { el, toast } = UI;
+
+  const MAX_SIZE = 240;      // px — suficiente para un avatar circular nítido
+  const MAX_NICK = 18;       // caracteres máximos del nickname
+
+  function profile() {
+    const p = Store.get().profile;
+    if (p.avatar == null) p.avatar = "";
+    if (p.nickname == null) p.nickname = "";
+    return p;
+  }
+
+  // ---------- redimensiona la imagen elegida a un cuadrado pequeño ----------
+  function fileToResizedDataURL(file) {
+    return new Promise((resolve, reject) => {
+      if (!file || !/^image\//.test(file.type)) { reject(new Error("Elige un archivo de imagen (jpg, png…)")); return; }
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("No se pudo leer la imagen"));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("El archivo no es una imagen válida"));
+        img.onload = () => {
+          try {
+            // recorte central cuadrado (evita deformar fotos rectangulares)
+            const side = Math.min(img.width, img.height);
+            const sx = (img.width - side) / 2, sy = (img.height - side) / 2;
+            const canvas = document.createElement("canvas");
+            canvas.width = MAX_SIZE; canvas.height = MAX_SIZE;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, sx, sy, side, side, 0, 0, MAX_SIZE, MAX_SIZE);
+            resolve(canvas.toDataURL("image/jpeg", 0.85));
+          } catch (e) { reject(e); }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ---------- refresca el avatar/nickname mostrados en la cabecera ----------
+  function refresh() {
+    const p = profile();
+    const img = document.getElementById("user-avatar-img");
+    const ph = document.getElementById("user-avatar-placeholder");
+    const nameEl = document.getElementById("user-badge-name");
+    if (!img || !ph || !nameEl) return; // entorno sin esta UI (p.ej. pruebas)
+    if (p.avatar) { img.src = p.avatar; img.hidden = false; ph.hidden = true; }
+    else { img.hidden = true; ph.hidden = false; }
+    nameEl.textContent = p.nickname || "Perfil";
+  }
+
+  // ---------- editor: foto + nickname ----------
+  function openEditor() {
+    const p = profile();
+    let pendingAvatar = p.avatar || "";
+
+    const pic = el("div", { class: "avatar-editor-pic" }, [
+      pendingAvatar ? el("img", { src: pendingAvatar, alt: "" }) : el("span", { text: "👤" })
+    ]);
+
+    const fileInput = el("input", { type: "file", accept: "image/*", style: "display:none" });
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      try {
+        const dataUrl = await fileToResizedDataURL(file);
+        pendingAvatar = dataUrl;
+        pic.innerHTML = "";
+        pic.appendChild(el("img", { src: dataUrl, alt: "" }));
+        Audio.play("tap");
+      } catch (e) {
+        Audio.play("error");
+        toast({ icon: "⚠️", title: "No se pudo usar esa imagen", msg: String(e.message || e) });
+      }
+    });
+
+    const nickI = el("input", { class: "input", type: "text", maxlength: MAX_NICK, placeholder: "Ej. Alex, El Tigre, Fit90…", value: p.nickname || "" });
+
+    const body = el("div", { class: "avatar-editor" }, [
+      pic,
+      el("div", { class: "row" }, [
+        el("button", { type: "button", class: "btn primary", html: "📷 Elegir foto", onclick: () => fileInput.click() }),
+        pendingAvatar ? el("button", { type: "button", class: "btn ghost", html: "🗑️ Quitar foto", onclick: () => {
+          pendingAvatar = ""; pic.innerHTML = ""; pic.appendChild(el("span", { text: "👤" }));
+        } }) : null
+      ]),
+      fileInput,
+      el("div", { class: "field", style: "width:100%;margin-top:6px" }, [
+        el("label", { text: "Nickname (se muestra debajo de tu foto)" }),
+        nickI
+      ]),
+      el("button", { class: "btn primary block mt-8", html: "💾 Guardar", onclick: () => {
+        p.avatar = pendingAvatar;
+        p.nickname = (nickI.value || "").trim().slice(0, MAX_NICK);
+        Store.commit();
+        refresh();
+        Audio.play("levelup");
+        toast({ icon: "✅", title: "Perfil actualizado", msg: p.nickname ? "Hola, " + p.nickname + " 👋" : "Guardado" });
+        UI.closeModal();
+      } })
+    ]);
+    UI.openModal("👤 Tu foto y nickname", body);
+  }
+
+  function bind() {
+    const btn = document.getElementById("user-badge");
+    if (btn) btn.addEventListener("click", () => { Audio.play("tap"); openEditor(); });
+    refresh();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bind);
+  else bind();
+
+  N.Profile = { refresh, openEditor };
 })();
 
 
